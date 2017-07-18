@@ -1,0 +1,33 @@
+{
+    "name":"NMS Test: Repeat Heartbeat", 	
+    "questions":
+	[
+		{
+			"question" : "OK?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"repeatsAllowed":"True",
+	"heartbeatRequest": 
+	[ 
+		{ 
+			"cbsdId": "abc456cbsdSerialNumbersn1",
+			"grantId": "8385094448610395450",
+			"grantRenew": false,
+			"operationState": "AUTHORIZED"
+		} 
+	],
+	"response":
+	{ 
+		"heartbeatResponse":
+		[ 
+			{ 
+				"cbsdId":"abc456cbsdSerialNumbersn1",
+				"grantId":"8385094448610395450",
+				"heartbeatInterval":60,
+				"response": {"responseCode": 0, "responseMessage": "all ok"}
+			}
+		]
+	}     
+}

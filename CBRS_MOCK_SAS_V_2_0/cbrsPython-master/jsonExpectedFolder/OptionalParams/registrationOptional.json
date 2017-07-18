@@ -1,0 +1,26 @@
+{
+    "name":"Registration_1_2_3_4",  
+			"registrationOptionalParams":
+        	[
+            	{
+				  "airInterface": { "radioTechnology": "lte", "supportedSpec": "lte-rel10" },
+				  "cbsdCategory": {"$or":["Addd","Bddd"]},
+				  "measCapability":  {"$or":["EUTRA_CARRIER_RSSI_NON_TX","EUTRA_CARRIER_RSSI_ALWAYS"]},
+				  "radioTechnology": "E_UTRA",
+				  "supportedSpec": "FFS",
+				  "latitude": "${range:-90.00000To90.00000}",
+				  "longitude": "${range:-180.000000To180.000000}",
+				  "heightType": {"$or":["AGL","AMSL"]},
+				  "horizontalAccuracy":"${range:0To50}",
+				  "verticalAccuracy":"${range:0To3}",
+				  "indoorDeployment":{"$or":["True","False"]},
+				  "antennaAzimuth":"${range:0To360}",
+				  "antennaDowntilt":"${range:-90To90}",
+				  "antennaGain":"${range:-127To128}",
+				  "eirpCapability":"${range:-127To47}",
+				  "antennaBeamwidth":"${range:0To360}",
+				  "antennaModel":"${maximumLength:128}"
+				}
+			]	
+}
+

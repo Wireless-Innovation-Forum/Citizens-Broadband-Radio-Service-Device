@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cbrsParams>
+	<fccId>1234567890123456789</fccId>
+	<userId>user123</userId>
+	<grantExpireTime>2017-07-28T23:20:08Z</grantExpireTime>
+	<secondsToAddForExpireTime>3777</secondsToAddForExpireTime>
+</cbrsParams>

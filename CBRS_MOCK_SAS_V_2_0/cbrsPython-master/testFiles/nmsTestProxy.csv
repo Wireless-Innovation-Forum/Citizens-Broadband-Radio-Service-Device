@@ -1,0 +1,7 @@
+jsonFileName,jsonFileName
+nmstest_registration1.json,nmstest_registration2.json
+nmstest_spectrumInquiry1.json,nmstest_spectrumInquiry2.json
+nmstest_grant1.json,nmstest_grant2.json
+nmstest_initHeartbeat1.json,nmstest_initHeartbeat2.json
+nmstest_reptHeartbeat1.json,nmstest_reptHeartbeat2.json
+nmstest_deregistration1.json,nmstest_deregistration2.json
