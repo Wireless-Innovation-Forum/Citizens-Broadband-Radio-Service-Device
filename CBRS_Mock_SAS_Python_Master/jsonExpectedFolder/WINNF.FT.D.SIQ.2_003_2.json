@@ -1,0 +1,149 @@
+{
+    "name":"WINNF.FT.C.SIQ.1_002.json, July 13, 2017, Pawan jangid", 	
+    "questions":
+	[
+		{
+			"question" : "Was the operation parameters sent by CBSD contain correct values for maxEIRP and operationFrequencyRange?",
+			"answers" : ["yes", "no"], 
+			"expectedAnswer" : "yes"
+		},
+				{
+			"question" : "Was maxEIRP according to CBSD category and equal to/less than the value defined by FCC Part96?",
+			"answers" : ["yes", "no"], 
+			"expectedAnswer" : "yes"
+		},
+		{
+			"question" : "Was measReport object included in the spectrumInquiry request message by CBSD?",
+			"answers" : ["yes", "no"], 
+			"expectedAnswer" : "yes"
+		},
+		{
+			"question" : "Is response code received equal to 0?",
+			"answers" : ["yes", "no"], 
+			"expectedAnswer" : "yes"
+		},
+		{
+			"question" : "Is garnt response included a valid grant id",
+			"answers" : ["yes", "no"], 
+			"expectedAnswer" : "yes"
+		},
+				{
+			"question" : "Is CBSD moved to granted state?",
+			"answers" : ["yes", "no"], 
+			"expectedAnswer" : "yes"
+		},
+		{
+			"question" : "CBSD is not transmitting unless an authorized grant is available and first heartbeat procedure was successful?",
+			"answers" : ["yes", "no"], 
+			"expectedAnswer" : "yes"
+		}
+	],
+	"grantRequest":
+	[ 
+		{ 
+			"cbsdId": "ruckuscbsdSerialNumber401629000041",
+			"operationParam": 
+			{ 
+				"maxEirp": "${range:-137To37}", 
+				"operationFrequencyRange": 
+				{ 
+                    "highFrequency": "${range:3550000000To3700000000}", 
+                    "lowFrequency": "${range:3550000000To3700000000}"
+				}
+			},
+					"measReport": {
+                    "rcvdPowerMeasReports": [
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3550000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3560000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3570000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3580000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3590000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3600000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3610000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3620000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3630000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3640000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3650000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3660000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3670000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3680000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measRcvdPower": "${range:-100To-25}", 
+                        "measFrequency": 3690000000
+                    }
+                ]
+            }			
+		} 
+	], 
+	"response":
+	{ 
+		"grantResponse":
+		[ 
+			{ 
+				"cbsdId":"ruckuscbsdSerialNumber401629000041",
+				"grantId":"8385094448610395450",
+				"heartbeatInterval":60,
+				"response":{ "responseCode":0 },
+				"measReportConfig":["RECEIVED_POWER_WITHOUT_GRANT","RECEIVED_POWER_WITH_GRANT"],
+				"channelType":"GAA"
+			}
+		]
+	}
+}

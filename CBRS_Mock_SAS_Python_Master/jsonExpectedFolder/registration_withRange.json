@@ -1,0 +1,53 @@
+{
+    "name":"NMS Test: Registration",  
+    "questions":
+	[
+		{
+			"question" : "OK?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"registrationRequest":
+        	[
+            	{
+				  "userId": "Aricent241",
+				  "fccId": "S9GQ710US01IIIIIIII",
+				  "cbsdSerialNumber":"401629000040",
+				  "cbsdInfo": {
+    "firmwareVersion": "02.00.48.00.378faa3eb61b",
+    "hardwareVersion": "01",
+    "model": "SKU B42: P01-Q710-US01",
+    "softwareVersion": "02.00.48.00.378faa3eb61b",
+    "vendor": "Ruckus"
+         },
+				  "cbsdCategory":{"$or":["A","B"]},
+				  "callSign":"WAA234",
+				  "measCapability": [ "EUTRA_CARRIER_RSSI_NON_TX","EUTRA_CARRIER_RSSI_ALWAYS" ],
+				  "airInterface": { "radioTechnology": "E_UTRA" },
+				  "installationParam": { 
+				  "antennaGain": "${range:0To3}",
+				  "eirpCapability": "${range:0To30}",
+				  "height": "${range:0To30}",
+				  "heightType": "AGL",
+				  "horizontalAccuracy": "${range:0To50}",
+				  "indoorDeployment":true,
+				  "latitude": "${range:-90.000000000000000To100.000000000000000}",
+				  "longitude": "${range:-180.000000000000000To180.000000000000000}",
+				  "verticalAccuracy": "${range:0To3}" 
+				  }
+				  
+				}
+			],
+			"response":{
+			"registrationResponse" : 
+				[
+					{
+					  "cbsdId": "ruckus1cbsdSerialNumber401629000040",
+					  "response":{"responseCode":0,"responseMessage":null,"responseData":null},
+					  "measReportConfig":["EUTRA_CARRIER_RSSI_NON_TX","EUTRA_CARRIER_RSSI_ALWAYS"]
+			
+					}
+				]  
+	}	
+}

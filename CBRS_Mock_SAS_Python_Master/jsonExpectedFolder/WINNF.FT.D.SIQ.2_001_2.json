@@ -1,0 +1,31 @@
+{
+    "name":"WINNF.FT.C.SIQ.1_001.json, June 11, 2017, Pawan jangid",  
+    "questions":
+	[
+		
+	],
+	"registrationRequest":
+        	[
+            	{
+				  "userId": "${maximumLength:128}",
+				  "fccId": "${maximumLength:128}",
+				  "cbsdSerialNumber":"401629000041",
+				  "cbsdCategory":{"$or":["A","B"]},
+				  "measCapability": {"$or":[["RECEIVED_POWER_WITHOUT_GRANT"],["RECEIVED_POWER_WITH_GRANT"],["RECEIVED_POWER_WITHOUT_GRANT","RECEIVED_POWER_WITH_GRANT"]]},
+				  "airInterface": { "radioTechnology": "${maximumLength:128}" },
+				  "installationParam": { "antennaGain": "${range:-127To128}","eirpCapability": "${range:-127To47}","height": "${range:0To100}","heightType": {"$or":["AGL","AMSL"]},"indoorDeployment": {"$or":["True","False"]},"latitude": "${range:-90.000000000To90.000000000}","longitude": "${range:-180.00000000To180.00000000}"}
+				  
+				}
+			],
+			"response":{
+			"registrationResponse" : 
+				[
+					{
+					  "cbsdId": "ruckuscbsdSerialNumber401629000041",
+					  "response":{"responseCode":0,"responseMessage":null,"responseData":null},
+					  "measReportConfig":["RECEIVED_POWER_WITHOUT_GRANT","RECEIVED_POWER_WITH_GRANT"]
+			
+					}
+				]  
+	}	
+}

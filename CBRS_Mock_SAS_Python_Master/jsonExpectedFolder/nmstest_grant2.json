@@ -1,0 +1,120 @@
+{
+    "name":"NMS Test: Grant", 	
+    "questions":
+	[
+		{
+			"question" : "OK?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"grantRequest":
+	[ 
+		{ 
+			"cbsdId": "ruckus1cbsdSerialNumber401629000041",
+			"operationParam": 
+			{ 
+				"maxEirp": "${range:0To30.0000000000000000}", 
+				"operationFrequencyRange": 
+				{ 
+                    "highFrequency": "${range:3550000000To3700000000}", 
+                    "lowFrequency": "${range:3550000000To3700000000}"
+				}
+			},
+					"measReport": {
+                    "rcvdPowerMeasReports": [
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3550000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3560000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3570000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3580000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3590000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3600000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3610000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3620000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3630000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3640000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3650000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3660000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3670000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3680000000
+                    }, 
+                    {
+                        "measBandwidth": 10000000, 
+                        "measCarrierRssi": "${range:-100.000000To30.000000}", 
+                        "measFrequency": 3690000000
+                    }
+                ]
+            }			
+		} 
+	], 
+	"response":
+	{ 
+		"grantResponse":
+		[ 
+			{ 
+				"cbsdId":"ruckus1cbsdSerialNumber401629000040",
+				"grantId":"1234094448610312355",
+				"heartbeatInterval":60,
+				"response":{ "responseCode":0 },
+				"grantExpireTime":"2017-07-28T23:20:08Z",
+				"measReportConfig":["EUTRA_CARRIER_RSSI_NON_TX","EUTRA_CARRIER_RSSI_ALWAYS"],
+				"channelType":"GAA"
+			}
+		]
+	}
+}

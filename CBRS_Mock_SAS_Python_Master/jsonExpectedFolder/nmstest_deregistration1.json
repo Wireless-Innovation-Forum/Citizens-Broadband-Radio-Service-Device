@@ -1,0 +1,27 @@
+{
+    "name":"NMS Test: Deregistration",  
+    "questions":
+	[
+		{
+			"question" : "OK?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"deregistrationRequest":
+	[
+		{
+			"cbsdId": "ruckus1cbsdSerialNumber401629000040"
+		}
+	],
+	"response":
+	{	
+		"deregistrationResponse":
+		[
+			{
+				"cbsdId": "ruckus1cbsdSerialNumber401629000040",
+				"response": {"responseCode": 0}
+			}
+		]
+	}	
+}

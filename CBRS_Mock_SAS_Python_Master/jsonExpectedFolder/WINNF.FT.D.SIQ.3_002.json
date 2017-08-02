@@ -1,0 +1,59 @@
+{
+    "name":"WINNF.FT.C.SIQ.1_002.json, June 11, 2017, Pawan jangid",  
+    "questions":
+	[
+		{
+			"question" : "Was measReport object included in the spectrumInquiry request message by CBSD?",
+			"answers" : ["yes", "no"], 
+			"expectedAnswer" : "yes"
+		},
+				{
+			"question" : "response code received is 0?",
+			"answers" : ["yes", "no"], 
+			"expectedAnswer" : "yes"
+		},
+		{
+			"question" : "CBSD is not transmitting unless an authorized grant is available?",
+			"answers" : ["yes", "no"], 
+			"expectedAnswer" : "yes"
+		}
+	],
+	"repeatsAllowed":"True",
+    "spectrumInquiryRequest": 
+				[
+				{ 
+					"cbsdId": "ruckus1cbsdSerialNumber401629000040",
+					"inquiredSpectrum": 
+						[ 
+							{ 
+							"highFrequency": "${range:3550000000To3700000000}",
+							"lowFrequency": "${range:3550000000To3700000000}" 
+							} 
+						],
+
+				}
+				 
+				],
+   "response":
+   {
+		"spectrumInquiryResponse":
+		[ 
+			{ 
+				"cbsdId":"ruckus1cbsdSerialNumber401629000040",
+				"availableChannel":
+				[ 
+					{ 
+					   "frequencyRange":
+					   { 
+							"lowFrequency":3550000000,
+							"highFrequency":3700000000
+					   },
+					   "channelType":"GAA",
+					   "ruleApplied":"FCC Part 96"
+					}
+				],
+				"response":{ "responseCode":0,"responseMessage":null }
+			}	
+		]
+	}
+}
