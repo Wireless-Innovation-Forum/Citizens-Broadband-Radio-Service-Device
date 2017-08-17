@@ -4,12 +4,10 @@
 	[
 		
 	],
+	"xmlFilelLinked": "cbsd401629000040",
 	"registrationRequest":
         	[
             	{
-				  "userId": "${maximumLength:128}",
-				  "fccId": "${maximumLength:128}",
-				  "cbsdSerialNumber":"401629000040",
 				  "cbsdCategory":{"$or":["A","B"]},                         
 				  "measCapability": {"$or":[["RECEIVED_POWER_WITHOUT_GRANT","RECEIVED_POWER_WITH_GRANT"],["RECEIVED_POWER_WITHOUT_GRANT","RECEIVED_POWER_WITH_GRANT"]]},
 				  "airInterface": { "radioTechnology": "${maximumLength:128}" },

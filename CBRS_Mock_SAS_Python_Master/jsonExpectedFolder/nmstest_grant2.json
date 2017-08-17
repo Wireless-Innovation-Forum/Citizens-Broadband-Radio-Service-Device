@@ -11,7 +11,6 @@
 	"grantRequest":
 	[ 
 		{ 
-			"cbsdId": "ruckus1cbsdSerialNumber401629000041",
 			"operationParam": 
 			{ 
 				"maxEirp": "${range:0To30.0000000000000000}", 
@@ -107,8 +106,6 @@
 		"grantResponse":
 		[ 
 			{ 
-				"cbsdId":"ruckus1cbsdSerialNumber401629000040",
-				"grantId":"1234094448610312355",
 				"heartbeatInterval":60,
 				"response":{ "responseCode":0 },
 				"grantExpireTime":"2017-07-28T23:20:08Z",

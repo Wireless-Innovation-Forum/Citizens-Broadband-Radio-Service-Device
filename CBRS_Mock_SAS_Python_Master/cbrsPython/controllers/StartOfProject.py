@@ -48,10 +48,9 @@ def run_New_Test(dirPath, confFile, loggerHandler):
     loggerHandler.start_Test(consts.CLI_SESSION)
     loggerHandler.print_To_Terminal(consts.SET_CSV_FILE_MESSAGE)
     inputAnswer = get_input()
-    
     if(inputAnswer!="quit"):
         try: ### initialize the test definition from the csv file 
-            csvFileParser = CsvFileParser(str(dirPath) + confFile.getElementsByTagName("testRepoPath")[0].firstChild.data + inputAnswer,confFile)
+            csvFileParser = CsvFileParser(str(dirPath) + confFile.getElementsByTagName("testRepoPath")[0].firstChild.data + inputAnswer,confFile,dirPath)
             testDefinition = TestDefinition(csvFileParser.initializeTestDefinition(),csvFileParser.find_Number_Of_Cols())
         except IOError as e:  ### in case there is file not found error try to enter new csv file name
             loggerHandler.print_To_Terminal(e.message)
@@ -82,8 +81,10 @@ def run_New_Test(dirPath, confFile, loggerHandler):
             cliHandler.stop_Thread_Due_To_Exception()
     if(inputAnswer=="quit"):
         loggerHandler.print_To_Terminal(consts.QUIT_PROGRAM_MESSAGE)
+        
 
 def create_Log_Folder():
+    
     '''
     the method create logs folder with three folder inside if the folder not created already
     '''

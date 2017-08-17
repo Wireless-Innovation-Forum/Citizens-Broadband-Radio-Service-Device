@@ -1,0 +1,32 @@
+{
+    "name":"NMS Test: Initial Heartbeat", 	
+    "questions":
+	[
+		{
+			"question" : "CBSD 1 continues to transmit?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"xmlFilelLinked": "cbsdc1",
+	"heartbeatRequest": 
+	[ 
+		{ 
+			"operationState": "AUTHORIZED",
+			"grantRenew": {"$or":["true","false"]} 
+			            
+            
+		} 
+	],
+	"response":
+	{ 
+		"heartbeatResponse":
+		[ 
+			{ 
+				"heartbeatInterval":120,
+				"response": {"responseCode": 0}
+				
+			}
+		]
+	}     
+}

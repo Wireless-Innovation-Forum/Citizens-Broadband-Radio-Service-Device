@@ -15,6 +15,7 @@ from model import flaskServer
 from ENodeBController import ENodeBController
 import ssl
 from controllers.CLIUtils.enums import TestStatus
+from flask import Flask,request,jsonify,g,redirect,url_for,abort
 import os
 
 class CLIHandler(Thread):
@@ -87,7 +88,7 @@ class CLIHandler(Thread):
         inputAnsweres=self.get_input()
         if (inputAnsweres !="quit"):
             try:
-                csvFileParser = CsvFileParser(str(self.dirPath) + self.confFile.getElementsByTagName("testRepoPath")[0].firstChild.data + inputAnsweres,self.confFile)
+                csvFileParser = CsvFileParser(str(self.dirPath) + self.confFile.getElementsByTagName("testRepoPath")[0].firstChild.data + inputAnsweres,self.confFile,self.dirPath)
                 self.testDefinition = TestDefinition(csvFileParser.initializeTestDefinition(),csvFileParser.find_Number_Of_Cols())
             except IOError as e:
                 self.loggerHandler.print_To_Terminal(e.message)
@@ -118,8 +119,7 @@ class CLIHandler(Thread):
             cliHandler.stop_Thread_Due_To_Exception()
         if(inputAnsweres=="quit"):
             self.loggerHandler.print_To_Terminal(consts.GOODBYE_MESSAGE)
-            del self.server
-            return None
+        
         
     def get_Element_From_Config_File(self,elementName):
         return self.confFile.getElementsByTagName(elementName)[0].firstChild.data

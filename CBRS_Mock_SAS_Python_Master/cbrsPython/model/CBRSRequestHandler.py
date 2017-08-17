@@ -9,6 +9,7 @@ import datetime as DT
 from model.Utils.Assert import Assertion
 from xml.dom import minidom
 from random import *
+import os
 
 class CBRSRequestHandler(object):
     '''
@@ -38,25 +39,40 @@ class CBRSRequestHandler(object):
         self.measReportCounter = 0
         self.cbsdId = None
         self.grantId = 0
+        self.expectedRelBeforeDeragistration = False
         self.set_Current_Json_Steps(testDefinition, EnviormentConfFile, dirPath)
         
     
     def set_Current_Json_Steps(self,testDefinition,confFile,dirPath):
         cbsdFoundInJsons = False
         for jsonCol in testDefinition.jsonNamesOfSteps:
-            if jsonComparer.get_Node_Of_Json_Parsed(jsonCol[0],"registrationRequest",confFile,dirPath)[0]["cbsdSerialNumber"]== self.cbsdSerialNumber:
+            xmlFileLinked = jsonComparer.get_Node_Of_Json_Parsed(jsonCol[0],"xmlFilelLinked",confFile,dirPath)
+            xmlPath = str(self.dirPath) +"\\cbrsPython\\model\\CBRSConf\\"+ xmlFileLinked+".xml"
+            try:
+                os.path.exists(xmlPath)
+            except Exception:
+                raise IOError("ERROR - missing cbrs conf file of the CBSD : " + self.cbsdSerialNumber)
+            self.cbrsConfFile = minidom.parse(xmlPath)
+            if self.cbrsConfFile.getElementsByTagName("cbsdSerialNumber")[0].firstChild.data  == self.cbsdSerialNumber :
+            #if jsonComparer.get_Node_Of_Json_Parsed(jsonCol[0],"xmlFilelLinked",confFile,dirPath).replace("cbsd","")== self.cbsdSerialNumber:
                 cbsdFoundInJsons = True
                 self.jsonSteps = jsonCol
-                try:
-                    self.cbrsConfFile = minidom.parse(str(self.dirPath) +"\\cbrsPython\\model\\CBRSConf\\"+ self.cbsdSerialNumber+".xml")
-                except:
-                    raise IOError("ERROR - missing cbrs conf file of the CBSD : " + self.cbsdSerialNumber)
-                self.assertion = Assertion(self.enviormentConfFile,dirPath,self.loggerHandler,self.cbrsConfFile)
+                self.assertion = Assertion(self.enviormentConfFile,dirPath,self.loggerHandler,self.cbrsConfFile)              
         if(not cbsdFoundInJsons):
             raise IOError("ERROR - missing registration json in one of the csv columns with the cbsd serial number " + self.cbsdSerialNumber)
+        try:
+            grantExpireTime = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForGrantExpireTime")[0].firstChild.data)
+            transmitTime = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForTransmitExpireTime")[0].firstChild.data)
+        except Exception:
+            raise IOError("ERROR - for the cbrs with the serial number : " + self.cbsdSerialNumber + " the conf file" +
+                          " must include the parameters : secondsToAddForGrantExpireTime,secondsToAddForTransmitExpireTime")
+        if(grantExpireTime<transmitTime):
+            raise IOError("ERROR - for the cbrs with the serial number : " + self.cbsdSerialNumber +  " the transmit time is bigger than the grant expire time")
             
     def handle_Http_Req(self,httpRequest,typeOfCalling):
         req = httpRequest
+        if(typeOfCalling == consts.RELINQUISHMENT_SUFFIX_HTTP):
+            self.expectedRelBeforeDeragistration =  self.verify_If_Rel_Before_Deregistration_Expected()
         if(typeOfCalling==consts.HEART_BEAT_SUFFIX_HTTP):
             if(self.assertion.is_Json_Request_Contains_Key( req, "measReportConfig")):
                 del req["measReportConfig"]
@@ -80,9 +96,9 @@ class CBRSRequestHandler(object):
                     self.measReportCounter = 1
                 else :
                     self.measReportCounter +=1
-            print self.measReportCounter
             self.numberOfStep-=1### if its repeat type json number of step should be the same as it was before
 
+        
         elif(self.Is_Repeats_Available(self.get_Expected_Json_File_Name(),typeOfCalling)==True):
             if(typeOfCalling == consts.SPECTRUM_INQUIERY_SUFFIX_HTTP): 
                 self.Initialize_Repeats_Type_Allowed(consts.SPECTRUM_INQUIERY_SUFFIX_HTTP,httpRequest, typeOfCalling)
@@ -106,10 +122,12 @@ class CBRSRequestHandler(object):
                 if(not self.grantBeforeHeartBeat):
                     self.validationErrorAccuredInEngine = True
                     return consts.GRANT_BEFORE_HEARTBEAT_ERROR 
+                     
             self.repeatesAllowed = False
             self.repeatsType = None              
+        
         try:
-                self.compare_Json_Req(httpRequest,self.get_Expected_Json_File_Name(),typeOfCalling)  
+            self.compare_Json_Req(httpRequest,self.get_Expected_Json_File_Name(),typeOfCalling)  
                     
         except Exception as e:
             self.validationErrorAccuredInEngine = True  
@@ -121,7 +139,13 @@ class CBRSRequestHandler(object):
         ## relinquish is too fast and sent request before entering the loop of new test  
         if(self.validationErrorAccuredInEngine == False):     
             return self.process_response(typeOfCalling,httpRequest)
-        
+     
+    def verify_If_Rel_Before_Deregistration_Expected(self):
+        currentJsonExpectedByCSV = self.parse_Json_To_Dic_By_File_Name(self.get_Expected_Json_File_Name(),consts.RESPONSE_NODE_NAME,self.enviormentConfFile)
+        if(consts.RELINQUISHMENT_SUFFIX_HTTP not in currentJsonExpectedByCSV):
+            if(consts.DEREGISTRATION_SUFFIX_HTTP+consts.RESPONSE_NODE_NAME.title() in currentJsonExpectedByCSV):
+                return True
+        return False
         
     def Is_Repeats_Available(self,expectedJsonName,typeOfCalling):
         '''
@@ -142,6 +166,8 @@ class CBRSRequestHandler(object):
                 return consts.SUFFIX_NOT_EXISTS_IN_EXPECTED_JSON_FILE
     
     def get_Expected_Json_File_Name(self,numberOfStep = None):
+        if(self.expectedRelBeforeDeragistration):
+            return "rel_In_Case_Of_Deregistration.json"
         if(numberOfStep == None):
             numberOfStep = self.numberOfStep
         return self.jsonSteps[numberOfStep]
@@ -163,14 +189,12 @@ class CBRSRequestHandler(object):
         '''
         currentTime = DT.datetime.now()
         timeBetween = (currentTime-self.lastHeartBeatTime).total_seconds()
-        print str(timeBetween)
         if(float(timeBetween)-3.0>float(self.validDurationTime)):
             return False
         self.lastHeartBeatTime = DT.datetime.now()            
         return True
-    
-    
-    def process_response(self,typeOfCalling,httpRequest):  
+  
+    def process_response(self,typeOfCalling,httpRequest): 
         jsonAfterParse = self.parse_Json_To_Dic_By_File_Name(self.get_Expected_Json_File_Name(),consts.RESPONSE_NODE_NAME,self.enviormentConfFile)
         specificRespJson = jsonAfterParse[typeOfCalling+consts.RESPONSE_NODE_NAME.title()][0]
         if(typeOfCalling == consts.SPECTRUM_INQUIERY_SUFFIX_HTTP):
@@ -180,24 +204,39 @@ class CBRSRequestHandler(object):
             self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId)  
         elif(typeOfCalling == consts.GRANT_SUFFIX_HTTP):
             if(self.grantId == 0) :
-                self.grantId = randint(1, 1000000000)  
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.grantId) 
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId)             
-            result = self.get_Expire_Time()
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "grantExpireTime", result)  
+                self.grantId = str(randint(1, 1000000000))
+                self.assertion.grantId = self.grantId  
+            self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
+            self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId) 
+            secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForGrantExpireTime")[0].firstChild.data)
+            result = self.get_Expire_Time(secondsToAdd)
+            self.change_Value_Of_Param_In_Dict(specificRespJson, "grantExpireTime", result)              
         elif(typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):
             if(self.measReportCounter>1):
                 if("measReportConfig" in specificRespJson):
                     del specificRespJson["measReportConfig"]
-            result = self.get_Expire_Time()
+            secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForTransmitExpireTime")[0].firstChild.data)
+            result = self.get_Expire_Time(secondsToAdd,specificRespJson)
             self.change_Value_Of_Param_In_Dict(specificRespJson, "transmitExpireTime", result)
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId)  
+            self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId)
+            if("grantRenew" in httpRequest):
+                if(httpRequest["grantRenew"] == True or httpRequest["grantRenew"]=="true"):
+                    secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForGrantExpireTime")[0].firstChild.data)
+                    result = self.get_Expire_Time(secondsToAdd)
+                    self.change_Value_Of_Param_In_Dict(specificRespJson, "grantExpireTime", result)
+                      
         elif(typeOfCalling == consts.REGISTRATION_SUFFIX_HTTP):
             if(self.cbsdId==None):
                 self.cbsdId = httpRequest["fccId"]+ "Mock-SAS" + self.cbsdSerialNumber
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)   
-            
+                self.assertion.cbsdId = self.cbsdId
+            self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
+        elif(typeOfCalling == consts.DEREGISTRATION_SUFFIX_HTTP):
+            self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
+        
+        if(self.expectedRelBeforeDeragistration == True):
+            self.numberOfStep-=1
+            self.expectedRelBeforeDeragistration = False
         if(len(self.jsonSteps) == self.numberOfStep+1):
             self.questAnswerPartOfJson = self.parse_Json_To_Dic_By_File_Name(self.get_Expected_Json_File_Name(),consts.QUESTION_NODE_NAME,self.enviormentConfFile)
             self.isLastStepInCSV = True  
@@ -209,10 +248,16 @@ class CBRSRequestHandler(object):
                 del dictName[attrToChange]
         jsonComparer.ordered_dict_prepend(dictName, attrToChange, value) 
     
-    def get_Expire_Time(self):
-        secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForExpireTime")[0].firstChild.data)
+    def get_Expire_Time(self,secondsToAdd,specificRespJson=None):
         currentDateTime = DT.datetime.utcnow()
-        
+        rounded = currentDateTime - DT.timedelta(microseconds=currentDateTime.microsecond)
+        currentDateTime = rounded
+        if(specificRespJson!=None):
+            if("response" in specificRespJson):
+                if("responseCode" in specificRespJson["response"]):
+                    if(specificRespJson["response"]["responseCode"] !=0):
+                        return self.reWrite_UTC_Time(currentDateTime)
+                
         if(int(secondsToAdd) <60):
             currentDateTime = currentDateTime + DT.timedelta(seconds = 30)
         elif(int(secondsToAdd)<3600):
@@ -225,9 +270,12 @@ class CBRSRequestHandler(object):
             else:
                 currentDateTime = currentDateTime + DT.timedelta(minutes = minutesToAdd%60,hours = minutesToAdd/60)
         
+        return self.reWrite_UTC_Time(currentDateTime)
             
-        currentDateTime = str(currentDateTime)[:-4]
+    def reWrite_UTC_Time(self,currentDateTime):
+        currentDateTime = str(currentDateTime)
         currentDateTime = str(currentDateTime).replace(" ", "T")   
         currentDateTime = str(currentDateTime).replace(currentDateTime, currentDateTime+"Z") 
         return currentDateTime
+        
         

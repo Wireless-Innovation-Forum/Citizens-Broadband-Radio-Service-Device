@@ -1,0 +1,31 @@
+{
+    "name":"NMS Test: Initial Heartbeat", 	
+    "questions":
+	[
+		{
+			"question" : "CBSD 2 stopped transmission and is in Registered state?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"xmlFilelLinked": "cbsdc2",
+	"heartbeatRequest": 
+	[ 
+		{ 
+			"operationState": "AUTHORIZED",
+			"grantRenew": {"$or":["true","false"]} 
+			            
+            
+		} 
+	],
+	"response":
+	{ 
+		"heartbeatResponse":
+		[ 
+			{ 
+				"response": {"responseCode": 500}
+				
+			}
+		]
+	}     
+}

@@ -1,0 +1,33 @@
+{
+    "name":"Heartbeat Repeats CBSD 2", 	
+    "questions":
+	[
+		{
+			"question" : "CBSD 1 continues to transmit?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"xmlFilelLinked": "cbsdc2",
+	"repeatsAllowed":"True",
+	"heartbeatRequest": 
+	[ 
+		{ 
+			"operationState": "AUTHORIZED",
+			"grantRenew": false
+			            
+            
+		} 
+	],
+	"response":
+	{ 
+		"heartbeatResponse":
+		[ 
+			{ 
+				"heartbeatInterval":120,
+				"response": {"responseCode": 0}
+				
+			}
+		]
+	}     
+}

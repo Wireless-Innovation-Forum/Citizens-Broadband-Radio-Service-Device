@@ -14,12 +14,13 @@ class CsvFileParser(object):
     '''
 
 
-    def __init__(self,csvFileName,confFile):
+    def __init__(self,csvFileName,confFile,dirPath):
         '''
         Constructor
         '''
         self.csvFileName = csvFileName
         self.confFile = confFile
+        self.dirPath = dirPath
         
     def initializeTestDefinition(self):
         steps = []
@@ -30,15 +31,16 @@ class CsvFileParser(object):
                     index =0
                     for col in row:
                         expression = Path(self.confFile.getElementsByTagName("jsonsRepoPath")[0].firstChild.data+ row[col])
-                        pathExpected = Path((str(Path(__file__).parents[3]) + str(expression)))
-                        if(row[col]!=""):
-                            if Path.exists(pathExpected) :
+                        #pathExpected = Path((str(Path(__file__).parents[3]) + str(expression)))
+                        pathExpected = str(self.dirPath) + str(expression)
+                        if row[col]!="":
+                            if Path.exists(Path(pathExpected)) :
                                 steps.append(Step(row[col],index))
                                 index+=1
                             else:
                                 raise Exception 
             return steps
-        except Exception :
+        except Exception as e:
             raise IOError("the file " + self.csvFileName + " or the jsons file inside the csv rows not found")
         
     def find_Number_Of_Cols(self):

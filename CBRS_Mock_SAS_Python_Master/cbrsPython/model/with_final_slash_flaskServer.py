@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 
 enodeBController = ENodeBController(None)
-@app.route("/v2.0/<typeOfCalling>",methods=['POST'])
+@app.route("/v2.0/<typeOfCalling>/",methods=['POST'])
 def sent_Flask_Req_To_Server(typeOfCalling):
     '''
     the method get any post request sent from the CBSD that the url includes '/cbsd/<typeOfCalling>/' 

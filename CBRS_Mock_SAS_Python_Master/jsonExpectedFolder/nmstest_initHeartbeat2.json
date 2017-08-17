@@ -11,8 +11,6 @@
 	"heartbeatRequest": 
 	[ 
 		{ 
-			"cbsdId": "ruckus2cbsdSerialNumber401629000040",
-			"grantId": "1234094448610312355",
 			"operationState": "GRANTED",
 			"measReport": {
                     "eutraCarrierRssiRpt": [
@@ -100,7 +98,6 @@
 		"heartbeatResponse":
 		[ 
 			{ 
-				"cbsdId":"ruckus2cbsdSerialNumber401629000040",
 				"grantId":"1234094448610312355",
 				"heartbeatInterval":60,
 				"response": {"responseCode": 0},

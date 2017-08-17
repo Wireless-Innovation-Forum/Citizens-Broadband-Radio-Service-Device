@@ -47,8 +47,8 @@ class XmlLogger(Observer):
             self.cbsdSerial = json_dict[typeOfCalling+consts.REQUEST_NODE_NAME][0]["cbsdSerialNumber"]
         else:
             try:
-                cbsdSerialNumberIndex = str(json_dict[typeOfCalling+consts.REQUEST_NODE_NAME][0]["cbsdId"]).index("cbsd")
-                self.cbsdSerial = json_dict[typeOfCalling+consts.REQUEST_NODE_NAME][0]["cbsdId"][cbsdSerialNumberIndex+len("cbsd"):]
+                cbsdSerialNumberIndex = str(json_dict[typeOfCalling+consts.REQUEST_NODE_NAME][0]["cbsdId"]).index("Mock-SAS")
+                self.cbsdSerial = json_dict[typeOfCalling+consts.REQUEST_NODE_NAME][0]["cbsdId"][cbsdSerialNumberIndex+len("Mock-SAS"):]
             except Exception as E:
                 raise Exception("the json not include cbsdid attribute")     
         if(self.testCase == None):

@@ -2,7 +2,7 @@
 <cbrsParams>
 	<jsonsRepoPath>\jsonExpectedFolder\</jsonsRepoPath>
 	<testRepoPath>\testFiles\</testRepoPath>
-	<hostIp>127.0.0.1</hostIp>
+	<hostIp>90.0.0.114</hostIp>
 	<port>5000</port>
 	<heartbeatLimit>30</heartbeatLimit>
 	<pemFilePath>\certificates\flaskcert1.pem</pemFilePath>

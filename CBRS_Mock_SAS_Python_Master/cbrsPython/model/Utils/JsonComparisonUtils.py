@@ -209,20 +209,45 @@ def validate_Json_Value_Special_Sign(expected,actual):
         indexOfPunctuation = strExpected.find(":")
         indexOfSeperationSign = strExpected.find("To")
         lowestVal = strExpected[indexOfPunctuation+1:indexOfSeperationSign]
-        heighestVal =  strExpected[indexOfSeperationSign+2:len(strExpected)-1]
+        heighestVal =  strExpected[indexOfSeperationSign+2:len(strExpected)-1].replace("}","")
         if float(lowestVal) <= float(strAcutal) and (float(heighestVal) >= float(strAcutal)):
             return True
         raise Exception ("ERROR - the actual value : " + strAcutal + " not in the range expected : " + lowestVal + " To : " + heighestVal  )
     if("or" in strExpected):
-        for value in expected.iteritems() :
-            strActualOnlyLetters =strAcutal.replace("[", "").replace("u'", "").replace("'","").replace("]","")
-            for value in value[1]:
-                strExpectedOnlyLetters = str(value).replace("[", "").replace("u'", "").replace("'","").replace("]","")
-                if len((strExpectedOnlyLetters).split(","))>1 :
-                    valuesOfExpected = strExpectedOnlyLetters.split(",")
+        try:
+            for value in expected.iteritems() :
+                strActualOnlyLetters =strAcutal.replace("[", "").replace("u'", "").replace("'","").replace("]","")
+                for value in value[1]:
+                    strExpectedOnlyLetters = str(value).lower().replace("[", "").replace("u'", "").replace("'","").replace("]","")
+                    if len((strExpectedOnlyLetters).split(","))>1 :
+                        valuesOfExpected = strExpectedOnlyLetters.split(",")
+                        valuesOfActual = strActualOnlyLetters.split(",")
+                        for cell in valuesOfActual:
+                            if cell not in valuesOfExpected:
+                                return False 
+                        return value         
+                    if strExpectedOnlyLetters.upper() == strAcutal.upper():
+                        return value
+        except :
+            indexOfPuncuation = strExpected.find(":")
+            strExpected = strExpected[indexOfPuncuation+1:]
+            if "[[" in strExpected :
+                optionsArray = strExpected[1:-1].split("],[")
+                i=0
+                for key in optionsArray :
+                    key = key.replace("[","").replace("]","")
+                    optionsArray[i] = key
+                    i+=1
+            else:          
+                optionsArray = strExpected.replace("'", "").replace("[","").replace("]","").split(",")
+            for value in optionsArray :
+                strExpectedOnlyLetters = str(value).replace("[", "").replace("u'", "").replace("'","").replace('"',"").replace("]","")
+                strActualOnlyLetters =strAcutal.replace("[", "").replace("u'", "").replace("'","").replace("]","")
+                if len((value).split(","))>1 :
+                    valuesOfExpected = value.replace('"',"").split(",")
                     valuesOfActual = strActualOnlyLetters.split(",")
                     for cell in valuesOfActual:
-                        if cell not in valuesOfExpected:
+                        if str(cell).strip() not in valuesOfExpected:
                             return False 
                     return value         
                 if strExpectedOnlyLetters == strAcutal:

@@ -1,0 +1,22 @@
+{
+    "name":"NMS Test: Relinquishment",  
+    "questions":
+	[
+		{
+		}
+	],
+	"relinquishmentRequest":
+	[
+		{
+		}
+	],
+	"response":
+	{	
+		"relinquishmentResponse":
+		[
+			{
+				"response": {"responseCode": 0}
+			}
+		]
+	}	
+}

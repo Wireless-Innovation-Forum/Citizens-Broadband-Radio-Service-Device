@@ -1,0 +1,27 @@
+{
+    "name":"idan4 1 Test: Registration",  
+    "questions":
+	[
+		{
+			"question" : "OK?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"xmlFilelLinked": "cbsdc1",
+	"registrationRequest":
+        	[
+            	{
+				 
+        	  
+				}
+			],
+	"response":{
+		"registrationResponse" : 
+			[
+				{
+					  "response":{"responseCode":0}
+				}
+			]  
+	}	
+}

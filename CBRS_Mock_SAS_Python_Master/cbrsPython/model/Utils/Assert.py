@@ -14,7 +14,7 @@ class Assertion(object):
     '''
 
 
-    def __init__(self,enviormentConfFile,dirPath,loggerHandler,cbrsConfFile):
+    def __init__(self,enviormentConfFile,dirPath,loggerHandler,cbrsConfFile,cbsdId = None, grantId = None):
         '''
         Constructor
         '''
@@ -23,6 +23,8 @@ class Assertion(object):
         self.dirPath  = dirPath
         self.loggerHandler = loggerHandler
         self.cbrsConfFile = cbrsConfFile
+        self.cbsdId = cbsdId
+        self.grantId = grantId
         
     def compare_Json_Req(self,httpRequest,jsonExpected,suffix,keysFromJson=None):
         
@@ -32,11 +34,18 @@ class Assertion(object):
         '''
         try:
             jsonExpectedObj = JsonComparisonUtils.get_Node_Of_Json_Parsed(jsonExpected,suffix,self.confFile,self.dirPath)
-            jsonExpectedObj = self.add_Json_Optional_Parameters(jsonExpectedObj,httpRequest,suffix)
         except Exception as e:
             raise IOError(e.message)  
         if(consts.REGISTRATION_SUFFIX_HTTP + consts.REQUEST_NODE_NAME == suffix):
-            self.add_reg_params_to_json(jsonExpectedObj)
+            self.add_reg_params_to_json(jsonExpectedObj,httpRequest)
+        else:
+            JsonComparisonUtils.ordered_dict_prepend(jsonExpectedObj[0],"cbsdId" ,str(self.cbsdId))
+            if((consts.HEART_BEAT_SUFFIX_HTTP + consts.REQUEST_NODE_NAME == suffix) or (consts.RELINQUISHMENT_SUFFIX_HTTP + consts.REQUEST_NODE_NAME == suffix) ) :
+                JsonComparisonUtils.ordered_dict_prepend(jsonExpectedObj[0],"grantId" ,str(self.grantId))
+        try:    
+            jsonExpectedObj = self.add_Json_Optional_Parameters(jsonExpectedObj,httpRequest,suffix)
+        except:
+            raise IOError("ERROR - loading optinal parameters not succeedded")
         self.add_Actual_Params_To_Json_If_Not_Exists(jsonExpectedObj[0],httpRequest)
         x = JsonComparisonUtils.are_same(jsonExpectedObj[0],httpRequest,False,self.dontCheckNode)
         if(False in x):
@@ -57,6 +66,8 @@ class Assertion(object):
         except Exception as E:
             return E.message
         return False
+
+                
     
     def add_Actual_Params_To_Json_If_Not_Exists(self,expectedObj,httpRequest):
         for key in httpRequest:
@@ -64,15 +75,27 @@ class Assertion(object):
                 if(key not in self.dontCheckNode):
                     JsonComparisonUtils.ordered_dict_prepend(expectedObj, key, None)
 
-    def add_reg_params_to_json(self,jsonExpected):
-        
+    def add_reg_params_to_json(self,jsonExpected,httpRequest):
         for child in self.cbrsConfFile.childNodes[0].childNodes:
             #print child.tag, child.attrib
             if(child.firstChild!=None):
                 if child.tagName == consts.REGISTRATION_SUFFIX_HTTP + "Params":
                     for child2 in child.childNodes:
                         if(child2.firstChild!=None):
-                            JsonComparisonUtils.ordered_dict_prepend(jsonExpected[0],child2.tagName , child2.firstChild.data)
+                            if len(child2.childNodes)==1:                         
+                                JsonComparisonUtils.ordered_dict_prepend(jsonExpected[0],child2.tagName , child2.firstChild.data)
+                            else:
+                                for childInChild in child2.childNodes:
+                                    if(childInChild.firstChild!=None):
+                                        self.dontCheckNode.append(child2.tagName)                         
+                                        result = JsonComparisonUtils._are_same(childInChild.firstChild.data, httpRequest[child2.tagName][childInChild.tagName],False)
+                                        if False in result:
+                                            raise Exception("ERROR - there is an validation error between http request and the configuration file attribute ")
+                                           
+                                    
+#                         self.dontCheckNode.append(key)  
+#                         for key2 in optional[key]:                           
+#                             result = JsonComparisonUtils._are_same(optional[key][key2], httpRequest[key][key2],False)
         
 
     def is_Json_File_Contains_Key(self, jsonExpected,keyToVerify):
@@ -114,10 +137,11 @@ class Assertion(object):
                         JsonComparisonUtils.ordered_dict_prepend(expected[0], key, value)   
                     else:## key not exists at all
                         self.dontCheckNode.append(key)  
-                        for key2 in optional[key]:                           
-                            result = JsonComparisonUtils._are_same(optional[key][key2], httpRequest[key][key2],False)
-                            if False in result:
-                                raise Exception("ERROR - there is an validation error between http request and the optional parameter json")                                                                                          
+                        for key2 in optional[key]:   
+                            if key2 in httpRequest[key]:                        
+                                result = JsonComparisonUtils._are_same(optional[key][key2], httpRequest[key][key2],False)
+                                if False in result:
+                                    raise Exception("ERROR - there is an validation error between http request and the optional parameter json")                                                                                          
             else:
                 if len(value)>1:
                     for key2, value2 in optional[key].iteritems():
