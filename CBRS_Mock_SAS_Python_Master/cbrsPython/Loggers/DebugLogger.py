@@ -18,7 +18,7 @@ class DebugLogger(Observer):
             self.addLoggerFile(dir_Path,log_Name, log_file)
             self.log_Name = log_Name
     
-    def startStep(self,json_dict,typeOfCalling):
+    def startStep(self,json_dict,typeOfCalling,ipRequestAddress=None):
         self.print_to_Logs_Files(typeOfCalling + " request from CBRS  : " + json.dumps(json_dict, indent=4, sort_keys=True),False)
            
     def finishStep(self,response,typeOfCalling,stepStatus):

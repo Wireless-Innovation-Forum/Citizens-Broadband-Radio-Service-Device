@@ -14,8 +14,10 @@ class CmdLogger(Observer):
             log_file =  '\Logs\CMDSessions\cmdSession_' + str(datetime.now().strftime("%Y_%m_%d_%H_%M_%S")) +'.log'
             self.addLoggerFile(dir_Path,consts.CLI_SESSION, log_file)
     
-    def startStep(self,json_dict,typeOfCalling):
-        self.print_To_Terminal("CBSD sent " + str(typeOfCalling) +" " + consts.REQUEST_NODE_NAME)
+    def startStep(self,json_dict,typeOfCalling,ipRequestAddress=None):
+        self.print_To_Terminal("Time : " +  str(datetime.now().strftime("%d/%m/%Y %H:%M:%S") 
+                                                + " , CBSD sent " + str(typeOfCalling) +" " + consts.REQUEST_NODE_NAME + " from the address : " + str(ipRequestAddress)))
+
     
     def finishStep(self,response,typeOfCalling,stepStatus):
         if stepStatus==StepStatus.PASSED:

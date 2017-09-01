@@ -34,9 +34,9 @@ class loggerObserver(object):
         for observer in self.observers:
             observer.startTest(self.dirPath,loggerName,folderName)
     
-    def start_Step(self,json_dict,typeOfCalling):
+    def start_Step(self,json_dict,typeOfCalling,ipRequestAddress=None):
         for observer in self.observers:
-            observer.startStep(json_dict,typeOfCalling)
+            observer.startStep(json_dict,typeOfCalling,ipRequestAddress)
                        
     def finish_Step(self,response,typeOfCalling,stepStatus):
         for observer in self.observers:

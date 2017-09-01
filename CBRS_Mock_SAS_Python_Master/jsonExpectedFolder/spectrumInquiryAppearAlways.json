@@ -1,5 +1,5 @@
 {
-    "name":"WINNF.FT.C.SIQ.1_002.json, June 11, 2017, Pawan jangid",  
+    "name":"Spectrum_Inquiry_Appear_Always_Mock_SAS_31_Aug_2017",  
     "questions":
 	[
 		{
@@ -19,26 +19,24 @@
 		}
 	],
 	"repeatsAllowed":"True",
+	"appearAlways":"True",
     "spectrumInquiryRequest": 
 				[
 				{ 
-					"cbsdId": "ruckuscbsdSerialNumber401629000041",
 					"inquiredSpectrum": 
 						[ 
 							{ 
-							"highFrequency": "${range:3550000000To3700000000}",
-							"lowFrequency": "${range:3550000000To3700000000}" 
+							"highFrequency": "3600000002",
+							"lowFrequency": "3550000002" 
 							} 
 						]
-				}
-				 
+				}	 
 				],
    "response":
    {
 		"spectrumInquiryResponse":
 		[ 
 			{ 
-				"cbsdId":"ruckuscbsdSerialNumber401629000041",
 				"availableChannel":
 				[ 
 					{ 
@@ -51,7 +49,7 @@
 					   "ruleApplied":"FCC Part 96"
 					}
 				],
-				"response":{ "responseCode":0,"responseMessage":null }
+				"response":{ "responseCode":0}
 			}	
 		]
 	}

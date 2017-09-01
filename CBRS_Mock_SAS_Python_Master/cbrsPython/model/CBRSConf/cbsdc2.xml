@@ -3,12 +3,7 @@
 	<secondsToAddForGrantExpireTime>3000</secondsToAddForGrantExpireTime>
 	<secondsToAddForTransmitExpireTime>1200</secondsToAddForTransmitExpireTime>
 	<registrationParams>
-		<userId>${maximumLength:128}</userId>
-		<fccId>${maximumLength:128}</fccId>
-		<cbsdSerialNumber>76B1E617472C</cbsdSerialNumber>
-		<cbsdCategory>"$or":["A","B"]</cbsdCategory>		
-		<airInterface>
-			<radioTechnology>${maximumLength:128}</radioTechnology>
-		</airInterface>		 
+		<fccId>"FCC1"</fccId>
+		<cbsdSerialNumber>"76B1E617472C"</cbsdSerialNumber>		 
 	</registrationParams>
 </cbrsParams>

@@ -6,7 +6,7 @@ class Observer(object):
         pass
     
     @abstractmethod
-    def startStep(self,json_dict,typeOfCalling):
+    def startStep(self,json_dict,typeOfCalling,ipRequestAddress=None):
         pass
         
     @abstractmethod    

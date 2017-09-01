@@ -40,7 +40,7 @@ class XmlLogger(Observer):
         else:
             self.initialize_From_Existing_Xml(dir_Path,folder_Name)
  
-    def startStep(self,json_dict,typeOfCalling):
+    def startStep(self,json_dict,typeOfCalling,ipRequestAddress=None):
         if(self.folder_Name==None or self.log_Name == consts.CLI_SESSION):
             return
         if(typeOfCalling==consts.REGISTRATION_SUFFIX_HTTP):

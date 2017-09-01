@@ -33,6 +33,7 @@ class CBRSRequestHandler(object):
         self.assertion                          = None
         self.heartBeatLimitCounter              = EnviormentConfFile.getElementsByTagName("heartbeatLimit")[0].firstChild.data
         self.jsonSteps = []
+        self.spectrumInquieryAvailableRepeatsEveryWhereRequest =[]
         self.enviormentConfFile = EnviormentConfFile
         self.dirPath = dirPath
         self.cbrsConfFile = None
@@ -48,12 +49,10 @@ class CBRSRequestHandler(object):
         for jsonCol in testDefinition.jsonNamesOfSteps:
             xmlFileLinked = jsonComparer.get_Node_Of_Json_Parsed(jsonCol[0],"xmlFilelLinked",confFile,dirPath)
             xmlPath = str(self.dirPath) +"\\cbrsPython\\model\\CBRSConf\\"+ xmlFileLinked+".xml"
-            try:
-                os.path.exists(xmlPath)
-            except Exception:
+            if os.path.exists(xmlPath)==False:
                 raise IOError("ERROR - missing cbrs conf file of the CBSD : " + self.cbsdSerialNumber)
             self.cbrsConfFile = minidom.parse(xmlPath)
-            if self.cbrsConfFile.getElementsByTagName("cbsdSerialNumber")[0].firstChild.data  == self.cbsdSerialNumber :
+            if str(self.cbrsConfFile.getElementsByTagName("cbsdSerialNumber")[0].firstChild.data).replace('"',"")  == self.cbsdSerialNumber :
             #if jsonComparer.get_Node_Of_Json_Parsed(jsonCol[0],"xmlFilelLinked",confFile,dirPath).replace("cbsd","")== self.cbsdSerialNumber:
                 cbsdFoundInJsons = True
                 self.jsonSteps = jsonCol
@@ -68,22 +67,34 @@ class CBRSRequestHandler(object):
                           " must include the parameters : secondsToAddForGrantExpireTime,secondsToAddForTransmitExpireTime")
         if(grantExpireTime<transmitTime):
             raise IOError("ERROR - for the cbrs with the serial number : " + self.cbsdSerialNumber +  " the transmit time is bigger than the grant expire time")
+        
+        for availableInqueryStep in self.jsonSteps:
+            currentJson = self.parse_Json_To_Dic_By_File_Name(availableInqueryStep,consts.SPECTRUM_INQUIERY_SUFFIX_HTTP + consts.REQUEST_NODE_NAME,self.enviormentConfFile)
+            if currentJson != None:
+                if bool(self.assertion.get_Attribute_Value_From_Json(availableInqueryStep, "appearAlways")) == True:
+                    self.spectrumInquieryAvailableRepeatsEveryWhereRequest.append(availableInqueryStep)
+        for step in self.spectrumInquieryAvailableRepeatsEveryWhereRequest:
+            self.jsonSteps.remove(step)
+                                        
             
     def handle_Http_Req(self,httpRequest,typeOfCalling):
         req = httpRequest
+        if(typeOfCalling == consts.SPECTRUM_INQUIERY_SUFFIX_HTTP):
+            for jsonFile in self.spectrumInquieryAvailableRepeatsEveryWhereRequest:
+                try:
+                    self.assertion.compare_Json_Req(httpRequest, jsonFile, consts.SPECTRUM_INQUIERY_SUFFIX_HTTP+consts.REQUEST_NODE_NAME,None,False)
+                    return self.returnSpectInquieryInCaseOfRepeatsAllowedAlwaysValidationSucceed(jsonFile)
+                except Exception as e:
+                    pass   
+        
+        
         if(typeOfCalling == consts.RELINQUISHMENT_SUFFIX_HTTP):
             self.expectedRelBeforeDeragistration =  self.verify_If_Rel_Before_Deregistration_Expected()
-        if(typeOfCalling==consts.HEART_BEAT_SUFFIX_HTTP):
-            if(self.assertion.is_Json_Request_Contains_Key( req, "measReportConfig")):
-                del req["measReportConfig"]
         if(self.repeatsType == typeOfCalling and self.repeatesAllowed == True and self.oldHttpReq == req):#self.verify_Equal_Req_Except_Of_Operation_State(typeOfCalling,httpRequest)):
             ### in case its an heartbeat calling need to check if it is cross the limit 
             ###counter get from the config file or heartbeat call 
             ###passed the timeout that get from the last grant response         
-            if(typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):
-                if(self.measReportCounter>5):
-                    self.validationErrorAccuredInEngine = True
-                    return "ERROR - no meas report received in the last 5 heart beats request"       
+            if(typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):     
                 if(int(self.numberOfHearbeatRequests)<int(self.heartBeatLimitCounter)):
                     self.numberOfHearbeatRequests+=1
                     if(not self.is_Valid_Heart_Beat_Time()):
@@ -92,10 +103,6 @@ class CBRSRequestHandler(object):
                 else:
                     self.validationErrorAccuredInEngine = True
                     return consts.HEART_BEAT_REACHED_TO_LIMIT_MESSAGE
-                if self.assertion.is_Json_Request_Contains_Key(httpRequest, "measReportConfig"):
-                    self.measReportCounter = 1
-                else :
-                    self.measReportCounter +=1
             self.numberOfStep-=1### if its repeat type json number of step should be the same as it was before
 
         
@@ -146,6 +153,14 @@ class CBRSRequestHandler(object):
             if(consts.DEREGISTRATION_SUFFIX_HTTP+consts.RESPONSE_NODE_NAME.title() in currentJsonExpectedByCSV):
                 return True
         return False
+    
+    def returnSpectInquieryInCaseOfRepeatsAllowedAlwaysValidationSucceed(self,expectedJsonName):
+        jsonAfterParse = self.parse_Json_To_Dic_By_File_Name(expectedJsonName,consts.RESPONSE_NODE_NAME,self.enviormentConfFile)
+        specificRespJson = jsonAfterParse[consts.SPECTRUM_INQUIERY_SUFFIX_HTTP+consts.RESPONSE_NODE_NAME.title()][0]
+        self.change_Value_Of_Param_In_Dict(specificRespJson,"cbsdId",self.cbsdId)
+        return jsonAfterParse
+        
+        
         
     def Is_Repeats_Available(self,expectedJsonName,typeOfCalling):
         '''
@@ -212,9 +227,6 @@ class CBRSRequestHandler(object):
             result = self.get_Expire_Time(secondsToAdd)
             self.change_Value_Of_Param_In_Dict(specificRespJson, "grantExpireTime", result)              
         elif(typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):
-            if(self.measReportCounter>1):
-                if("measReportConfig" in specificRespJson):
-                    del specificRespJson["measReportConfig"]
             secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForTransmitExpireTime")[0].firstChild.data)
             result = self.get_Expire_Time(secondsToAdd,specificRespJson)
             self.change_Value_Of_Param_In_Dict(specificRespJson, "transmitExpireTime", result)

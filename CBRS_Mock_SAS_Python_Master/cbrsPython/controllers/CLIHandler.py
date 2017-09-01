@@ -106,7 +106,7 @@ class CLIHandler(Thread):
                 self.loggerHandler.print_to_Logs_Files(consts.SELECT_TO_ADD_TEST_MESSAGE + inputAnsweres + consts.SELECT_TO_ADD_FOLDER_MESSAGE + insertToFolderAnswer,True)
             else:
                 self.loggerHandler.start_Test(inputAnsweres)
-                self.loggerHandler.print_to_Logs_Files(consts.SELECTED_TEST_FROM_USER_MESSAGE + inputAnsweres,True)
+                self.loggerHandler.print_to_Logs_Files(consts.SELECTED_TEST_FROM_USER_MESSAGE + inputAnsweres +  " is starting now ",True)
             del insertToFolderAnswer
             cliHandler = CLIHandler(inputAnsweres,self.confFile,self.dirPath,self.loggerHandler,self.testDefinition) 
             flaskServer.enodeBController = ENodeBController(cliHandler.engine)

@@ -1,5 +1,5 @@
 {
-    "name":"NMS Test: Initial Heartbeat", 	
+    "name":"idan4_JSON_Heartbeat_Response_500_CBSD_2_Mock_SAS_31_Aug_2017", 	
     "questions":
 	[
 		{
@@ -8,12 +8,10 @@
 			"expectedAnswer" : "y"
 		}
 	],
-	"xmlFilelLinked": "cbsdc2",
 	"heartbeatRequest": 
 	[ 
 		{ 
-			"operationState": "AUTHORIZED",
-			"grantRenew": {"$or":["true","false"]} 
+			"operationState": "AUTHORIZED"
 			            
             
 		} 

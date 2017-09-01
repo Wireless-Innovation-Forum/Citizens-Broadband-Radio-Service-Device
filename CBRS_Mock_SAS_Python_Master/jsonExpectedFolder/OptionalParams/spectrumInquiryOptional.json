@@ -1,9 +1,13 @@
 {
-    "name":"WINNF.FT.C.SIQ.1_002",  
+    "name":"CBSD_SpectrumInquiry_Request_Optional_Parameters_Mock_SAS_31_Aug_2017",  
 			"spectrumInquiryOptionalParams":
         	[
             	{
+				"inquiredSpectrum": 
+							[{ 
+							"highFrequency": "${range:3550000000To3700000000}",
+							"lowFrequency": "${range:3550000000To3700000000}" 
+							}]
 				}
 			]	
 }
-

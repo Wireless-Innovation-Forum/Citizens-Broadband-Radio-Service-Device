@@ -1,5 +1,5 @@
 {
-    "name":"WINNF.FT.C.SIQ.1_002.json, June 11, 2017, Pawan jangid",  
+    "name":"idan4_JSON_Spectrum_Inquiry_CBSD_2_Mock_SAS_31_Aug_2017",  
     "questions":
 	[
 		{
@@ -18,7 +18,6 @@
 			"expectedAnswer" : "yes"
 		}
 	],
-	"xmlFilelLinked": "cbsdc2",
 	"repeatsAllowed":"True",
     "spectrumInquiryRequest": 
 				[

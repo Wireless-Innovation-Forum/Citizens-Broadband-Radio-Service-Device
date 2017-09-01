@@ -37,10 +37,16 @@ CLI_SESSION                        =        "CLISession"
 GRANT_BEFORE_HEARTBEAT_ERROR       =        "ERROR - heartbeat request can be only after grant request"
 SELECT_TO_ADD_TEST_MESSAGE         =        "you have choose to add the test "
 SELECT_TO_ADD_FOLDER_MESSAGE    =           " to the specific folder :"
-SELECTED_TEST_FROM_USER_MESSAGE =           "the selected test from the user is : "
+SELECTED_TEST_FROM_USER_MESSAGE =           "the selected test from the user : "
 PASS_MESSAGE =                              "PASS"
 FAIL_MESSAGE =                              "FAIL"
 JSON_REQUEST_NOT_INCLUDE_KEY =              "ERROR - the http request does not include key : "
+JSON_THIS_CBRS_STEPS_HAD_BEEN_FINISHED =    {
+                                                "message" : "the specific cbrs had finished all steps successfully but the domain proxy still have cbrs that not finished all steps",
+                                                "response": {
+                                                    "responseCode": 0
+                                                }
+                                            }
 REGISTRATION_SUFFIX_HTTP =                  "registration"
 DEREGISTRATION_SUFFIX_HTTP =                "deregistration"
 EMPTY_CSV_FILE_NAME_MESSAGE =               "cannot enter empty line for csv file try again"

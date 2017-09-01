@@ -85,6 +85,8 @@ class MyEngine(object):
     def handle_Http_Req(self,cbsdSerialNumber,httpReq,typeOfCalling):
         for cbrsObj in self.cbrsObjArray: 
             if cbrsObj.cbsdSerialNumber == cbsdSerialNumber:
+                if(self.check_Last_Step_In_All_CBRS()==False and cbrsObj.isLastStepInCSV==True):
+                    return consts.JSON_THIS_CBRS_STEPS_HAD_BEEN_FINISHED
                 return cbrsObj.handle_Http_Req(httpReq,typeOfCalling)
         self.validationErrorAccuredInEngine = True
         raise IOError("ERROR - there is no cbrs obj registered with the cbsdSerialNumber :  " + str(cbsdSerialNumber) )

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<cbrsParams>
-	<grantExpireTime>2017-07-28T23:20:08Z</grantExpireTime>
-	<secondsToAddForExpireTime>3777</secondsToAddForExpireTime>
-	<registrationParams>
-		<userId>${maximumLength:128}</userId>
-		<fccId>${maximumLength:128}</fccId>
-	</registrationParams>
-</cbrsParams>

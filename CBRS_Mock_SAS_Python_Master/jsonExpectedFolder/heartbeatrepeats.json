@@ -1,5 +1,5 @@
 {
-    "name":"NMS Test: Initial Heartbeat", 	
+    "name":"JSON_Heartbeat_Repeats_Mock_SAS_31_Aug_2017", 	
     "questions":
 	[
 		{
@@ -8,13 +8,11 @@
 			"expectedAnswer" : "y"
 		}
 	],
-	"xmlFilelLinked": "cbsdc1",
 	"repeatsAllowed":"True",
 	"heartbeatRequest": 
 	[ 
 		{ 
-			"operationState": "AUTHORIZED",
-			"grantRenew": {$"or":[false,true]}
+			"operationState": "AUTHORIZED"
 			            
             
 		} 

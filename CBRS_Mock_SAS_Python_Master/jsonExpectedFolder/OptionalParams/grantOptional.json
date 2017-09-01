@@ -1,10 +1,17 @@
 {
-    "name":"Registration_1_2_3_4",  
+    "name":"CBSD_Grant_Request_Optional_Parameters_Mock_SAS_31_Aug_2017",  
 			"grantOptionalParams":
-        	[
-            	{
-				"sensingCapability": [ "type" ]
+            [{
+				"operationParam": 
+				{ 
+					"maxEirp": "${range:-137.0To30.0}", 
+					"operationFrequencyRange": 
+					{ 
+						"highFrequency": "${range:3550000000To3700000000}", 
+						"lowFrequency": "${range:3550000000To3700000000}"
+					}
 				}
-			]	
+			}]
+				
 }
 

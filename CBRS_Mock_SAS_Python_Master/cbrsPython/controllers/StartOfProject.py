@@ -69,7 +69,7 @@ def run_New_Test(dirPath, confFile, loggerHandler):
                                                 + insertToFolderAnswer, True)
         else:
             loggerHandler.start_Test(inputAnswer)
-            loggerHandler.print_to_Logs_Files(consts.SELECTED_TEST_FROM_USER_MESSAGE + str(inputAnswer), True)
+            loggerHandler.print_to_Logs_Files(consts.SELECTED_TEST_FROM_USER_MESSAGE + str(inputAnswer) + " is starting now", True)
         cliHandler = CLIHandler(inputAnswer, confFile, dirPath, loggerHandler,testDefinition) ### initialize cli session handler
         flaskServer.enodeBController = ENodeBController(cliHandler.engine)
         ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2) # use TLS to avoid POODLE
@@ -81,6 +81,7 @@ def run_New_Test(dirPath, confFile, loggerHandler):
             cliHandler.stop_Thread_Due_To_Exception()
     if(inputAnswer=="quit"):
         loggerHandler.print_To_Terminal(consts.QUIT_PROGRAM_MESSAGE)
+        sys.exit()
         
 
 def create_Log_Folder():

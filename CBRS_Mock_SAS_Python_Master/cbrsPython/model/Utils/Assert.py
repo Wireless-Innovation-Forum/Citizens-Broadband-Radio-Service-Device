@@ -8,6 +8,8 @@ from model.Utils import Consts as consts
 import collections
 import xml.etree.ElementTree as ET
 from click.decorators import option
+from collections import OrderedDict
+from xml.dom import minidom
 class Assertion(object):
     '''
     classdocs
@@ -26,7 +28,7 @@ class Assertion(object):
         self.cbsdId = cbsdId
         self.grantId = grantId
         
-    def compare_Json_Req(self,httpRequest,jsonExpected,suffix,keysFromJson=None):
+    def compare_Json_Req(self,httpRequest,jsonExpected,suffix,keysFromJson=None,printIfFalse =True):
         
         ''' 
         the method will get the request json file name from the client request and will get from the two repo
@@ -47,21 +49,39 @@ class Assertion(object):
         except:
             raise IOError("ERROR - loading optinal parameters not succeedded")
         self.add_Actual_Params_To_Json_If_Not_Exists(jsonExpectedObj[0],httpRequest)
+        self.add_meas_report_config_json(httpRequest,suffix)
         x = JsonComparisonUtils.are_same(jsonExpectedObj[0],httpRequest,False,self.dontCheckNode)
-        if(False in x):
+        if(False in x and printIfFalse == True):
             self.loggerHandler.print_to_Logs_Files(x,True)
         try:
             assert True in x
         except:
             raise IOError(consts.ERROR_VALIDATION_MESSAGE + "in the json : " + jsonExpected)
         return x
+    
+    def add_meas_report_config_json(self,httpRequest,suffix):
+        if("measReport" in httpRequest):
+            try:
+                optional = JsonComparisonUtils.get_Node_Of_Json_Parsed("measReportOptional"+consts.SUFFIX_OF_JSON_FILE,"measReport",self.confFile,self.dirPath)[0]
+            except :
+                raise IOError("ERROR - do not have meas report eutra json") 
+            for varInHttp in httpRequest["measReport"]["rcvdPowerMeasReports"]:
+                result = JsonComparisonUtils.are_same(optional["rcvdPowerMeasReports"][0], varInHttp,False)
+                if False in result:
+                    raise IOError("ERROR - the meas report from the http is not allowed ")
+            self.dontCheckNode.append("measReport")
+            
+        
+        
+       
+        
         
     def is_Json_Request_Contains_Key(self,jsonRequest,keyToVerify,node=None):
         try:
             if node !=None:
                 jsonRequest = jsonRequest[node]
             for post in jsonRequest:
-                if post ==keyToVerify:
+                if post == keyToVerify:
                     return True
         except Exception as E:
             return E.message
@@ -91,6 +111,20 @@ class Assertion(object):
                                         result = JsonComparisonUtils._are_same(childInChild.firstChild.data, httpRequest[child2.tagName][childInChild.tagName],False)
                                         if False in result:
                                             raise Exception("ERROR - there is an validation error between http request and the configuration file attribute ")
+        airInterfaceXml = minidom.parse(str(self.dirPath) +"\\cbrsPython\\model\\CBRSConf\\airInterfaceOptions.xml")
+        for child in airInterfaceXml.childNodes[0].childNodes:
+            if(child.firstChild!=None):
+                if child.tagName == consts.REGISTRATION_SUFFIX_HTTP + "Params":
+                    for child2 in child.childNodes:
+                        if(child2.firstChild!=None):
+                            for child3 in child2.childNodes:
+                                if len(child3.childNodes)==1: 
+                                    self.dontCheckNode.append(child2.tagName)  
+                                    result = JsonComparisonUtils._are_same(child3.firstChild.data, httpRequest[child2.tagName][child3.tagName],False)
+                                    if False in result:
+                                        raise Exception("ERROR - air interface object validation error")                       
+                        
+            
                                            
                                     
 #                         self.dontCheckNode.append(key)  
@@ -138,10 +172,20 @@ class Assertion(object):
                     else:## key not exists at all
                         self.dontCheckNode.append(key)  
                         for key2 in optional[key]:   
-                            if key2 in httpRequest[key]:                        
-                                result = JsonComparisonUtils._are_same(optional[key][key2], httpRequest[key][key2],False)
-                                if False in result:
-                                    raise Exception("ERROR - there is an validation error between http request and the optional parameter json")                                                                                          
+                            if key2 in httpRequest[key]:
+                                if("eutraCarrierRssiRpt" in key2 or "rcvdPowerMeasReports" in key2 ):
+                                    self.add_meas_report_config_json(httpRequest, suffix)            
+                                if("inquiredSpectrum" in key2):
+                                    for var in optional[key][key2]:
+                                        for varInHttp in httpRequest[key][key2]:
+                                            JsonComparisonUtils.are_same(var, varInHttp,False)
+                                else:            
+                                    if not isinstance(optional[key][key2], dict):                       
+                                        result = JsonComparisonUtils._are_same(str(optional[key][key2]), str(httpRequest[key][key2]),False)
+                                    if False in result:
+                                        result = JsonComparisonUtils._are_same(optional[key][key2], httpRequest[key][key2],False)
+                                        if False in result:
+                                            raise Exception("ERROR - there is an validation error between http request and the optional parameter json")                                                                                          
             else:
                 if len(value)>1:
                     for key2, value2 in optional[key].iteritems():
@@ -154,10 +198,7 @@ class Assertion(object):
         numberOfValues = 0
         if("$or" in str(value)):
             strValue = str(value)
-            indexOfStartOfOrSentence = strValue.index("$or")-2
-            newStr = strValue[:indexOfStartOfOrSentence]
-            indexOfEndBreckets = newStr.index("}")
-            if(newStr[indexOfEndBreckets+1]!=None):
+            if "[[" in strValue:
                 return True                 
         if(len(str(value).split("$"))>2):
             return True

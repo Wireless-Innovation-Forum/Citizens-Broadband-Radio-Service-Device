@@ -144,7 +144,8 @@ def _are_same(expected, actual, ignore_value_of_keys, ignore_json_length=False):
                              expected,
                              actual))           
             return inRange,Stack()
-        return expected == actual, Stack()
+        
+        return str(expected).replace('"', "") == str(actual).replace('"', ""), Stack()
 
     # Ensure collections have the same length (if applicable)
     if ignore_json_length:
