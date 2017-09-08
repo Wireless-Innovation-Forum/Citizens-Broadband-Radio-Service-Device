@@ -1,0 +1,30 @@
+{
+    "name":"Example JSON for Heartbeat 8-Sep-2017", 	
+    "questions":
+	[
+		{
+			"question" : "OK?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"heartbeatRequest": 
+	[ 
+		{ 
+			"grantRenew":{"$or":["true","false"]}
+			            
+            
+		} 
+	],
+	"response":
+	{ 
+		"heartbeatResponse":
+		[ 
+			{ 
+				"heartbeatInterval":120,
+				"response": {"responseCode": 0}
+				
+			}
+		]
+	}     
+}

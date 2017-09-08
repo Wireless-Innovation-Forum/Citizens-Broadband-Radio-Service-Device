@@ -1,0 +1,31 @@
+{
+    "name":"Example JSON for Repeated Heartbeats 8-Sep-2017", 	
+    "questions":
+	[
+		{
+			"question" : "OK?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"repeatsAllowed":"True",
+	"heartbeatRequest": 
+	[ 
+		{ 
+			"operationState": "AUTHORIZED",
+			"grantRenew": false         
+            
+		} 
+	],
+	"response":
+	{ 
+		"heartbeatResponse":
+		[ 
+			{ 
+				"heartbeatInterval":120,
+				"response": {"responseCode": 0}
+				
+			}
+		]
+	}     
+}

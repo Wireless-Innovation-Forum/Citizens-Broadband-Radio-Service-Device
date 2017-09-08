@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<cbrsParams>
-	<secondsToAddForGrantExpireTime>3000</secondsToAddForGrantExpireTime>
-	<secondsToAddForTransmitExpireTime>1200</secondsToAddForTransmitExpireTime>
-	<registrationParams>
-		<fccId>"FCC1"</fccId>
-		<cbsdSerialNumber>"76B1E617472C"</cbsdSerialNumber>		 
-	</registrationParams>
-</cbrsParams>

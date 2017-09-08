@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cbrsParams>
+	<groupingParam>
+			<groupType>INTERFERENCE_COORDINATION</groupType>
+			<groupId>idan8</groupId>
+		</groupingParam>	 
+</cbrsParams>

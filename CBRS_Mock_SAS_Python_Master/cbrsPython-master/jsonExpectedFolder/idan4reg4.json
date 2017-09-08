@@ -1,0 +1,27 @@
+{
+    "name":"Example JSON for Registration 8-Sep-2017",  
+    "questions":
+	[
+		{
+			"question" : "OK?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"xmlFilelLinked": "cbsdc4",
+	"registrationRequest":
+        	[
+            	{
+				 
+        	  
+				}
+			],
+	"response":{
+		"registrationResponse" : 
+			[
+				{
+					  "response":{"responseCode":0}
+				}
+			]  
+	}	
+}

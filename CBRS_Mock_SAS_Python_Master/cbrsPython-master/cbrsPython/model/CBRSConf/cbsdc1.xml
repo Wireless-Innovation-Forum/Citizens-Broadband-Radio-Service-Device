@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cbrsParams>
+	<secondsToAddForGrantExpireTime>3000</secondsToAddForGrantExpireTime>
+	<secondsToAddForTransmitExpireTime>1200</secondsToAddForTransmitExpireTime>
+	<registrationParams>
+		<cbsdSerialNumber>"78DADA12"</cbsdSerialNumber>		 
+	</registrationParams>
+</cbrsParams>

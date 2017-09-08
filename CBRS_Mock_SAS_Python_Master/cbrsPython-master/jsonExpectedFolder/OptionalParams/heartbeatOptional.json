@@ -1,0 +1,10 @@
+{
+    "name":"CBSD_Heartbeat_Request_Optional_Parameters_Mock_SAS_8_Sep_2017",  
+			"heartbeatOptionalParams":
+        	[
+            	{
+				"operationState": {"$or":["GRANTED","AUTHORIZED"]}
+		} 
+			]	
+}
+

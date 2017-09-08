@@ -1,0 +1,27 @@
+{
+    "name":"Example JSON for Heartbeat 8-Sep-2017", 	
+    "questions":
+	[
+		{
+			"question" : "CBSD 2 stopped transmission and is in Registered state?",
+			"answers" : ["y", "n"], 
+			"expectedAnswer" : "y"
+		}
+	],
+	"heartbeatRequest": 
+	[ 
+		{ 
+			"grantRenew":{"$or":["true","false"]}         
+		} 
+	],
+	"response":
+	{ 
+		"heartbeatResponse":
+		[ 
+			{ 
+				"response": {"responseCode": 500}
+				
+			}
+		]
+	}     
+}

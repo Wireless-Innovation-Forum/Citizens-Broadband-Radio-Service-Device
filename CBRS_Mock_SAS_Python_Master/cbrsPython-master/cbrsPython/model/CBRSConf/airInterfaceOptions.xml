@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cbrsParams>
+	<registrationParams>
+		<airInterface>
+			<radioTechnology>"$or":["E_UTRA","AUTHORIZED"]</radioTechnology>
+		</airInterface>	 
+	</registrationParams>
+</cbrsParams>
