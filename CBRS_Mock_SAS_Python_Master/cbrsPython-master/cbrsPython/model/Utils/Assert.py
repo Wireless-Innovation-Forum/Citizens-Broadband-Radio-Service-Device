@@ -46,8 +46,8 @@ class Assertion(object):
                 JsonComparisonUtils.ordered_dict_prepend(jsonExpectedObj[0],"grantId" ,str(self.grantId))
         try:    
             jsonExpectedObj = self.add_Json_Optional_Parameters(jsonExpectedObj,httpRequest,suffix)
-        except:
-            raise IOError("ERROR - loading optional parameters not succeeded")
+        except Exception as E: 
+            raise IOError("ERROR - loading optinal parameters not succeedded" + str(E)) 
         self.add_Actual_Params_To_Json_If_Not_Exists(jsonExpectedObj[0],httpRequest)
         self.add_meas_report_config_json(httpRequest,suffix)
         x = JsonComparisonUtils.are_same(jsonExpectedObj[0],httpRequest,False,self.dontCheckNode)
@@ -70,12 +70,7 @@ class Assertion(object):
                 if False in result:
                     raise IOError("ERROR - the meas report from the http is not allowed ")
             self.dontCheckNode.append("measReport")
-            
-        
-        
-       
-        
-        
+                    
     def is_Json_Request_Contains_Key(self,jsonRequest,keyToVerify,node=None):
         try:
             if node !=None:
@@ -86,9 +81,7 @@ class Assertion(object):
         except Exception as E:
             return E.message
         return False
-
-                
-    
+   
     def add_Actual_Params_To_Json_If_Not_Exists(self,expectedObj,httpRequest):
         for key in httpRequest:
             if (key not in expectedObj):
@@ -138,10 +131,7 @@ class Assertion(object):
                                                     "expected value for : " + str(child2.tagName) + " is : "  + str (child2.firstChild.data) +
                                                     " and the actual value is : " + httpRequest[child.tagName][0][child2.tagName]) 
             self.dontCheckNode.append("groupingParam")
-        
-            
-                                           
-                                    
+                                            
 #                         self.dontCheckNode.append(key)  
 #                         for key2 in optional[key]:                           
 #                             result = JsonComparisonUtils._are_same(optional[key][key2], httpRequest[key][key2],False)
@@ -182,25 +172,46 @@ class Assertion(object):
             d = collections.OrderedDict()         
             if key not in expected[0]:
                 if key in httpRequest:
-                    if(not self.isThereMoreThenOneValueInside(value)):
+                    numberOfKeys = len(httpRequest[key])                                                                
+                    addedOptionalParms = 0                                                                                                  
+                    if(not self.isThereMoreThenOneValueInside(value) or isinstance(httpRequest[key], basestring) or isinstance(httpRequest[key], bool)):
                         JsonComparisonUtils.ordered_dict_prepend(expected[0], key, value)   
                     else:## key not exists at all
-                        self.dontCheckNode.append(key)  
-                        for key2 in optional[key]:   
-                            if key2 in httpRequest[key]:
-                                if("eutraCarrierRssiRpt" in key2 or "rcvdPowerMeasReports" in key2 ):
-                                    self.add_meas_report_config_json(httpRequest, suffix)            
-                                if("inquiredSpectrum" in key2):
-                                    for var in optional[key][key2]:
-                                        for varInHttp in httpRequest[key][key2]:
-                                            JsonComparisonUtils.are_same(var, varInHttp,False)
-                                else:            
-                                    if not isinstance(optional[key][key2], dict):                       
+                        if "$or" in optional[key]:
+                            self.dontCheckNode.append(key)
+                            result = JsonComparisonUtils._are_same(optional[key], httpRequest[key],False)   
+                            if result[0] == True or str(result[0]) == str(httpRequest[key]):                                
+                                addedOptionalParms +=1                                                                       
+                            if False in result:
+                                raise Exception("- there is an validation error between http request and the optional parameter json")
+                        else:
+                            self.dontCheckNode.append(key)                                                                                                  
+                            for key2 in optional[key]:   
+                                if key2 in httpRequest[key]:
+                                    if "$or" in optional[key][key2]:
+                                        result = JsonComparisonUtils._are_same((optional[key][key2]), (httpRequest[key][key2]),False)   
+                                        if result[0] == True or str(result[0]).lower() == str(httpRequest[key][key2]).lower():          
+                                            addedOptionalParms +=1                                                                      
+                                    elif("eutraCarrierRssiRpt" in key2 or "rcvdPowerMeasReports" in key2 ):
+                                        self.add_meas_report_config_json(httpRequest, suffix)
+                                        addedOptionalParms = numberOfKeys
+                                        result = (True, )                                                        
+                                    elif("inquiredSpectrum" in key2):
+                                        for var in optional[key][key2]:
+                                            for varInHttp in httpRequest[key][key2]:
+                                                JsonComparisonUtils.are_same(var, varInHttp,False)            
+                                    elif not isinstance(optional[key][key2], dict):                       
                                         result = JsonComparisonUtils._are_same(str(optional[key][key2]), str(httpRequest[key][key2]),False)
+                                        if result[0] == True or result[0].lower() == str(httpRequest[key][key2]).lower():                   
+                                            addedOptionalParms +=1                                                                                                                    
                                     if False in result:
                                         result = JsonComparisonUtils._are_same(optional[key][key2], httpRequest[key][key2],False)
+                                        if result[0] == True or result[0].lower() == str(httpRequest[key][key2]).lower():                   
+                                            addedOptionalParms +=1                                                                                                                  
                                         if False in result:
-                                            raise Exception("ERROR - there is an validation error between http request and the optional parameter json")                                                                                          
+                                            raise Exception("ERROR - there is an validation error between http request and the optional parameter json")    
+                        if addedOptionalParms != numberOfKeys:                                                                              
+                            raise Exception("- the number of parameters in http request is mismatched to the number of optional parameter to be added")                                                                                                                                  
             else:
                 if len(value)>1:
                     for key2, value2 in optional[key].iteritems():

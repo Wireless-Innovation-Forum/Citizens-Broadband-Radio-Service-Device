@@ -224,11 +224,10 @@ def validate_Json_Value_Special_Sign(expected,actual):
                         valuesOfExpected = strExpectedOnlyLetters.split(",")
                         valuesOfActual = strActualOnlyLetters.split(",")
                         for cell in valuesOfActual:
-                            if cell not in valuesOfExpected:
-                                return False 
-                        return value         
-                    # if strExpectedOnlyLetters.upper() == strActualOnlyLetters.upper():
-                    if strExpectedOnlyLetters.upper() == strAcutal.upper():
+                            if cell in valuesOfExpected:
+                                return value         
+                    if strExpectedOnlyLetters.upper() == strActualOnlyLetters.upper():
+#                     if strExpectedOnlyLetters.upper() == strAcutal.upper():
                         return value
         except :
             indexOfPuncuation = strExpected.find(":")
