@@ -3,6 +3,6 @@
 	<secondsToAddForGrantExpireTime>3000</secondsToAddForGrantExpireTime>
 	<secondsToAddForTransmitExpireTime>1200</secondsToAddForTransmitExpireTime>
 	<registrationParams>
-		<cbsdSerialNumber>"401629000040"</cbsdSerialNumber>	
+		<cbsdSerialNumber>"D823956047"</cbsdSerialNumber>		 
 	</registrationParams>
 </cbrsParams>
