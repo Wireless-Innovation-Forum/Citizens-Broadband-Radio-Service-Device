@@ -2,6 +2,6 @@
 <cbrsParams>
 	<groupingParam>
 			<groupType>INTERFERENCE_COORDINATION</groupType>
-			<groupId>idan8</groupId>
+			<groupId>${maximumLength:128}</groupId>
 		</groupingParam>	 
 </cbrsParams>
