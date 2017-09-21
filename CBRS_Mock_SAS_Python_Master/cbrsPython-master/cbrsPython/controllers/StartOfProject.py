@@ -14,6 +14,7 @@ from Loggers.CmdLogger import CmdLogger
 from Loggers.DebugLogger import DebugLogger
 from Loggers.XmlLogger import XmlLogger
 import ssl
+from OpenSSL import SSL, crypto
 
 def add_Log_Of_Test_To_Specific_Folder(loggerHandler):
     '''
@@ -36,6 +37,14 @@ def get_input():
         loggerHandler.print_To_Terminal(consts.EMPTY_CSV_FILE_NAME_MESSAGE)
         answer = raw_input()
     return answer
+
+def verify_cb(conn, cert, errnum, depth, ok):
+    
+    # Dmmy callback function.
+    # loggerHandler.print_to_Logs_Files('Got certificate: {}'.format(cert.get_subject()),True)
+    pass
+        
+    return ok
         
 
 def run_New_Test(dirPath, confFile, loggerHandler): 
@@ -72,11 +81,21 @@ def run_New_Test(dirPath, confFile, loggerHandler):
             loggerHandler.print_to_Logs_Files(consts.SELECTED_TEST_FROM_USER_MESSAGE + str(inputAnswer) + " is starting now", True)
         cliHandler = CLIHandler(inputAnswer, confFile, dirPath, loggerHandler,testDefinition) ### initialize cli session handler
         flaskServer.enodeBController = ENodeBController(cliHandler.engine)
-        ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2) # use TLS to avoid POODLE
-        ctx.verify_mode = ssl.CERT_REQUIRED
-        ctx.load_verify_locations(str(dirPath) + cliHandler.get_Element_From_Config_File("caCerts"))
-        ctx.load_cert_chain(str(dirPath) + cliHandler.get_Element_From_Config_File("pemFilePath"), str(dirPath) + cliHandler.get_Element_From_Config_File("keyFilePath"))## get the certificates for https from config file
-        cliHandler.server = flaskServer.runFlaskServer(cliHandler.get_Element_From_Config_File("hostIp"),cliHandler.get_Element_From_Config_File("port"),ctx) ### run flask server using the host name and port  from conf file
+        ## Saurabh -- Changing socket context. Using PyOpenSSL instead of SSL
+        
+        # New code begins
+        ctx2 = SSL.Context(SSL.TLSv1_2_METHOD)
+        ctx2.set_verify(SSL.VERIFY_PEER|SSL.VERIFY_FAIL_IF_NO_PEER_CERT, verify_cb) # Demand a certificate
+        ctx2.use_privatekey_file (str(dirPath) + cliHandler.get_Element_From_Config_File("keyFilePath"))
+        ctx2.use_certificate_file(str(dirPath) + cliHandler.get_Element_From_Config_File("pemFilePath"))
+        ctx2.load_verify_locations(str(dirPath) + cliHandler.get_Element_From_Config_File("caCerts"))
+        certStore = ctx2.get_cert_store()
+        certStore.set_flags(crypto.X509StoreFlags().IGNORE_CRITICAL)
+        # New code ends
+        
+        cliHandler.server = flaskServer.runFlaskServer(cliHandler.get_Element_From_Config_File("hostIp"),\
+                                                       cliHandler.get_Element_From_Config_File("port"),\
+                                                       ctx2) ### run flask server using the host name and port  from conf file.  changed ctx to ctx2
         if (cliHandler.engine.check_Validation_Error()):
             cliHandler.stop_Thread_Due_To_Exception()
     if(inputAnswer=="quit"):
