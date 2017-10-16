@@ -177,7 +177,8 @@ class Assertion(object):
                     if(not self.isThereMoreThenOneValueInside(value) or isinstance(httpRequest[key], basestring) or isinstance(httpRequest[key], bool)):
                         JsonComparisonUtils.ordered_dict_prepend(expected[0], key, value)   
                     else:## key not exists at all
-                        if "$or" in optional[key]:
+                        if "$or" in optional[key] and isinstance(httpRequest[key], list):
+                            numberOfKeys = 1						
                             self.dontCheckNode.append(key)
                             result = JsonComparisonUtils._are_same(optional[key], httpRequest[key],False)   
                             if result[0] == True or str(result[0]) == str(httpRequest[key]):                                
@@ -221,12 +222,7 @@ class Assertion(object):
         return expected
     
     def isThereMoreThenOneValueInside(self,value):
-        numberOfValues = 0
-#         if("$or" in str(value)):
-#             return True
-#         else:
-#             return False 
-        
+        numberOfValues = 0     
         if("$or" in str(value)):
             strValue = str(value)
             if "[[" in strValue:
