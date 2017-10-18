@@ -111,7 +111,7 @@ class Assertion(object):
                                         result = JsonComparisonUtils._are_same(childInChild.firstChild.data, httpRequest[child2.tagName][childInChild.tagName],False)
                                         if False in result:
                                             raise Exception("ERROR - there is an validation error between http request and the configuration file attribute ")
-        airInterfaceXml = minidom.parse(str(self.dirPath) +"\\cbrsPython\\model\\CBRSConf\\airInterfaceOptions.xml")
+        airInterfaceXml = minidom.parse(str(self.dirPath) +"\\Configuration\\ObjectListConfig\\airInterfaceOptions.xml")
         for child in airInterfaceXml.childNodes[0].childNodes:
             if(child.firstChild!=None):
                 if child.tagName == consts.REGISTRATION_SUFFIX_HTTP + "Params":
@@ -125,7 +125,7 @@ class Assertion(object):
                                                                             raise Exception("ERROR - air interface object validation error " +
                                                     "expected value for : " + str(child3.tagName) + " is : "  + str (child3.firstChild.data) +
                                                     " and the actual value is : " + httpRequest[child2.tagName][child3.tagName])                       
-        groupingParamXml = minidom.parse(str(self.dirPath) +"\\cbrsPython\\model\\CBRSConf\\groupingParam.xml") 
+        groupingParamXml = minidom.parse(str(self.dirPath) +"\\Configuration\\ObjectListConfig\\groupingParam.xml") 
         if "groupingParam" in httpRequest:
             for child in groupingParamXml.childNodes[0].childNodes:
                 if(child.firstChild!=None):

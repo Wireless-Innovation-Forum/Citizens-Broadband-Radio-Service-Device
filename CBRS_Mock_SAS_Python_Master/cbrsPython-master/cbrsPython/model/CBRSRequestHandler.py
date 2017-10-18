@@ -47,7 +47,7 @@ class CBRSRequestHandler(object):
         cbsdFoundInJsons = False
         for jsonCol in testDefinition.jsonNamesOfSteps:
             xmlFileLinked = jsonComparer.get_Node_Of_Json_Parsed(jsonCol[0],"xmlFilelLinked",confFile,dirPath)
-            xmlPath = str(self.dirPath) +"\\cbrsPython\\model\\CBRSConf\\"+ xmlFileLinked+".xml"
+            xmlPath = str(self.dirPath) +"\\Configuration\\CBSDconfig\\"+ xmlFileLinked+".xml"
             if os.path.exists(xmlPath)==False:
                 raise IOError("ERROR - missing cbrs conf file of the CBSD : " + self.cbsdSerialNumber)
             self.cbrsConfFile = minidom.parse(xmlPath)

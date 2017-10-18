@@ -111,7 +111,7 @@ def initialize_Reports():
 current_path = os.path.dirname(os.path.realpath(__file__))
 dirPath = Path(__file__).parents[2]
 create_Log_Folder()
-confFile= minidom.parse(current_path +"\conf.xml") 
+confFile= minidom.parse(str(dirPath) +"\Configuration\conf.xml") 
 loggerHandler = loggerObserver(dirPath)
 initialize_Reports()
 run_New_Test(dirPath, confFile, loggerHandler)
