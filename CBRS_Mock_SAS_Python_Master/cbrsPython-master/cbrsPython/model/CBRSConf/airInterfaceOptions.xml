@@ -2,7 +2,7 @@
 <cbrsParams>
 	<registrationParams>
 		<airInterface>
-			<radioTechnology>"$or":["E_UTRA","AUTHORIZED"]</radioTechnology>
+			<radioTechnology>"$or":["E_UTRA","FUTURETECHNOLOGY"]</radioTechnology>
 		</airInterface>	 
 	</registrationParams>
 </cbrsParams>

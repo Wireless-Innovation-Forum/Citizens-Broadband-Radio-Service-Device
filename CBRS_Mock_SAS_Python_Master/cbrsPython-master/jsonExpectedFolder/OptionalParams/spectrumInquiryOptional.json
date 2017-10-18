@@ -1,9 +1,20 @@
 {
     "name":"CBSD_SpectrumInquiry_Request_Optional_Parameters_Mock_SAS_31_Aug_2017",  
-			"spectrumInquiryOptionalParams":
+	"spectrumInquiryOptionalParams":
         	[
             	{
-				"inquiredSpectrum": 
+            "measReport":
+        	[
+            	{
+					"rcvdPowerMeasReports":
+							[{ 
+								"measBandwidth": "${range:0To10000000}",
+								"measRcvdPower": "${range:-100To-25}",
+								"measFrequency": "${range:3550000000To3700000000}"
+							}]
+				}
+			],	
+			"inquiredSpectrum": 
 							[{ 
 							"highFrequency": "${range:3550000000To3700000000}",
 							"lowFrequency": "${range:3550000000To3700000000}" 

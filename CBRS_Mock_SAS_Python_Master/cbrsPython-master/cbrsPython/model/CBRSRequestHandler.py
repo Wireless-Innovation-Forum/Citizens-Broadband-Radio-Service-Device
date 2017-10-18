@@ -217,7 +217,7 @@ class CBRSRequestHandler(object):
             self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId)  
         elif(typeOfCalling == consts.GRANT_SUFFIX_HTTP):
             if(self.grantId == 0) :
-                self.grantId = str(randint(1, 1000000000))
+                self.grantId = str(randint(1, 1000000000))                
                 self.assertion.grantId = self.grantId  
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
             self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId) 

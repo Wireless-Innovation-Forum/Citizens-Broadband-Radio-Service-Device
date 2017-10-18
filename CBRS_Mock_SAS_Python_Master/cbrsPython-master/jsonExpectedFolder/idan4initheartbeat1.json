@@ -10,9 +10,8 @@
 	],
 	"heartbeatRequest": 
 	[ 
-		{ 
-			"grantRenew":{"$or":["true","false"]}			            
-            
+		{ 			            
+           "operationState": "GRANTED"  
 		} 
 	],
 	"response":

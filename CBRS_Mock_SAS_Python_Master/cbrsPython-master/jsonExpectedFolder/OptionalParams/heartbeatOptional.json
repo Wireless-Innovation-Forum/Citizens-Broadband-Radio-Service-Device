@@ -1,9 +1,19 @@
 {
     "name":"CBSD_Heartbeat_Request_Optional_Parameters_Mock_SAS_8_Sep_2017",  
-			"heartbeatOptionalParams":
+	"heartbeatOptionalParams":
         	[
             	{
-				"operationState": {"$or":["GRANTED","AUTHORIZED"]}
+				"operationState": {"$or":["GRANTED","AUTHORIZED"]},
+				"grantRenew": {"$or":["true","false"]},
+    			"measReport": {
+    			     "rcvdPowerMeasReports": [
+                       {
+                          "measBandwidth": "${range:1To10000000}",
+                          "measRcvdPower":  "${range:-100To25}",
+                          "measFrequency": "${range:3550000000To3699999999}"
+                       }
+                       ]
+                   }    									
 		} 
 			]	
 }

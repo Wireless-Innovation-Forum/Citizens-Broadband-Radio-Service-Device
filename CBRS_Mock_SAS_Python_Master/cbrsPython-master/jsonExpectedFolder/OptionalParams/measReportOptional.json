@@ -5,7 +5,7 @@
             	{
 					"rcvdPowerMeasReports":
 							[{ 
-								"measBandwidth": "${range:3550000000To3700000000}",
+								"measBandwidth": "${range:0To10000000}",
 								"measRcvdPower": "${range:-100To-25}",
 								"measFrequency": "${range:3550000000To3700000000}"
 							}]
