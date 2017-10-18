@@ -17,6 +17,13 @@ import ssl
 from controllers.CLIUtils.enums import TestStatus
 from flask import Flask,request,jsonify,g,redirect,url_for,abort
 import os
+from OpenSSL import SSL, crypto
+
+def verify_cb(conn, cert, errnum, depth, ok):
+    # Dummy call back function.
+    # loggerHandler.print_to_Logs_Files('Got certificate: {}'.format(cert.get_subject()),True)
+    pass
+    return ok
 
 class CLIHandler(Thread):
     '''
@@ -110,11 +117,21 @@ class CLIHandler(Thread):
             del insertToFolderAnswer
             cliHandler = CLIHandler(inputAnsweres,self.confFile,self.dirPath,self.loggerHandler,self.testDefinition) 
             flaskServer.enodeBController = ENodeBController(cliHandler.engine)
-            ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2) # use TLS to avoid POODLE
-            ctx.verify_mode = ssl.CERT_REQUIRED
-            ctx.load_verify_locations(str(self.dirPath) + cliHandler.get_Element_From_Config_File("caCerts"))
-            ctx.load_cert_chain(str(self.dirPath) + cliHandler.get_Element_From_Config_File("pemFilePath"), str(self.dirPath) + cliHandler.get_Element_From_Config_File("keyFilePath"))
-            flaskServer.runFlaskServer(self.get_Element_From_Config_File("hostIp"),self.get_Element_From_Config_File("port"),ctx)     
+            ## Saurabh -- Changing socket context. Using PyOpenSSL instead of SSL
+        
+            # New code begins
+            ctx2 = SSL.Context(SSL.TLSv1_2_METHOD)
+            ctx2.set_verify(SSL.VERIFY_PEER|SSL.VERIFY_FAIL_IF_NO_PEER_CERT, verify_cb) # Demand a certificate
+            ctx2.use_privatekey_file (str(self.dirPath) + cliHandler.get_Element_From_Config_File("keyFilePath"))
+            ctx2.use_certificate_file(str(self.dirPath) + cliHandler.get_Element_From_Config_File("pemFilePath"))
+            ctx2.load_verify_locations(str(self.dirPath) + cliHandler.get_Element_From_Config_File("caCerts"))
+            certStore = ctx2.get_cert_store()
+            certStore.set_flags(crypto.X509StoreFlags().IGNORE_CRITICAL)
+            # New code ends
+            
+            flaskServer.runFlaskServer(self.get_Element_From_Config_File("hostIp"),\
+                                       self.get_Element_From_Config_File("port"),\
+                                       ctx2)     # Changed ctx to ctx2
         if(cliHandler.engine.validationErrorAccuredInEngine):
             cliHandler.stop_Thread_Due_To_Exception()
         if(inputAnsweres=="quit"):
