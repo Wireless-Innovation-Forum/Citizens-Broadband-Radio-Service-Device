@@ -1,29 +1,92 @@
 {
-    "name":"CBSD_Grant_Request_Optional_Parameters_Mock_SAS_31_Aug_2017",  
-	"grantOptionalParams":
-	
-            [{
-		"measReport":
-        	[
-            {
-				"rcvdPowerMeasReports":
-					[{ 
-						"measBandwidth": "${range:0To10000000}",
-						"measRcvdPower": "${range:-100To-25}",
-						"measFrequency": "${range:3550000000To3700000000}"
-					}]
-				}
-			]	,            
-		"operationParam": 
-			{ 
-				"maxEirp": "${range:-137.0To30.0}", 
-				"operationFrequencyRange": 
-					{ 
-						"highFrequency": "${range:3550000000To3700000000}", 
-						"lowFrequency": "${range:3550000000To3700000000}"
-					}
-				}
-			}]
-				
-}
+    "name":"CBSD_Grant_Request_Optional_Parameters_Mock_SAS_17_Oct_2017",  
+	"grantOptionalParams":[{
+		
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Spectrum Grant parameters provided by a CBSD",
+  "type": "object",
+  "properties": {
+      "cbsdId": { 
+          "type": "string",
+		  "maxLength" : 128,             
+          "description": "Unique designator for the CBSD as returned from the registration procedure." },    
+      "operationParam": { "$ref": "#/operationParam" },      
+      "measReport": { "$ref": "#/measReport" }
+      }, 
+       
+  "operationParam": {   
+  		"description": "Operational parameters provided for a CBSD",
+  		"type": "object", 
+  		"additionalproperties": true,  
+  		"required": [ "maxEirp", "operationFrequencyRange" ],
+  		"properties": {
+    		"maxEirp": { 
+                 "type": "number",
+				 "minimum": -137,
+				 "maximum": 30, 
+                 "description": "The peak operating power in dBm/MHz to be used by the CBSD within this operating parameter set" 
+                 },
+    		"operationFrequencyRange": {   
+                 "description": "Describes a frequency range. The range is provided as a pair of numbers which describe the bounding values of the range.",
+                 "type": "object",
+                 "required": [ "lowFrequency", "highFrequency" ],
+                 "properties": {
+                       "lowFrequency": { 
+                           "type": "number",
+                           "minimum": 3550000000,
+                           "maximum": 3700000000,
+                           "description": "The lower frequency of the range in Hz." 
+                           },
+                       "highFrequency": { 
+                           "type": "number",
+                           "minimum": 3550000000,
+                           "maximum": 3700000000,
+                           "description": "The higher frequency of the range in Hz. Must be greater than lowFrequency." 
+                           }
+                      } 
+                   }
+               }
+            },  
+  
+  "measReport": { 
+   		"description": "Measurement report provided by a CBSD.",
+   		"type": "object",
+   		"additionalproperties": true,
+   		"properties": {
+      		"rcvdPowerMeasReports": {
+           		"type": "array",
+           		"description": "Report structured used by a CBSD when a measurement report type is EutraCarrierRssiNonTx or EutraCarrierRssiAlways",
+           		"items": {   
+               		"type": "object",
+               		"description": "Report for a particular Carrier RSSI measurement.",
+               		"required": [ "measFrequency", "measBandwidth", "measRcvdPower" ],
+               		"properties": {
+                   		"measFrequency": {
+                       		"type": "number",
+                       		"description": "Frequency of the low end of the measured channel in Hz.",
+                      		"minimum": 3550000000,
+                       		"maximum": 3700000000
+                     		},
+                   		"measBandwidth": {
+                       		"type": "number",
+                       		"description": "Measurement bandwidth of the channel in Hz.",
+                       		"minimum": 0,
+                       		"maximum": 10000000
+                     		},
+                   		"measRcvdPower": {
+                        	"type": "number",
+                        	"description": "Carrier RSSI measurement of the channel in dBm as per 3GPP TS 32.592.",
+                        	"minimum": -100,
+                        	"maximum": -25
+                           }
+                    	}
+                    }
+                 }
+             }     
+          }		                          
+ 	}
+  
+]}
+
+
 

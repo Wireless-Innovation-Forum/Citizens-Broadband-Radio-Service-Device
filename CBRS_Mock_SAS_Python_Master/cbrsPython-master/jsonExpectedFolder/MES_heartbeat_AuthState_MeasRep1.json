@@ -1,0 +1,40 @@
+{
+    "name":"HBT_heartbeat_AuthState_MeasRep",
+    "measReportRequested" : "True",  
+    "questions":
+		[
+			{
+				"question" : "Does Cbsd1 send correct measurement report in heartbeat request message?",
+				"answers" : ["y", "n"], 
+				"expectedAnswer" : "y"
+			}
+		],          
+	"heartbeatRequest": 
+			[ 
+			{
+    			"operationState" : "AUTHORIZED",
+    			"measReport": {
+    			     "rcvdPowerMeasReports": [
+                       {
+                          "measBandwidth": "${range:1To10000000}",
+                          "measRcvdPower":  "${range:-100To-25}",
+                          "measFrequency": "${range:3550000000To3699999999}"
+                       }
+                       ]
+                   }    			
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{   				
+    				"response" : {
+      					"responseCode" : 0
+    					}
+  				}
+		 ]
+	}
+
+	     
+}

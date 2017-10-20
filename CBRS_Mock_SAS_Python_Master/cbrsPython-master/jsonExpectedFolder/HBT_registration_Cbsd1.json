@@ -1,0 +1,21 @@
+{
+    "name":"Cbsd1_Registration",
+    "xmlFilelLinked": "cbsdc1",
+    "registrationRequest":[
+				{
+
+                    }
+                 ],
+    
+    "response":{
+                 "registrationResponse" :[
+                      {
+                        "cbsdId": "None",
+                        "response": {
+                               "responseCode": 0
+                               }
+                       }
+                                     
+                   ]
+	          }
+}

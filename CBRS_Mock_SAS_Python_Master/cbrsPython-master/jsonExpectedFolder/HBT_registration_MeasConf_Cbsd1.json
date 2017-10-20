@@ -1,0 +1,21 @@
+{
+    "name":"Cbsd1_Registration",
+    "xmlFilelLinked": "cbsdc1",
+    "registrationRequest":[
+				{
+
+                    }
+                 ],
+    
+    "response":{
+                 "registrationResponse" :[
+                      {
+    				    "measReportConfig" : "RECEIVED_POWER_WITHOUT_GRANT",                         
+                        "response": {
+                               "responseCode": 0
+                               }
+                       }
+                                     
+                   ]
+	          }
+}

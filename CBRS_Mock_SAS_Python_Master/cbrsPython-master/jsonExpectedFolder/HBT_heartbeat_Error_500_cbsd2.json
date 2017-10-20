@@ -1,0 +1,32 @@
+{
+    "name":"HBT_heartbeat_Error_500_cbsd2",
+    "noMoreStep" : "True",
+    "questions":
+				[
+                        {
+                            "question" : "Does cbsd2 stop transmiting power after receiving the Heartbeat response with response code = 500?",
+                            "answers" : ["y", "n"], 
+							"expectedAnswer" : "y"
+                        }						
+				],			      
+      
+	"heartbeatRequest": 
+			[ 
+			{
+    			"operationState" : "AUTHORIZED"
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{
+    				"response" : {
+      					"responseCode" : 500
+    					}
+  				}
+		 ]
+	}
+
+	     
+}

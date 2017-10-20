@@ -10,12 +10,13 @@ from model.Utils.Assert import Assertion
 from xml.dom import minidom
 from random import *
 import os
+from time import sleep
+
 
 class CBRSRequestHandler(object):
     '''
     classdocs
     '''
-
 
     def __init__(self, cbsdSerialNumber,testDefinition,EnviormentConfFile,dirPath,currentLogger):
         self.cbsdSerialNumber                   = cbsdSerialNumber
@@ -32,30 +33,40 @@ class CBRSRequestHandler(object):
         self.loggerHandler                      = currentLogger
         self.assertion                          = None
         self.heartBeatLimitCounter              = EnviormentConfFile.getElementsByTagName("heartbeatLimit")[0].firstChild.data
-        self.jsonSteps = []
+        self.jsonSteps                          = []
         self.spectrumInquieryAvailableRepeatsEveryWhereRequest =[]
-        self.enviormentConfFile = EnviormentConfFile
-        self.dirPath = dirPath
-        self.cbrsConfFile = None
-        self.cbsdId = None
-        self.grantId = 0
-        self.expectedRelBeforeDeragistration = False
-        self.set_Current_Json_Steps(testDefinition, EnviormentConfFile, dirPath)
+        self.enviormentConfFile                 = EnviormentConfFile
+        self.dirPath                            = dirPath
+        self.cbrsConfFile                       = None
+        self.cbsdId                             = None
+        self.grantId                            = 0
+        self.expectedRelBeforeDeragistration    = False
+        self.isDelayTriggered                   = False                                       
+        self.secondsForDelay                    = 0                                            
+        self.isMeasRepRequested                 = False                                        
+        self.stopGrantRenew                     = False                                                
+        self.measReportCounter                  = 0    
+        self.heartbeatErrorList                 = [500, 501, 502, 105] 
+        self.immediatelyShutdown                = False 
+        self.shorterGrantTime                   = False 
+        self.postErrorMessage                   = False     
+        self.set_Current_Json_Steps(testDefinition, EnviormentConfFile, dirPath)         
         
     
     def set_Current_Json_Steps(self,testDefinition,confFile,dirPath):
         cbsdFoundInJsons = False
         for jsonCol in testDefinition.jsonNamesOfSteps:
             xmlFileLinked = jsonComparer.get_Node_Of_Json_Parsed(jsonCol[0],"xmlFilelLinked",confFile,dirPath)
-            xmlPath = str(self.dirPath) +"\\cbrsPython\\model\\CBRSConf\\"+ xmlFileLinked+".xml"
+            xmlPath = str(self.dirPath) +"\\Configuration\\CBSDconfig\\"+ xmlFileLinked+".xml"
             if os.path.exists(xmlPath)==False:
                 raise IOError("ERROR - missing cbrs conf file of the CBSD : " + self.cbsdSerialNumber)
             self.cbrsConfFile = minidom.parse(xmlPath)
+            
             if str(self.cbrsConfFile.getElementsByTagName("cbsdSerialNumber")[0].firstChild.data).replace('"',"")  == self.cbsdSerialNumber :
-            #if jsonComparer.get_Node_Of_Json_Parsed(jsonCol[0],"xmlFilelLinked",confFile,dirPath).replace("cbsd","")== self.cbsdSerialNumber:
                 cbsdFoundInJsons = True
                 self.jsonSteps = jsonCol
-                self.assertion = Assertion(self.enviormentConfFile,dirPath,self.loggerHandler,self.cbrsConfFile)              
+                self.assertion = Assertion(self.enviormentConfFile,dirPath,self.loggerHandler,self.cbrsConfFile)  
+                            
         if(not cbsdFoundInJsons):
             raise IOError("ERROR - missing registration json in one of the csv columns with the cbsd serial number " + self.cbsdSerialNumber)
         try:
@@ -77,23 +88,62 @@ class CBRSRequestHandler(object):
                                         
             
     def handle_Http_Req(self,httpRequest,typeOfCalling):
+        
         req = httpRequest
+        if(self.isDelayTriggered==True and typeOfCalling!=consts.HEART_BEAT_SUFFIX_HTTP):                                                                                                        
+            sleep(2*(self.secondsForDelay))                                                                                                   
+        
+        if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"noMoreStep"))==True):          
+            self.isLastStepInCSV = True                  
+
+        if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"shorterGrantTime"))==True):          
+            self.shorterGrantTime = True 
+            
+        if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"postErrorMessage"))==True):          
+            self.postErrorMessage = True                
+                                
         if(typeOfCalling == consts.SPECTRUM_INQUIERY_SUFFIX_HTTP):
             for jsonFile in self.spectrumInquieryAvailableRepeatsEveryWhereRequest:
                 try:
                     self.assertion.compare_Json_Req(httpRequest, jsonFile, consts.SPECTRUM_INQUIERY_SUFFIX_HTTP+consts.REQUEST_NODE_NAME,None,False)
-                    return self.returnSpectInquieryInCaseOfRepeatsAllowedAlwaysValidationSucceed(jsonFile)
+                    return self.returnSpectInquieryInCaseOfRepeatsAllowedAlwaysValidationSucceed(jsonFile,httpRequest)
                 except Exception as e:
-                    pass   
+                    self.validationErrorAccuredInEngine = True  
+                    raise IOError (str(e))   
         
-        
+        if(typeOfCalling==consts.HEART_BEAT_SUFFIX_HTTP): 
+             
+            if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"measReportRequested"))==True):         
+                self.isMeasRepRequested = True   
+                    
+            if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"stopGrantRenewFlag"))==True):          
+                self.stopGrantRenew = True                                                                                                               
+
+            if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"immediatelyShutdown"))==True):          
+                self.immediatelyShutdown = True                     
+            
+            if(self.isMeasRepRequested == True):                                                                                            
+                if(self.assertion.is_Json_Request_Contains_Key(httpRequest, "measReport")):                                                 
+                    self.measReportCounter = 1                                                                                              
+                else :                                                                                                                      
+                    self.measReportCounter +=1                                                                                              
+                print self.measReportCounter                                                                                                
+
+            if(self.measReportCounter>5):                                                                                                   
+                self.validationErrorAccuredInEngine = True                                                                                  
+                return "ERROR - no meas report received in the last 5 heart beats request"                                                      
+                    
         if(typeOfCalling == consts.RELINQUISHMENT_SUFFIX_HTTP):
             self.expectedRelBeforeDeragistration =  self.verify_If_Rel_Before_Deregistration_Expected()
-        if(self.repeatsType == typeOfCalling and self.repeatesAllowed == True and self.oldHttpReq == req):#self.verify_Equal_Req_Except_Of_Operation_State(typeOfCalling,httpRequest)):
+            
+        if(typeOfCalling == consts.DEREGISTRATION_SUFFIX_HTTP):
+            self.numberOfStep = (len(self.jsonSteps)-1)             
+            
+        if(self.repeatsType == typeOfCalling and self.repeatesAllowed == True and self.oldHttpReq == req):
             ### in case its an heartbeat calling need to check if it is cross the limit 
             ###counter get from the config file or heartbeat call 
             ###passed the timeout that get from the last grant response         
-            if(typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):     
+            if(typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):                                                                           
                 if(int(self.numberOfHearbeatRequests)<int(self.heartBeatLimitCounter)):
                     self.numberOfHearbeatRequests+=1
                     if(not self.is_Valid_Heart_Beat_Time()):
@@ -102,13 +152,17 @@ class CBRSRequestHandler(object):
                 else:
                     self.validationErrorAccuredInEngine = True
                     return consts.HEART_BEAT_REACHED_TO_LIMIT_MESSAGE
-            self.numberOfStep-=1### if its repeat type json number of step should be the same as it was before
+            self.numberOfStep-=1
+            ### if its repeat type json number of step should be the same as it was before
 
         
         elif(self.Is_Repeats_Available(self.get_Expected_Json_File_Name(),typeOfCalling)==True):
+            
             if(typeOfCalling == consts.SPECTRUM_INQUIERY_SUFFIX_HTTP): 
                 self.Initialize_Repeats_Type_Allowed(consts.SPECTRUM_INQUIERY_SUFFIX_HTTP,httpRequest, typeOfCalling)
-            elif(typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):#need to verify that the request before was grant#    
+            
+            elif(typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):
+                #need to verify that the request before was grant#                                                          
                 if(self.validDurationTime == None):
                     return consts.GRANT_BEFORE_HEARTBEAT_ERROR                  
                 self.Initialize_Repeats_Type_Allowed(consts.HEART_BEAT_SUFFIX_HTTP,httpRequest, typeOfCalling)
@@ -118,10 +172,12 @@ class CBRSRequestHandler(object):
             if(typeOfCalling==consts.GRANT_SUFFIX_HTTP):
                 self.grantBeforeHeartBeat = True
                 self.numberOfHearbeatRequests=0
+                
             elif(typeOfCalling!=consts.HEART_BEAT_SUFFIX_HTTP):
                 self.grantBeforeHeartBeat = False
                 self.validDurationTime = 0
                 self.numberOfHearbeatRequests=0
+                
             elif(typeOfCalling==consts.HEART_BEAT_SUFFIX_HTTP):
                 ### checks that heartbeat request has been sent only after grant or another heartbeat
                 if(not self.grantBeforeHeartBeat):
@@ -136,7 +192,8 @@ class CBRSRequestHandler(object):
                     
         except Exception as e:
             self.validationErrorAccuredInEngine = True  
-            return e.message
+            raise IOError (str(e))                                                                                                              
+                
         if(typeOfCalling==consts.GRANT_SUFFIX_HTTP):
             ### if it is a grant request we need to initialize the valid duration time between the heartbeats
             self.validDurationTime = self.assertion.get_Duration_Time_From_Grant_Json(self.get_Expected_Json_File_Name())
@@ -152,13 +209,18 @@ class CBRSRequestHandler(object):
                 return True
         return False
     
-    def returnSpectInquieryInCaseOfRepeatsAllowedAlwaysValidationSucceed(self,expectedJsonName):
+    def returnSpectInquieryInCaseOfRepeatsAllowedAlwaysValidationSucceed(self,expectedJsonName,httpRequest):
         jsonAfterParse = self.parse_Json_To_Dic_By_File_Name(expectedJsonName,consts.RESPONSE_NODE_NAME,self.enviormentConfFile)
         specificRespJson = jsonAfterParse[consts.SPECTRUM_INQUIERY_SUFFIX_HTTP+consts.RESPONSE_NODE_NAME.title()][0]
         self.change_Value_Of_Param_In_Dict(specificRespJson,"cbsdId",self.cbsdId)
+        self.processSpectrumInquiryResponse(specificRespJson,httpRequest)        
         return jsonAfterParse
         
-        
+    def is_Absent_Response_Set(self,expectedJsonName):                                            
+        theFlag = (bool(self.assertion.get_Attribute_Value_From_Json(expectedJsonName,"isAbsentResponse")))     
+        if theFlag == True:                                                                                     
+            self.isDelayTriggered = True                                                                        
+            return True                                                                                                     
         
     def Is_Repeats_Available(self,expectedJsonName,typeOfCalling):
         '''
@@ -169,7 +231,13 @@ class CBRSRequestHandler(object):
         return bool(self.assertion.get_Attribute_Value_From_Json(expectedJsonName,"repeatsAllowed"))
 
     def compare_Json_Req(self,httpRequest,expectedJsonFileName,typeOfCalling,keys=None):
-        self.assertion.compare_Json_Req(httpRequest,expectedJsonFileName,typeOfCalling+consts.REQUEST_NODE_NAME,keys)
+        self.secondsForDelay = int(self.cbrsConfFile.getElementsByTagName("secondsForDelayResponse")[0].firstChild.data)                       
+        if(not self.is_Absent_Response_Set(self.get_Expected_Json_File_Name())==True):                                      
+            self.assertion.compare_Json_Req(httpRequest,expectedJsonFileName,typeOfCalling+consts.REQUEST_NODE_NAME,keys)           
+
+        else:                                                                                                                       
+            sleep(self.secondsForDelay)                                                                                             
+            self.assertion.compare_Json_Req(httpRequest,expectedJsonFileName,typeOfCalling+consts.REQUEST_NODE_NAME,keys)                  
     
     def parse_Json_To_Dic_By_File_Name(self,jsonFileName,nodeName,confFile):
         try:
@@ -209,30 +277,37 @@ class CBRSRequestHandler(object):
   
     def process_response(self,typeOfCalling,httpRequest): 
         jsonAfterParse = self.parse_Json_To_Dic_By_File_Name(self.get_Expected_Json_File_Name(),consts.RESPONSE_NODE_NAME,self.enviormentConfFile)
+        
+        if len(jsonAfterParse) > 1:
+            for item in jsonAfterParse.iteritems():
+                if item[0] != typeOfCalling+consts.RESPONSE_NODE_NAME.title():
+                    del jsonAfterParse[item[0]]
         specificRespJson = jsonAfterParse[typeOfCalling+consts.RESPONSE_NODE_NAME.title()][0]
+        
         if(typeOfCalling == consts.SPECTRUM_INQUIERY_SUFFIX_HTTP):
             self.change_Value_Of_Param_In_Dict(specificRespJson,"cbsdId",self.cbsdId)
+            self.processSpectrumInquiryResponse(specificRespJson,httpRequest)
+                        
         elif (typeOfCalling == consts.RELINQUISHMENT_SUFFIX_HTTP):
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId)  
-        elif(typeOfCalling == consts.GRANT_SUFFIX_HTTP):
-            if(self.grantId == 0) :
-                self.grantId = str(randint(1, 1000000000))                
-                self.assertion.grantId = self.grantId  
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
             self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId) 
-            secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForGrantExpireTime")[0].firstChild.data)
-            result = self.get_Expire_Time(secondsToAdd)
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "grantExpireTime", result)              
+            
+        elif(typeOfCalling == consts.GRANT_SUFFIX_HTTP):
+            self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
+            self.processGrantResponse(specificRespJson,httpRequest)            
+                        
         elif(typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):
-            secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForTransmitExpireTime")[0].firstChild.data)
+            if specificRespJson["response"]["responseCode"] in self.heartbeatErrorList or self.immediatelyShutdown == True:
+                secondsToAdd = 0
+            else:
+                secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForTransmitExpireTime")[0].firstChild.data)
             result = self.get_Expire_Time(secondsToAdd,specificRespJson)
             self.change_Value_Of_Param_In_Dict(specificRespJson, "transmitExpireTime", result)
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
             self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId)
-            if("grantRenew" in httpRequest):
+            if("grantRenew" in httpRequest and self.stopGrantRenew == False):                                                           
                 if(httpRequest["grantRenew"] == True or httpRequest["grantRenew"]=="true"):
-                    secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForGrantExpireTime")[0].firstChild.data)
+                    secondsToAdd = consts.SHORTER_GRANT_EXPIRY_TIME
                     result = self.get_Expire_Time(secondsToAdd)
                     self.change_Value_Of_Param_In_Dict(specificRespJson, "grantExpireTime", result)
                       
@@ -241,15 +316,18 @@ class CBRSRequestHandler(object):
                 self.cbsdId = httpRequest["fccId"]+ "Mock-SAS" + self.cbsdSerialNumber
                 self.assertion.cbsdId = self.cbsdId
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
+        
         elif(typeOfCalling == consts.DEREGISTRATION_SUFFIX_HTTP):
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
         
         if(self.expectedRelBeforeDeragistration == True):
             self.numberOfStep-=1
             self.expectedRelBeforeDeragistration = False
-        if(len(self.jsonSteps) == self.numberOfStep+1):
+        
+        if(len(self.jsonSteps) == self.numberOfStep+1 or self.isLastStepInCSV == True):
             self.questAnswerPartOfJson = self.parse_Json_To_Dic_By_File_Name(self.get_Expected_Json_File_Name(),consts.QUESTION_NODE_NAME,self.enviormentConfFile)
             self.isLastStepInCSV = True  
+        
         self.numberOfStep+=1
         return jsonAfterParse
     
@@ -288,4 +366,55 @@ class CBRSRequestHandler(object):
         currentDateTime = str(currentDateTime).replace(currentDateTime, currentDateTime+"Z") 
         return currentDateTime
         
+    def processSpectrumInquiryResponse(self,jsonResonsedefined,httpRequest):  
+        '''
+        The code below is to build up SpectrumInquiry response message when multiple spectrum 
+        included, not required pre-setup in expected json file
+        '''                     
+        if(jsonResonsedefined["response"]["responseCode"] ==0):
+            if "availableChannel" in jsonResonsedefined:
+                availableChannel=[]
+                for itemReq in httpRequest["inquiredSpectrum"]:
+                    responseChannel = {}
+                    responseChannel["ruleApplied"]="FCC Part 96"
+                
+                    if(itemReq["lowFrequency"]>consts.SPECTRUM_GAA_LOW and itemReq["highFrequency"] < consts.SPECTRUM_GAA_HIGH):
+                        responseChannel["channelType"]="GAA"
+                    elif(itemReq["lowFrequency"]>consts.SPECTRUM_PAL_LOW and itemReq["highFrequency"] < consts.SPECTRUM_PAL_HIGH):
+                        responseChannel["channelType"]="PAL"
+                
+                    responseChannel["frequencyRange"] = itemReq
+                    if "maxEirp" in jsonResonsedefined["availableChannel"][0]:
+                        responseChannel["maxEirp"]=jsonResonsedefined["availableChannel"][0]["maxEirp"]
+                    if "groupingParam" in jsonResonsedefined["availableChannel"][0]:
+                        responseChannel["groupingParam"] = jsonResonsedefined["availableChannel"][0]["groupingParam"]
+                    availableChannel.append(responseChannel)
+                self.change_Value_Of_Param_In_Dict(jsonResonsedefined, "availableChannel", availableChannel)
+                                  
+        else:
+            pass
+    
+    def processGrantResponse(self,jsonResponsedefined,httpRequest):
         
+        if(jsonResponsedefined["response"]["responseCode"] ==0):
+            if(self.grantId == 0) :
+                self.grantId = str(randint(1, 1000000000))                
+                self.assertion.grantId = self.grantId  
+            self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "grantId", self.grantId) 
+            
+            if(self.shorterGrantTime != True):                
+                secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForGrantExpireTime")[0].firstChild.data)                          
+            else:
+                secondsToAdd = consts.SHORTER_GRANT_EXPIRY_TIME
+                
+            result = self.get_Expire_Time(secondsToAdd)
+            self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "grantExpireTime", result) 
+            
+            if "operationParam" in jsonResponsedefined:
+                if "operationParam" in httpRequest:
+                    reqOperParams = httpRequest["operationParam"]
+                    self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "operationParam", reqOperParams)
+                else:
+                    raise IOError('There is no requested parameters in the request message')                  
+        else:
+            pass                            

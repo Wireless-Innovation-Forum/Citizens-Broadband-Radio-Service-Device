@@ -1,0 +1,19 @@
+{
+    "name":"HBT_spectrumInquiry_Cbsd",  
+    "questions": {},
+    "appearAlways":"True",    
+    "spectrumInquiryRequest": 
+				[
+				{ 
+
+				} 
+				],
+   "response":
+   {
+	"spectrumInquiryResponse":[ 
+      {     
+		"response":{"responseCode":0}
+		}	
+		]
+    }
+}

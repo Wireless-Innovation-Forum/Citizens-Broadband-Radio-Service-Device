@@ -1,0 +1,28 @@
+{
+    "name":"HBT_spectrumInquiry_AppearAlways",  
+    "questions": {},  
+    "spectrumInquiryRequest": 
+		  [
+		      {
+
+		      }
+		  ],
+   "response":
+		   {
+		"spectrumInquiryResponse":[ 
+			{
+		    "availableChannel" : [
+		    	{ 
+		           "frequencyRange":{
+		                  },
+		           "channelType": "PAL",
+		           "ruleApplied": "FCC Part 96"
+		        }
+		     ],
+		    "response" : {
+		      	"responseCode" : 0
+		         }
+		   }  
+           ]
+    }
+}

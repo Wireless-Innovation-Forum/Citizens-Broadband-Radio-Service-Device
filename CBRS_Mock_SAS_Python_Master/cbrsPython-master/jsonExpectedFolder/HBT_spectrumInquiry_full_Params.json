@@ -1,0 +1,23 @@
+{
+    "name":"HBT_spectrumInquiry_Cbsd",      
+    "spectrumInquiryRequest": 
+				[
+				{ 
+
+				} 
+				],
+   "response":
+   {
+	"spectrumInquiryResponse":[ 
+      {    
+		"availableChannel" :[
+				    	{ 
+		           "maxEirp": "30",
+		           "groupingParam": "Ericsson"
+		        }
+		], 
+		"response":{"responseCode":0}
+		}	
+		]
+    }
+}

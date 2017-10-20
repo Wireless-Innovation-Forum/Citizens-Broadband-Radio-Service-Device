@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cbrsParams>
+	<secondsToAddForGrantExpireTime>86401</secondsToAddForGrantExpireTime>
+	<secondsToAddForTransmitExpireTime>200</secondsToAddForTransmitExpireTime>
+	<registrationParams>
+		<cbsdSerialNumber>D823956047</cbsdSerialNumber></registrationParams>
+	<secondsForDelayResponse>40</secondsForDelayResponse></cbrsParams>

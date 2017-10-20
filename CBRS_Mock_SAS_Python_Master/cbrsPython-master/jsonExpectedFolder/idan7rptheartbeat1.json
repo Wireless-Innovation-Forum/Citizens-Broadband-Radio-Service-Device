@@ -12,7 +12,8 @@
 	"heartbeatRequest": 
 	[ 
 		{ 
-			"operationState": "AUTHORIZED"
+			"operationState": "AUTHORIZED",
+			"grantRenew": false  
             
 		} 
 	],

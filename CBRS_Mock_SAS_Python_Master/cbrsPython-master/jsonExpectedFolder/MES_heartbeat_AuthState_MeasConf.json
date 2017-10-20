@@ -1,0 +1,24 @@
+{
+    "name":"HBT_heartbeat_GrantedState_MeasConf",  
+	"heartbeatRequest": 
+			[ 
+			{
+    			"operationState": "AUTHORIZED"
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{
+    				"measReportConfig" : "RECEIVED_POWER_WITH_GRANT",
+    				"response" : {
+      					"responseCode" : 0
+    					}
+  				}
+	
+		 ]
+	}
+
+	     
+}

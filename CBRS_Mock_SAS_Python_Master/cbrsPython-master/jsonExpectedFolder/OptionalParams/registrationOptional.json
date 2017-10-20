@@ -1,44 +1,128 @@
 {
-    "name":"CBSD_Registration_Request_Optional_Parameters_Mock_SAS_06_Sep_2017",  
-			"registrationOptionalParams":
-        	[
-            	{
-				  "measCapability":{"$or":[["RECEIVED_POWER_WITHOUT_GRANT","RECEIVED_POWER_WITH_GRANT"],["RECEIVED_POWER_WITHOUT_GRANT"],["RECEIVED_POWER_WITH_GRANT"]]},
-				  "callSign":"${maximumLength:128}",
-				  "CpiSignatureData":
-						{	
-							"protectedHeader": "${maximumLength:128}"
-							,"encodedCpiSignedData": "${maximumLength:128}"
-							,"digitalSignature": "${maximumLength:128}"
-						},
-				  "cbsdInfo":
-						{
-							"firmwareVersion": "${maximumLength:64}"
-							,"hardwareVersion": "${maximumLength:64}"
-							,"model": "${maximumLength:64}"
-							,"softwareVersion": "${maximumLength:64}"
-							,"vendor": "${maximumLength:64}"
-						},
-				  "userId":"${maximumLength:128}",
-				  "fccId":"${maximumLength:128}",
-				  "cbsdCategory":{"$or":["A","B"]},
-				  "installationParam":
-					{
-						  "latitude":"${range:-90.000000To90.000000}"
-						  ,"longitude":"${range:-180.000000To180.000000}"
-						  ,"height":"${range:0To10000}"
-						  ,"heightType":{"$or":["AGL","AMSL"]}
-						  ,"horizontalAccuracy":"${range:0To50}"
-						  ,"verticalAccuracy":"${range:0To3}"
-						  ,"indoorDeployment":{"$or":["true","false"]}
-						  ,"antennaAzimuth":"${range:0To359}"
-						  ,"antennaDowntilt":"${range:-90To90}"
-						  ,"antennaGain":"${range:-127To128}"
-						  ,"eirpCapability":"${range:-127To47}"
-						  ,"antennaBeamwidth":"${range:0To360}"
-						  ,"antennaModel":"${maximumLength:128}"
-					}
-				}
-			]	
-}
+    "name":"CBSD_Registration_Request_Optional_Parameters_Mock_SAS_17_Oct_2017",  
+	"registrationOptionalParams":[
 
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Registration parameters provided for a CBSD",
+  "type": "object",
+  
+  "properties": {
+    "userId": { "type": "string",
+				"maxLength" : 128,    
+                "description": "Unique user designator for the operator. Generation mechanism TBD" },
+    "fccId": { "type": "string",
+    		   "maxLength" : 128,
+               "description": "The certification FCC ID for the hardware" },
+    "cbsdSerialNumber": { "type": "string",
+				          "maxLength" : 128,    
+                          "description": "Unique identifier for the CBSD chosen by the manufacturer" },
+    "cbsdCategory": { "enum" : [ "A", "B" ],
+                      "description": "A if the device is Category A; B if it is Category B" },
+    "callSign": { "type": "string",
+				  "maxLength" : 128,    
+                  "description": "The call sign for the operator. Meaning and origin TBD" },
+    "measCapability": { "type": "array",
+                        "description": "List of supported sensing capabilities of the device",
+                        "items": { "enum": [ "RECEIVED_POWER_WITHOUT_GRANT", "RECEIVED_POWER_WITH_GRANT" ],
+                        "description": "Measurement capabilities of the CBSD." },
+    "CpiSignatureData":{"$ref": "#/CpiSignatureData"},
+    "cbsdInfo": { "$ref": "#/cbsdInfo" },
+    "installationParam": { "$ref": "#/installationParam" }        
+                      },
+                      
+  "cbsdInfo": {
+    "type": "object",
+    "description": "Container for optional information related to the CBSD hardware and software configuration.",
+    "properties": {
+      "vendor": { "type": "string",
+				  "maxLength" : 64,      
+                  "description": "Name of the CBSD manufacturer" },
+      "model": { "type": "string",
+				 "maxLength" : 64,      
+                 "description": "Name of the CBSD model." },
+      "softwareVersion": { "type": "string",
+				  		   "maxLength" : 64,      
+                           "description": "Name of the CBSD software version." },
+      "hardwareVersion": { "type": "string",
+     				  	   "maxLength" : 64, 
+                           "description": "Name of the CBSD hardware version." },
+      "firmwareVersion": { "type": "string",
+     				  	   "maxLength" : 64,       
+                           "description": "Name of the CBSD firmware version." }
+    	}
+     },
+
+  "CpiSignatureData": {
+    "type": "object",
+    "description": "Container for optional information related to the CBSD CPI information.",
+  "required": [ "protectedHeader", "encodedCpiSignedData", "digitalSignature"],    
+    "properties": {
+      "protectedHeader": { "type": "string",
+				  "maxLength" : 128,      
+                  "description": "protectedHeader" },
+      "encodedCpiSignedData": { "type": "string",
+				 "maxLength" : 128,      
+                 "description": "encodedCpiSignedData" },
+      "digitalSignature": { "type": "string",
+				  		   "maxLength" : 128,      
+                           "description": "digitalSignature" }
+    	}
+     },
+  
+  "installationParam": {
+  "type": "object",
+  "description": "Air interface parameter for a CBSD",
+  "properties": {
+    "latitude": { "type": "number",
+                  "description": "Latitude in WGS84 coordinates, provided in decimal degrees",
+                  "minimum": -90,
+                  "maximum": 90 },
+    "longitude": { "type": "number",
+                   "description": "Longitude in WGS84 coordinates, provided in decimal degrees",
+                   "minimum": -180,
+                   "maximum": 180 },
+    "height": { "type": "number",
+                   "minimum": 0,
+                   "maximum": 1000,   
+                "description": "Height of CBSD antenna, provided in meters. See heightType for interpretation." },
+    "heightType": { "enum": [ "AMSL", "AGL" ],
+                    "description": "The reference for the height parameter. AMSL indicates the height is measured relative to mean sea level. AGL indicates the height is measured relative to local ground level at latitude, longitude." },
+    "horizontalAccuracy": { "type": "number",
+                            "description": "A measurement in meters of the horizontal accuracy of the indicated location.",
+                            "minimum": 0,
+                            "maximum": 50},
+    "verticalAccuracy": { "type": "number",
+                          "description": "A measurement in meters of the vertical accuracy of the indicated location.",
+                          "minimum": 0, 
+  						  "maximum": 3},
+    "indoorDeployment": { "type": "boolean",
+                          "description": "True if the equipment is installed indoors, false if outdoors" },
+    "eirpCapability": { "type": "number",
+                        "description": "Maximum EIRP of the CBSD in units of dBm/10MHz.",
+                        "minimum": -127,
+                        "maximum": 47 },
+    "antennaAzimuth": { "type": "number",
+                        "description": "Heading of antenna azimuth relative to true north, provided in decimal degrees. Positive indicates easterly.",
+                        "minimum": 0,
+                        "maximum": 359 },
+    "antennaDowntilt": { "type": "number",
+                         "description": "Downtilt of the antenna (vertically down is positive) in decimal degrees.",
+                         "minimum": -90,
+                         "maximum": 90 },
+    "antennaGain": { "type": "number",
+                     "description": "Maximum gain in dB of the antenna along the boresight",
+                     "minimum": -127,
+                     "maximum": 128 },
+    "antennaBeamwidth": { "type": "number",
+                          "description": "Beamwidth to 3dB points of the antenna coverage pattern, provided in decimal degrees and measured at the horizon. A value of 360 indicates an omni-directional antenna.",
+                          "minimum": 0,
+                          "maximum": 360 },
+    "antennaModel": { "type": "string",
+   					  "maxLength" : 128,
+                      "description": "If an external antenna is used, the model of the antenna is optionally provided in this field." }
+  				}
+  			}
+  		}
+  	}
+]}

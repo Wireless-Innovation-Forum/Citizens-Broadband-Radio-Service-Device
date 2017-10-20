@@ -1,6 +1,6 @@
 ERROR_VALIDATION_MESSAGE =                  "ERROR - An Error occurred while comparing between actual and expected request"
 RESULTS_OF_TEST_MESSAGE =                   "The final result of the test : "
-SET_CSV_FILE_MESSAGE =                      "Please enter a csv file path that include the test you request to run (pay attention insert the csv file without the csv suffix) \n, press ctrl+c to close"
+SET_CSV_FILE_MESSAGE =                      "Please enter a csv file path that include the test you request to run (pay attention insert the csv file without the csv suffix) \n, type quit and press ctrl+c to close"
 START_TEST_MESSAGE =                        "Start of the test"
 CLOSE_USER_SESSION =                        "Session user will now close"
 SENT_FLASK_REQUEST =                        "sent flask request to engine"
@@ -55,3 +55,8 @@ TYPE_NAME_OF_FOLDER      =                  "enter log of test to the specific f
 VALIDATION_PASSED_MESSAGE =                 "validation passed successfully, the engine sent "
 GOODBYE_MESSAGE =                           "The last test had been finished and no other csv file had been entered,  goodbye"
 QUIT_PROGRAM_MESSAGE =                      "you decided to quit the program have a good day"
+SPECTRUM_PAL_HIGH =                         3650000000
+SPECTRUM_PAL_LOW =                          3550000000
+SPECTRUM_GAA_HIGH =                         3700000000
+SPECTRUM_GAA_LOW =                          3650000000
+SHORTER_GRANT_EXPIRY_TIME =                 360

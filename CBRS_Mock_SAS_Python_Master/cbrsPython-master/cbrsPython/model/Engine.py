@@ -132,14 +132,3 @@ class MyEngine(object):
                     tempQuestAnswerPart.append(questAnswer)
             i+=1       
         return tempQuestAnswerPart        
-        
-        
-        
-            
-        
-        
-    
-
-    
-    
-    

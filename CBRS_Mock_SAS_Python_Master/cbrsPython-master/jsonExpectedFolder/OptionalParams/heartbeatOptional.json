@@ -1,20 +1,59 @@
 {
-    "name":"CBSD_Heartbeat_Request_Optional_Parameters_Mock_SAS_8_Sep_2017",  
-	"heartbeatOptionalParams":
+    "name":"CBSD_Heartbeat_Request_Optional_Parameters_Mock_SAS_17_Oct_2017",  
+			"heartbeatOptionalParams":
         	[
-            	{
-				"operationState": {"$or":["GRANTED","AUTHORIZED"]},
-				"grantRenew": {"$or":["true","false"]},
-    			"measReport": {
-    			     "rcvdPowerMeasReports": [
-                       {
-                          "measBandwidth": "${range:1To10000000}",
-                          "measRcvdPower":  "${range:-100To25}",
-                          "measFrequency": "${range:3550000000To3699999999}"
-                       }
-                       ]
-                   }    									
-		} 
-			]	
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Heartbeat parameters provided by a CBSD",
+  "type": "object",
+  "properties": {
+    "cbsdId": { "type": "string",
+                "description": "Unique designator for the CBSD as returned from the registration procedure." },
+    "grantId": { "type": "string",
+                 "description": "Unique designator for the grant as returned from the spectrum grant procedure." },
+    "grantRenew": { "type": "boolean",
+                    "description": "If set to true, the CBSD is asking for a renewal of the grant." },
+    "operationState": { "enum": [ "AUTHORIZED", "GRANTED" ],
+                        "description": "Represents the current state of operation of the CBSD." },
+    "measReport": { "$ref": "#/measReport" }
+  },
+
+"measReport": { 
+   "description": "Measurement report provided by a CBSD.",
+   "type": "object",
+   "additionalproperties": true,
+   "properties": {
+      "rcvdPowerMeasReports": {
+           "type": "array",
+           "description": "Report structured used by a CBSD when a measurement report type is EutraCarrierRssiNonTx or EutraCarrierRssiAlways",
+           "items": {   
+               "type": "object",
+               "description": "Report for a particular Carrier RSSI measurement.",
+               "required": [ "measFrequency", "measBandwidth", "measRcvdPower" ],
+               "properties": {
+                   "measFrequency": {
+                       "type": "number",
+                       "description": "Frequency of the low end of the measured channel in Hz.",
+                       "minimum": 3550000000,
+                       "maximum": 3700000000
+                     },
+                   "measBandwidth": {
+                       "type": "number",
+                       "description": "Measurement bandwidth of the channel in Hz.",
+                       "minimum": 0,
+                       "maximum": 10000000
+                     },
+                   "measRcvdPower": {
+                        "type": "number",
+                        "description": "Carrier RSSI measurement of the channel in dBm as per 3GPP TS 32.592.",
+                        "minimum": -100,
+                        "maximum": -25
+                           }
+                    }
+                }
+          }
+       } 
+   }}
+ ]	
 }
 

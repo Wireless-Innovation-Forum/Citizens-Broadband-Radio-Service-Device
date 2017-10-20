@@ -1,0 +1,40 @@
+{
+    "name":"HBT grant Full-band MeasRep Cbsd2",	
+    "questions":
+			[
+				{
+					"question" : "Does Cbsd2 send correct measurement report in grant request message?",
+					"answers" : ["y", "n"], 
+					"expectedAnswer" : "y"
+				}
+			],    
+    "measReportRequested" : "True", 
+    "fullBandReport" : "True",         
+		"grantRequest":
+		[ 
+			{ 
+    			"measReport": {
+    			     "rcvdPowerMeasReports": [
+                       {
+                          "measBandwidth": "${range:1To10000000}",
+                          "measRcvdPower":  "${range:-100To25}",
+                          "measFrequency": "${range:3550000000To3699999999}"
+                       }
+                       ]
+                   }        					
+  		}
+		], 
+	"response":
+        { 
+		   "grantResponse":
+		   [ 
+		   	{
+		   	"heartbeatInterval" : 35.0,
+		   	"response" : {"responseCode" : 0},
+		   	"operationParam": {
+                "operationFrequencyRange": { "lowFrequency": 3560000000, "highFrequency": 3570000000 }
+		        }
+		    }
+		   ]
+   }
+}

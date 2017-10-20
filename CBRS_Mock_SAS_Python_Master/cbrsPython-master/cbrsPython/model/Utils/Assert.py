@@ -10,11 +10,15 @@ import xml.etree.ElementTree as ET
 from click.decorators import option
 from collections import OrderedDict
 from xml.dom import minidom
+from operator import itemgetter
+import json
+import jsonschema
+import os
+
 class Assertion(object):
     '''
     classdocs
     '''
-
 
     def __init__(self,enviormentConfFile,dirPath,loggerHandler,cbrsConfFile,cbsdId = None, grantId = None):
         '''
@@ -34,6 +38,8 @@ class Assertion(object):
         the method will get the request json file name from the client request and will get from the two repo
         off the client and the server the json expected and the real json sent from the client 
         '''
+        self.dontCheckNode = []
+        
         try:
             jsonExpectedObj = JsonComparisonUtils.get_Node_Of_Json_Parsed(jsonExpected,suffix,self.confFile,self.dirPath)
         except Exception as e:
@@ -47,9 +53,16 @@ class Assertion(object):
         try:    
             jsonExpectedObj = self.add_Json_Optional_Parameters(jsonExpectedObj,httpRequest,suffix)
         except Exception as E: 
-            raise IOError("ERROR - loading optinal parameters not succeedded" + str(E)) 
+            raise IOError("ERROR - loading optional parameters not succeeded" + str(E)) 
+        
         self.add_Actual_Params_To_Json_If_Not_Exists(jsonExpectedObj[0],httpRequest)
-        self.add_meas_report_config_json(httpRequest,suffix)
+                
+        if(bool(self.get_Attribute_Value_From_Json(jsonExpected,"measReportRequested"))==True):                                                                                                                                                                    
+            self.measurement_Report_Decision(httpRequest,jsonExpectedObj, suffix)                                                               
+            
+        if(bool(self.get_Attribute_Value_From_Json(jsonExpected,"fullBandReport"))==True):
+                self.check_Fullband_Measurement_Report (httpRequest)                                                                                                  
+         
         x = JsonComparisonUtils.are_same(jsonExpectedObj[0],httpRequest,False,self.dontCheckNode)
         if(False in x and printIfFalse == True):
             self.loggerHandler.print_to_Logs_Files(x,True)
@@ -70,7 +83,52 @@ class Assertion(object):
                 if False in result:
                     raise IOError("ERROR - the meas report from the http is not allowed ")
             self.dontCheckNode.append("measReport")
-                    
+                   
+    '''
+    The code below is used for check measurement report in the request messages
+    '''  
+    def measurement_Report_Decision(self, RequestMessage, ExpectedJsonObj, suffix):                                                                 
+        
+        if(consts.HEART_BEAT_SUFFIX_HTTP + consts.REQUEST_NODE_NAME == suffix):                                                                     
+            if(not self.is_Json_Request_Contains_Key(RequestMessage, "measReport")):                                                                                                             
+                del ExpectedJsonObj[0]["measReport"]                                                                                                
+            else:                                                                                                                                   
+                numberOfMeasure = len(RequestMessage["measReport"]["rcvdPowerMeasReports"])                                                         
+                ExpectedJsonObj[0]["measReport"]["rcvdPowerMeasReports"] = numberOfMeasure*ExpectedJsonObj[0]["measReport"]["rcvdPowerMeasReports"]         
+        else:
+            if(not self.is_Json_Request_Contains_Key(RequestMessage, "measReport")):                                                                
+                raise Exception("ERROR - there is no measurement report sent in request message")                                                                   
+            numberOfMeasure = len(RequestMessage["measReport"]["rcvdPowerMeasReports"])                                                             
+            ExpectedJsonObj[0]["measReport"]["rcvdPowerMeasReports"] = numberOfMeasure*ExpectedJsonObj[0]["measReport"]["rcvdPowerMeasReports"]     
+            
+        return ExpectedJsonObj                                                                                                                      
+
+    def check_Fullband_Measurement_Report(self,RequestMessage):                                                                                     
+
+        numberOfMeasure = len(RequestMessage["measReport"]["rcvdPowerMeasReports"])                                                                 
+        ReportFreqBandwidth = []                                                                                                                   
+        for i in range(numberOfMeasure):                                                                                                            
+            frequencyStart = RequestMessage["measReport"]["rcvdPowerMeasReports"][i]["measFrequency"]                                               
+            measBandWidth = RequestMessage["measReport"]["rcvdPowerMeasReports"][i]["measBandwidth"]                                                
+            ReportFreqBandwidth.append((frequencyStart,measBandWidth) )                                                                             
+
+        ReportFreqBandwidth.sort(key=lambda x: int(x[0]), reverse=False)                                                                            
+            
+        reportedBandwidth = 0                                                                                                                       
+        for i in range(0,numberOfMeasure-1):
+                
+            if ReportFreqBandwidth[i][0]+ ReportFreqBandwidth[i][1] != ReportFreqBandwidth[i+1][0]:                                                 
+                raise Exception("ERROR - there is gap between two reported frequencies or reported bandwidth does not cover full bandwidth")                                         
+            reportedBandwidth += ReportFreqBandwidth[i][1]                                                                                          
+            
+        if(reportedBandwidth + ReportFreqBandwidth[-1][1] != 150000000):                                                                           
+            raise Exception("ERROR - The measurement doesn't cover full bandwidth")                                                                 
+        return                                                                                                                                      
+        
+        '''
+        End of code changes                                                                                                                           
+        '''                    
+                         
     def is_Json_Request_Contains_Key(self,jsonRequest,keyToVerify,node=None):
         try:
             if node !=None:
@@ -81,7 +139,9 @@ class Assertion(object):
         except Exception as E:
             return E.message
         return False
-   
+
+                
+    
     def add_Actual_Params_To_Json_If_Not_Exists(self,expectedObj,httpRequest):
         for key in httpRequest:
             if (key not in expectedObj):
@@ -104,39 +164,7 @@ class Assertion(object):
                                         result = JsonComparisonUtils._are_same(childInChild.firstChild.data, httpRequest[child2.tagName][childInChild.tagName],False)
                                         if False in result:
                                             raise Exception("ERROR - there is an validation error between http request and the configuration file attribute ")
-        airInterfaceXml = minidom.parse(str(self.dirPath) +"\\cbrsPython\\model\\CBRSConf\\airInterfaceOptions.xml")
-        for child in airInterfaceXml.childNodes[0].childNodes:
-            if(child.firstChild!=None):
-                if child.tagName == consts.REGISTRATION_SUFFIX_HTTP + "Params":
-                    for child2 in child.childNodes:
-                        if(child2.firstChild!=None):
-                            for child3 in child2.childNodes:
-                                if len(child3.childNodes)==1: 
-                                    self.dontCheckNode.append(child2.tagName)  
-                                    result = JsonComparisonUtils._are_same(child3.firstChild.data, httpRequest[child2.tagName][child3.tagName],False)
-                                    if False in result:
-                                                                            raise Exception("ERROR - air interface object validation error " +
-                                                    "expected value for : " + str(child3.tagName) + " is : "  + str (child3.firstChild.data) +
-                                                    " and the actual value is : " + httpRequest[child2.tagName][child3.tagName])                       
-        groupingParamXml = minidom.parse(str(self.dirPath) +"\\cbrsPython\\model\\CBRSConf\\groupingParam.xml") 
-        if "groupingParam" in httpRequest:
-            for child in groupingParamXml.childNodes[0].childNodes:
-                if(child.firstChild!=None):
-                    if child.tagName == "groupingParam":
-                        for child2 in child.childNodes:
-                            if len(child2.childNodes)==1:   
-                                result = JsonComparisonUtils._are_same(child2.firstChild.data, httpRequest[child.tagName][0][child2.tagName],False)
-                                if False in result:
-                                    raise Exception("ERROR - grouping param object validation error " +
-                                                    "expected value for : " + str(child2.tagName) + " is : "  + str (child2.firstChild.data) +
-                                                    " and the actual value is : " + httpRequest[child.tagName][0][child2.tagName]) 
-            self.dontCheckNode.append("groupingParam")
-                                            
-#                         self.dontCheckNode.append(key)  
-#                         for key2 in optional[key]:                           
-#                             result = JsonComparisonUtils._are_same(optional[key][key2], httpRequest[key][key2],False)
         
-
     def is_Json_File_Contains_Key(self, jsonExpected,keyToVerify):
         return JsonComparisonUtils.Is_Json_contains_key(jsonExpected, keyToVerify, self.confFile, self.dirPath)
     
@@ -158,84 +186,40 @@ class Assertion(object):
     
     def add_Json_Optional_Parameters(self,expected,httpRequest,suffix):
         '''
-        the method get the optional parameter of the suffix type json and check if it requested from the CBSD if it is it add them to the expected json 
+        the method get the optional parameter of the suffix type json and check if it requested from the CBSD if it is it add them to the expected json. json schema is used for the data validation.
         '''
-        ###httpRequest = httpRequest[suffix][0]
+        current_path = str(self.dirPath)
+        configurable_file_path = os.path.join(current_path,'','Configuration','ObjectListConfig')     
+        later_Defined_params_file = open(os.path.join(str(configurable_file_path), "laterDefindedOptional.json"))
+        
         if(consts.REQUEST_NODE_NAME in str(suffix)):
             suffix = str(suffix).replace(consts.REQUEST_NODE_NAME, "")
         try:
             optional = JsonComparisonUtils.get_Node_Of_Json_Parsed(suffix+"Optional"+consts.SUFFIX_OF_JSON_FILE,suffix+"OptionalParams",self.confFile,self.dirPath)[0]
+            optional_laterDefined = json.load(later_Defined_params_file, object_pairs_hook=OrderedDict)
+            
         except :
             raise IOError(suffix + " do not have optional params json")   
-        ### check if the key is optional means its not in the expected json but it is in the requests and its allowed in the protocol      
-        for key, value in optional.iteritems() :
-            d = collections.OrderedDict()         
+        '''        
+        check if the key is optional means its not in the expected json but it is in the requests and its allowed in the protocol 
+        '''
+        for key, value in httpRequest.iteritems(): 
             if key not in expected[0]:
-                if key in httpRequest:
-                    numberOfKeys = len(httpRequest[key])                                                                
-                    addedOptionalParms = 0                                                                                                  
-                    if(not self.isThereMoreThenOneValueInside(value) or isinstance(httpRequest[key], basestring) or isinstance(httpRequest[key], bool)):
-                        JsonComparisonUtils.ordered_dict_prepend(expected[0], key, value)   
-                    else:## key not exists at all
-                        if "$or" in optional[key] and isinstance(httpRequest[key], list):
-                            numberOfKeys = 1						
-                            self.dontCheckNode.append(key)
-                            result = JsonComparisonUtils._are_same(optional[key], httpRequest[key],False)   
-                            if result[0] == True or str(result[0]) == str(httpRequest[key]):                                
-                                addedOptionalParms +=1                                                                       
-                            if False in result:
-                                raise Exception("- there is an validation error between http request and the optional parameter json")
-                        else:
-                            self.dontCheckNode.append(key)                                                                                                  
-                            for key2 in optional[key]:   
-                                if key2 in httpRequest[key]:
-                                    if "$or" in optional[key][key2]:
-                                        result = JsonComparisonUtils._are_same((optional[key][key2]), (httpRequest[key][key2]),False)   
-                                        if result[0] == True or str(result[0]).lower() == str(httpRequest[key][key2]).lower():          
-                                            addedOptionalParms +=1                                                                      
-                                    elif("eutraCarrierRssiRpt" in key2 or "rcvdPowerMeasReports" in key2 ):
-                                        self.add_meas_report_config_json(httpRequest, suffix)
-                                        addedOptionalParms = numberOfKeys
-                                        result = (True, )                                                        
-                                    elif("inquiredSpectrum" in key2):
-                                        for var in optional[key][key2]:
-                                            for varInHttp in httpRequest[key][key2]:
-                                                JsonComparisonUtils.are_same(var, varInHttp,False)            
-                                    elif not isinstance(optional[key][key2], dict):                       
-                                        result = JsonComparisonUtils._are_same(str(optional[key][key2]), str(httpRequest[key][key2]),False)
-                                        if result[0] == True or result[0].lower() == str(httpRequest[key][key2]).lower():                   
-                                            addedOptionalParms +=1                                                                                                                    
-                                    if False in result:
-                                        result = JsonComparisonUtils._are_same(optional[key][key2], httpRequest[key][key2],False)
-                                        if result[0] == True or result[0].lower() == str(httpRequest[key][key2]).lower():                   
-                                            addedOptionalParms +=1                                                                                                                  
-                                        if False in result:
-                                            raise Exception("ERROR - there is an validation error between http request and the optional parameter json")    
-                        if addedOptionalParms != numberOfKeys:                                                                              
-                            raise Exception("- the number of parameters in http request is mismatched to the number of optional parameter to be added")                                                                                                                                  
-            else:
-                if len(value)>1:
-                    for key2, value2 in optional[key].iteritems():
-                        if key2 not in expected[0][key]:                      
-                            if key2 in httpRequest[key]:   
-                                JsonComparisonUtils.ordered_dict_prepend(expected[0][key], key2, value2)                          
-        return expected
-    
-    def isThereMoreThenOneValueInside(self,value):
-        numberOfValues = 0     
-        if("$or" in str(value)):
-            strValue = str(value)
-            if "[[" in strValue:
-                return True                 
-        if(len(str(value).split("$"))>2):
-            return True
-        else:
-            if len(str(value).split(","))>2:
-                return True
+                if key in optional_laterDefined["properties"]:
+                    try:
+                        jsonschema.validate(OrderedDict([(key, value)]), optional_laterDefined)
+                        self.dontCheckNode.append(key)                        
+                    except jsonschema.ValidationError as e:
+                        raise Exception(str(e))                  
+                
+                elif key in optional["properties"]:
+                    try:
+                        jsonschema.validate(OrderedDict([(key, value)]), optional)
+                        self.dontCheckNode.append(key)                        
+                    except jsonschema.ValidationError as e:
+                        raise Exception(str(e))
+                        
+                else:                       
+                    raise Exception("- some parameters in http request are not defined by Specifications or bad names")
             
-        return False
-            
-            
-        
-        
-        
+        return expected                

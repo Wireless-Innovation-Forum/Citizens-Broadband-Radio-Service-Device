@@ -1,0 +1,31 @@
+{
+    "name":"heartbeat_AuthorizedState_Absent",
+    "isAbsentResponse": "True",       
+    "questions":
+		[
+			{
+				"question" : "Does Cbsd stop transmiting power after heartbeat response absent?",
+				"answers" : ["y", "n"], 
+				"expectedAnswer" : "y"
+			}
+		],     
+	"heartbeatRequest": 
+			[ 
+			{
+    			"operationState" : "AUTHORIZED"
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{
+    				"response" : {
+      					"responseCode" : 0
+    					}
+  				}
+		 ]
+	}
+
+	     
+}

@@ -1,9 +1,20 @@
 {
-    "name":"CBSD_Relinquishment_Request_Optional_Parameters_Mock_SAS_31_Aug_2017",  
+    "name":"CBSD_Relinquishment_Request_Optional_Parameters_Mock_SAS_17_Oct_2017",  
 			"relinquishmentOptionalParams":
         	[
-            	{
-				}
+          
+			{
+			  "$schema": "http://json-schema.org/draft-04/schema#",
+			  "description": "Grant Relinquish parameters provided by a CBSD",
+			  "type": "object",
+			  "properties": {
+			    "cbsdId": { "type": "string",
+			                "description": "Unique designator for the CBSD as returned from the registration procedure." },
+			    "grantId": { "type": "string",
+			                 "description": "Unique designator for the grant to be relinquished. Gotten from the SAS upon grant request procedure." }
+			  }
+			}            	
+			
 			]	
 }
 

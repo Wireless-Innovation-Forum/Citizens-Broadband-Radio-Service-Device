@@ -1,0 +1,20 @@
+{
+    "name":"HBT_grant_shortGrantExpiry",	
+    "shorterGrantTime" : "True",
+		"grantRequest":
+		[ 
+        {
+
+        }        
+		], 
+	"response":
+        { 
+		   "grantResponse":
+		   [ 
+		   	{
+		   	"heartbeatInterval" : 120.0,
+		   	"response" : {"responseCode" : 0}
+		    }
+		   ]
+   }
+}

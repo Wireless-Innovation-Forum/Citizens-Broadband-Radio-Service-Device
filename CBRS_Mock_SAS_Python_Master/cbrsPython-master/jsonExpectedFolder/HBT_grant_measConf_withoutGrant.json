@@ -1,0 +1,20 @@
+{
+    "name":"HBT_grant_measConf_Cbsd1",	
+		"grantRequest":
+		[ 
+        {
+
+        }        
+		], 
+	"response":
+        { 
+		   "grantResponse":
+		   [ 
+		   	{
+		   	"heartbeatInterval" : 120.0,
+    		"measReportConfig" : "RECEIVED_POWER_WITHOUT_GRANT",  		   	
+		   	"response" : {"responseCode" : 0}
+		    }
+		   ]
+   }
+}
