@@ -24,16 +24,15 @@
 		    "availableChannel" : [
 		    	{ 
 		           "frequencyRange":{
-		                  "highFrequency": 3570000000, 
-		                  "lowFrequency": 3560000000
+		                  "highFrequency": 3550000000, 
+		                  "lowFrequency": 3700000000
 		                  },
-		           "channelType": "PAL",
-		           "ruleApplied": "FCC Part 96"
+		           "channelType": "GAA",
+		           "ruleApplied": "FCC_PART_96"
 		        }
 		     ],
 		    "response" : {
-		      	"responseCode" : 0,
-		      	"responseMessage" : "NOT_SET"
+		      	"responseCode" : 0
 		         }
 		   }  
            ]

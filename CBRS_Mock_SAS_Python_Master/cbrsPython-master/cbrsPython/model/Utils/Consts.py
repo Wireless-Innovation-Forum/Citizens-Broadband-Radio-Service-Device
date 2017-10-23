@@ -58,5 +58,5 @@ QUIT_PROGRAM_MESSAGE =                      "you decided to quit the program hav
 SPECTRUM_PAL_HIGH =                         3650000000
 SPECTRUM_PAL_LOW =                          3550000000
 SPECTRUM_GAA_HIGH =                         3700000000
-SPECTRUM_GAA_LOW =                          3650000000
+SPECTRUM_GAA_LOW =                          3550000000
 SHORTER_GRANT_EXPIRY_TIME =                 360

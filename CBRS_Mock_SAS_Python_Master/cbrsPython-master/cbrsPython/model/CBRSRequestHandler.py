@@ -376,7 +376,7 @@ class CBRSRequestHandler(object):
                 availableChannel=[]
                 for itemReq in httpRequest["inquiredSpectrum"]:
                     responseChannel = {}
-                    responseChannel["ruleApplied"]="FCC Part 96"
+                    responseChannel["ruleApplied"]="FCC_PART_96"
                 
                     if(itemReq["lowFrequency"]>consts.SPECTRUM_GAA_LOW and itemReq["highFrequency"] < consts.SPECTRUM_GAA_HIGH):
                         responseChannel["channelType"]="GAA"
