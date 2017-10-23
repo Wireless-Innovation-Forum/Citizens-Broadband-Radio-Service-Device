@@ -9,7 +9,7 @@
     "required": [ "groupType", "groupId" ],
     "description": "Container for information about a CBSD membership group.",
     "properties": {
-      "groupType": { "enum": [ "interference-coordination" ],
+      "groupType": { "enum": [ "INTERFERENCE_COORDINATION" ],
 	             "description": "Type of the group" },
       "groupId": { "type": "string",
 				   "maxLength" : 128,      
@@ -22,7 +22,7 @@
     "description": "Air interface parameter for a CBSD",
     "required": [ "radioTechnology" ],
     "properties": {
-      "radioTechnology": { "enum": [ "E_UTRA", "AUTHORIZED" ],
+      "radioTechnology": { "enum": [ "E_UTRA", "CAMBIUM_NETWORKS" ],
                            "description": "Which PHY radio technology is used by the device in the 3.5GHz band" },
       "supportedSpec": { "type": "string",
                          "description": "Description of the spec of the radio technology supported." }
