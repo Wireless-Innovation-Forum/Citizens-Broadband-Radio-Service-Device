@@ -221,5 +221,11 @@ class Assertion(object):
                         
                 else:                       
                     raise Exception("- some parameters in http request are not defined by Specifications or bad names")
-            
+            else:
+                # where value is a dictionary of nested (key, value) pairs, such as installationParam in Registration Request
+                if (isinstance(value, dict)): 
+                    if len(value)>1:
+                        for key2, value2 in httpRequest[key].iteritems():
+                            if key2 not in expected[0][key]:                      
+                                if key2 in httpRequest[key]:   
         return expected                
