@@ -228,4 +228,5 @@ class Assertion(object):
                         for key2, value2 in httpRequest[key].iteritems():
                             if key2 not in expected[0][key]:                      
                                 if key2 in httpRequest[key]:   
+                                    JsonComparisonUtils.ordered_dict_prepend(expected[0][key], key2, value2)            
         return expected                
