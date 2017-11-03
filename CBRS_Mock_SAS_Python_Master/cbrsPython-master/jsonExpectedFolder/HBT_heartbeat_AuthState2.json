@@ -1,0 +1,35 @@
+{
+    "name":"HBT_heartbeat_AuthState CBSD2",  
+    "questions":
+		[
+			{
+				"question" : "Does the CBSD2 is working as expected?",
+				"answers" : ["y", "n"], 
+				"expectedAnswer" : "y"
+			},
+			{
+				"question" : "Does the CBSD2 transmit power prior to AUTHORIZED state?",
+				"answers" : ["y", "n"], 
+				"expectedAnswer" : "n"
+			}			
+		],          
+	"heartbeatRequest": 
+			[ 
+			{
+    			"operationState" : "AUTHORIZED"
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{
+    				"response" : {
+      					"responseCode" : 0
+    					}
+  				}
+		 ]
+	}
+
+	     
+}

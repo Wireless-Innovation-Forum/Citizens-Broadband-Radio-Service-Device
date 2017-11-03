@@ -1,0 +1,30 @@
+{
+    "name":"HBT_heartbeat_ErrorCode_501",
+    "questions":
+				[
+                        {
+                            "question" : "Does cbsd UUT stop transmiting power after receiving the Heartbeat response with response code = 501?",
+                            "answers" : ["y", "n"], 
+							"expectedAnswer" : "y"
+                        }						
+				],			           
+	"heartbeatRequest": 
+			[ 
+			{
+    			"operationState" : "AUTHORIZED"
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{
+    				"response" : {
+      					"responseCode" : 501
+    					}
+  				}
+		 ]
+	}
+
+	     
+}

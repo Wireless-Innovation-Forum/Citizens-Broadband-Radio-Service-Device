@@ -1,0 +1,31 @@
+{
+    "name":"HBT_heartbeat_GrantRenew",  
+    "questions":
+		[
+			{
+				"question" : "does the CBSD under testing get grant renew successfully?",
+				"answers" : ["y", "n"], 
+				"expectedAnswer" : "y"
+			}
+		],     
+	"heartbeatRequest": 
+			[ 
+			{
+    		    			"operationState" : "AUTHORIZED"
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{
+    				"response" : {
+      					"responseCode" : 0
+    					}
+  				}
+	
+		 ]
+	}
+
+	     
+}

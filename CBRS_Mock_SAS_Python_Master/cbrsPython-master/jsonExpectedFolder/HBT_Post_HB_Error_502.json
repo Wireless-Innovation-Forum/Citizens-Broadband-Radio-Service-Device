@@ -1,0 +1,24 @@
+{
+    "name":"HBT_Post_HB_Error_502",	
+    "message":{},
+    "questions":[
+            {
+               "question" : "Did cbsd UUT stop transmits power after receiving the Heartbeat response with response code = 502?",
+               "answers" : ["y", "n"], 
+			   "expectedAnswer" : "y"
+             }						
+			 ],			    
+	"relinquishmentRequest":
+		[ 
+			{ 
+			}
+		],		 
+	"response":
+        { 
+		   "relinquishmentResponse":[ 
+				{ 
+                 	"response":{"responseCode":0}
+				}
+				]						   
+   		}
+}

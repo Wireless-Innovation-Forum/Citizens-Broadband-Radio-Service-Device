@@ -1,9 +1,16 @@
 {
-    "name":"CBSD_DeRegistration_Request_Optional_Parameters_Mock_SAS_31_Aug_2017",  
+    "name":"CBSD_DeRegistration_Request_Optional_Parameters_Mock_SAS_17_Oct_2017",  
 			"deregistrationOptionalParams":
         	[
             	{
-				
+				  "$schema": "http://json-schema.org/draft-04/schema#",
+				  "description": "Deregistration parameters provided by a CBSD",
+				  "type": "object",
+				  "required": [ "cbsdId" ],
+				  "properties": {
+				    "cbsdId": { "type": "string",
+				                "description": "Unique designator for the CBSD as returned from the registration procedure." }
+				  }
 				}
 			]	
 }

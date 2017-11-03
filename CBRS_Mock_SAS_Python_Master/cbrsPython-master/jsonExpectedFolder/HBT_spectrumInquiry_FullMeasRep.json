@@ -1,0 +1,40 @@
+{
+    "name":"HBT_spectrumInquiry_FullMeasRep",  
+    "questions": {},
+    "measReportRequested" : "True",  
+    "fullBandReport" : "True",        
+    "spectrumInquiryRequest": 
+		  [
+		      {
+    			"measReport": {
+    			     "rcvdPowerMeasReports": [
+                       {
+                          "measBandwidth": "${range:1To10000000}",
+                          "measRcvdPower":  "${range:-100To-25}",
+                          "measFrequency": "${range:3550000000To3699999999}"
+                       }
+                       ]
+                   }		          
+		      }
+		  ],
+   "response":
+		   {
+			"spectrumInquiryResponse":[ 
+			{
+		    "availableChannel" : [
+		    	{ 
+		           "frequencyRange":{
+		                  "highFrequency": 3550000000, 
+		                  "lowFrequency": 3700000000
+		                  },
+		           "channelType": "GAA",
+		           "ruleApplied": "FCC_PART_96"
+		        }
+		     ],
+		    "response" : {
+		      	"responseCode" : 0
+		         }
+		   }  
+           ]
+    }
+}

@@ -17,7 +17,7 @@ log.setLevel(logging.ERROR)
 
 
 enodeBController = ENodeBController(None)
-@app.route("/v2.0/<typeOfCalling>",methods=['POST'])
+@app.route("/v1.1/<typeOfCalling>",methods=['POST'])
 def sent_Flask_Req_To_Server(typeOfCalling):
     '''
     the method get any post request sent from the CBSD that the url includes '/cbsd/<typeOfCalling>/' 
@@ -33,6 +33,7 @@ def sent_Flask_Req_To_Server(typeOfCalling):
             return redirect(url_for(consts.SHUTDOWN_FUNCTION_NAME, validationMessage=str(response)))
         logger.finish_Step(response,typeOfCalling,StepStatus.PASSED)           
         return jsonify(response)
+    
     if(typeOfCalling!=consts.REGISTRATION_SUFFIX_HTTP):
         finalResp = []
         nonRegistereddata = {
@@ -78,11 +79,7 @@ def sent_Flask_Req_To_Server(typeOfCalling):
                                                         }]
                             })
 
-        
-        
-        
-        
-        
+       
 @app.route('/shutdown', methods=['GET', 'POST'])
 def shutdown():
     '''

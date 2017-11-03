@@ -3,7 +3,7 @@ from datetime import datetime
 from model.Utils import Consts as consts
 from controllers.CLIUtils.enums import StepStatus
 import logging
- 
+from time import gmtime
  
 class CmdLogger(Observer):
     def __init__(self):
@@ -11,13 +11,16 @@ class CmdLogger(Observer):
     
     def startTest(self,dir_Path,log_Name,folder_Name=None):
         if(log_Name==consts.CLI_SESSION):
-            log_file =  '\Logs\CMDSessions\cmdSession_' + str(datetime.now().strftime("%Y_%m_%d_%H_%M_%S")) +'.log'
+#            log_file =  '\Logs\CMDSessions\cmdSession_' + str(datetime.now().strftime("%Y_%m_%d_%H_%M_%S")) +'.log'
+            log_file =  '\Logs\CMDSessions\cmdSession_' + datetime.utcnow().replace(microsecond=0).isoformat() +'Z.log'
+            log_file = log_file.replace(':','.')
             self.addLoggerFile(dir_Path,consts.CLI_SESSION, log_file)
     
     def startStep(self,json_dict,typeOfCalling,ipRequestAddress=None):
-        self.print_To_Terminal("Time : " +  str(datetime.now().strftime("%d/%m/%Y %H:%M:%S") 
-                                                + " , CBSD sent " + str(typeOfCalling) +" " + consts.REQUEST_NODE_NAME + " from the address : " + str(ipRequestAddress)))
-
+#        self.print_To_Terminal("Time : " +  str(datetime.now().strftime("%d/%m/%Y %H:%M:%S") 
+#                                                + " , CBSD sent " + str(typeOfCalling) +" " + consts.REQUEST_NODE_NAME + " from the address : " + str(ipRequestAddress)))
+        self.print_To_Terminal( datetime.utcnow().isoformat()+'Z:' \
+                                                + " CBSD sent " + str(typeOfCalling) +" " + consts.REQUEST_NODE_NAME + " from the address : " + str(ipRequestAddress))
     
     def finishStep(self,response,typeOfCalling,stepStatus):
         if stepStatus==StepStatus.PASSED:
@@ -43,7 +46,10 @@ class CmdLogger(Observer):
         
     def addLoggerFile(self,dir_Path, logger_name, log_file):
         log_setup = logging.getLogger(logger_name)
-        formatter = logging.Formatter('%(levelname)s: %(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+#        formatter = logging.Formatter('%(levelname)s: %(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+        formatter = logging.Formatter('%(asctime)s.%(msecs)03dZ - %(levelname)s - %(message)s', datefmt="%Y-%m-%dT%H:%M:%S")
+        formatter.converter = gmtime
+        
         fileHandler = logging.FileHandler(str(dir_Path) + log_file, mode='a')
         fileHandler.setFormatter(formatter)
         log_setup.addHandler(fileHandler)

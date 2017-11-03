@@ -1,0 +1,23 @@
+{
+    "name":"HBT_heartbeat_AuthorizedState_Repeats",
+    "repeatsAllowed":"True",      
+		"heartbeatRequest": 
+			[ 
+			{
+    			"operationState": "AUTHORIZED"
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{
+    				"response" : {
+      					"responseCode" : 0
+    					}
+  				}
+		 ]
+	}
+
+	     
+}

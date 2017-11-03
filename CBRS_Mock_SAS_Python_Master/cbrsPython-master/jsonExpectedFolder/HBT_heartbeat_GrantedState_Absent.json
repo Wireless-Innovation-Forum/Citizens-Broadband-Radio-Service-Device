@@ -1,0 +1,32 @@
+{
+    "name":"HBT_heartbeat_GrantedState", 
+    "isAbsentResponse": "True", 
+    "questions":
+		[
+			{
+				"question" : "Does cbsd UUT stop transmiting power after the Heartbeat response absent?",
+				"answers" : ["y", "n"], 
+				"expectedAnswer" : "y"
+			}
+		],              
+		"heartbeatRequest": 
+			[ 
+			{
+    			"operationState": "GRANTED"
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{
+    				"response" : {
+      					"responseCode" : 0
+    					}
+  				}
+	
+		 ]
+	}
+
+	     
+}

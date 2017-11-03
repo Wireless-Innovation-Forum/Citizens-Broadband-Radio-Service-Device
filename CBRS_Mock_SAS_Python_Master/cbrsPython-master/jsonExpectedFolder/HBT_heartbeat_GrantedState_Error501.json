@@ -1,0 +1,23 @@
+{
+    "name":"HBT_heartbeat_GrantedState",  
+		"heartbeatRequest": 
+			[ 
+			{
+    			"operationState": "GRANTED"
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{
+    				"response" : {
+      					"responseCode" : 501
+    					}
+  				}
+	
+		 ]
+	}
+
+	     
+}

@@ -1,0 +1,30 @@
+{
+    "name":"HBT_heartbeat_Error_103",
+    "questions":
+				[
+                        {
+                            "question" : "Did cbsd UUT transmit power after receiving the Heartbeat response with response code = 103?",
+                            "answers" : ["y", "n"], 
+							"expectedAnswer" : "n"
+                        }					
+				],			    
+	"heartbeatRequest": 
+			[ 
+			{
+    			"operationState" : "AUTHORIZED"
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{
+    				"response" : {
+      					"responseCode" : 103
+    					}
+  				}
+		 ]
+	}
+
+	     
+}
