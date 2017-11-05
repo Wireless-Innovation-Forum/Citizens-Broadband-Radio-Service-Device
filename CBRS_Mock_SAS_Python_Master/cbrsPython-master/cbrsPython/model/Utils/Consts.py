@@ -1,3 +1,12 @@
+
+### Program Constants
+WINNF_PROTOCOL_VERSION =                    "v1.1"
+SHORTER_GRANT_EXPIRY_TIME =                 360
+DEFAULT_RULE_APPLIED =                      "FCC_PART_96"
+DEFAULT_CHANNEL_TYPE =                      "GAA"
+
+
+### Other Constants
 ERROR_VALIDATION_MESSAGE =                  "ERROR - An Error occurred while comparing between actual and expected request"
 RESULTS_OF_TEST_MESSAGE =                   "The final result of the test : "
 SET_CSV_FILE_MESSAGE =                      "Please enter a csv file path that include the test you request to run (pay attention insert the csv file without the csv suffix) \n, type quit and press ctrl+c to close"
@@ -55,8 +64,3 @@ TYPE_NAME_OF_FOLDER      =                  "enter log of test to the specific f
 VALIDATION_PASSED_MESSAGE =                 "validation passed successfully, the engine sent "
 GOODBYE_MESSAGE =                           "The last test had been finished and no other csv file had been entered,  goodbye"
 QUIT_PROGRAM_MESSAGE =                      "you decided to quit the program have a good day"
-SPECTRUM_PAL_HIGH =                         3650000000
-SPECTRUM_PAL_LOW =                          3550000000
-SPECTRUM_GAA_HIGH =                         3700000000
-SPECTRUM_GAA_LOW =                          3550000000
-SHORTER_GRANT_EXPIRY_TIME =                 360

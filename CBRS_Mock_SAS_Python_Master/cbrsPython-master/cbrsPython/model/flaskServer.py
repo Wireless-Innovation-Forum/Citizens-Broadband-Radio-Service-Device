@@ -17,7 +17,7 @@ log.setLevel(logging.ERROR)
 
 
 enodeBController = ENodeBController(None)
-@app.route("/v1.1/<typeOfCalling>",methods=['POST'])
+@app.route("/"+consts.WINNF_PROTOCOL_VERSION+"/<typeOfCalling>",methods=['POST'])
 def sent_Flask_Req_To_Server(typeOfCalling):
     '''
     the method get any post request sent from the CBSD that the url includes '/cbsd/<typeOfCalling>/' 

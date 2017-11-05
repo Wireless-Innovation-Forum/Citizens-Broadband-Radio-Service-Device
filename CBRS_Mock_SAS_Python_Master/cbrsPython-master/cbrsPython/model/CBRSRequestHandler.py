@@ -370,18 +370,25 @@ class CBRSRequestHandler(object):
         '''
         The code below is to build up SpectrumInquiry response message when multiple spectrum 
         included, not required pre-setup in expected json file
-        '''                     
+        '''
+# if available, use channelType from first instance of inquiredSpectrum, else default
+        try:
+            siq_channelType = jsonResonsedefined['availableChannel'][0]['channelType']  
+        except:
+            siq_channelType = consts.DEFAULT_CHANNEL_TYPE
+# if available, use ruleApplied from first instance of inquiredSpectrum, else default 
+        try:
+            siq_ruleApplied = jsonResonsedefined['availableChannel'][0]['ruleApplied']
+        except:
+            siq_ruleApplied = consts.DEFAULT_RULE_APPLIED
+                    
         if(jsonResonsedefined["response"]["responseCode"] ==0):
             if "availableChannel" in jsonResonsedefined:
                 availableChannel=[]
                 for itemReq in httpRequest["inquiredSpectrum"]:
                     responseChannel = {}
-                    responseChannel["ruleApplied"]="FCC_PART_96"
-                
-                    if(itemReq["lowFrequency"]>consts.SPECTRUM_GAA_LOW and itemReq["highFrequency"] < consts.SPECTRUM_GAA_HIGH):
-                        responseChannel["channelType"]="GAA"
-                    elif(itemReq["lowFrequency"]>consts.SPECTRUM_PAL_LOW and itemReq["highFrequency"] < consts.SPECTRUM_PAL_HIGH):
-                        responseChannel["channelType"]="PAL"
+                    responseChannel["ruleApplied"]= siq_ruleApplied
+                    responseChannel["channelType"]= siq_channelType
                 
                     responseChannel["frequencyRange"] = itemReq
                     if "maxEirp" in jsonResonsedefined["availableChannel"][0]:
@@ -406,6 +413,9 @@ class CBRSRequestHandler(object):
                 secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForGrantExpireTime")[0].firstChild.data)                          
             else:
                 secondsToAdd = consts.SHORTER_GRANT_EXPIRY_TIME
+            
+            if (not 'channelType' in jsonResponsedefined):
+                jsonResponsedefined['channelType'] = consts.DEFAULT_CHANNEL_TYPE
                 
             result = self.get_Expire_Time(secondsToAdd)
             self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "grantExpireTime", result) 
