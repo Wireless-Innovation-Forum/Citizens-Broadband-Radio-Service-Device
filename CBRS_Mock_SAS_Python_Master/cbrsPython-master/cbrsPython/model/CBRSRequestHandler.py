@@ -69,12 +69,9 @@ class CBRSRequestHandler(object):
                             
         if(not cbsdFoundInJsons):
             raise IOError("ERROR - missing registration json in one of the csv columns with the cbsd serial number " + self.cbsdSerialNumber)
-        try:
-            grantExpireTime = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForGrantExpireTime")[0].firstChild.data)
-            transmitTime = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForTransmitExpireTime")[0].firstChild.data)
-        except Exception:
-            raise IOError("ERROR - for the cbrs with the serial number : " + self.cbsdSerialNumber + " the conf file" +
-                          " must include the parameters : secondsToAddForGrantExpireTime,secondsToAddForTransmitExpireTime")
+
+        grantExpireTime = int(consts.SECONDS_TO_ADD_FOR_GRANT_EXPIRE_TIME)
+        transmitTime = int(consts.SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME)
         if(grantExpireTime<transmitTime):
             raise IOError("ERROR - for the cbrs with the serial number : " + self.cbsdSerialNumber +  " the transmit time is bigger than the grant expire time")
         
@@ -231,7 +228,7 @@ class CBRSRequestHandler(object):
         return bool(self.assertion.get_Attribute_Value_From_Json(expectedJsonName,"repeatsAllowed"))
 
     def compare_Json_Req(self,httpRequest,expectedJsonFileName,typeOfCalling,keys=None):
-        self.secondsForDelay = int(self.cbrsConfFile.getElementsByTagName("secondsForDelayResponse")[0].firstChild.data)                       
+        self.secondsForDelay = int(consts.SECONDS_FOR_DELAY_RESPONSE)
         if(not self.is_Absent_Response_Set(self.get_Expected_Json_File_Name())==True):                                      
             self.assertion.compare_Json_Req(httpRequest,expectedJsonFileName,typeOfCalling+consts.REQUEST_NODE_NAME,keys)           
 
@@ -300,7 +297,7 @@ class CBRSRequestHandler(object):
             if specificRespJson["response"]["responseCode"] in self.heartbeatErrorList or self.immediatelyShutdown == True:
                 secondsToAdd = 0
             else:
-                secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForTransmitExpireTime")[0].firstChild.data)
+                secondsToAdd = int(consts.SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME)
             result = self.get_Expire_Time(secondsToAdd,specificRespJson)
             self.change_Value_Of_Param_In_Dict(specificRespJson, "transmitExpireTime", result)
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
@@ -345,18 +342,20 @@ class CBRSRequestHandler(object):
                 if("responseCode" in specificRespJson["response"]):
                     if(specificRespJson["response"]["responseCode"] !=0):
                         return self.reWrite_UTC_Time(currentDateTime)
+                    
+        currentDateTime = currentDateTime + DT.timedelta(seconds = secondsToAdd) 
                 
-        if(int(secondsToAdd) <60):
-            currentDateTime = currentDateTime + DT.timedelta(seconds = 30)
-        elif(int(secondsToAdd)<3600):
-            currentDateTime = currentDateTime + DT.timedelta(seconds = secondsToAdd%60 , minutes = int(secondsToAdd/60))
-        elif(int(secondsToAdd)<86400):
-            currentDateTime = currentDateTime + DT.timedelta(seconds = secondsToAdd%60)
-            minutesToAdd = secondsToAdd/60
-            if(minutesToAdd<60):
-                currentDateTime = currentDateTime + DT.timedelta(minutes = minutesToAdd)
-            else:
-                currentDateTime = currentDateTime + DT.timedelta(minutes = minutesToAdd%60,hours = minutesToAdd/60)
+#        if(int(secondsToAdd) <60):
+#            currentDateTime = currentDateTime + DT.timedelta(seconds = 30)
+#        elif(int(secondsToAdd)<3600):
+#            currentDateTime = currentDateTime + DT.timedelta(seconds = secondsToAdd%60 , minutes = int(secondsToAdd/60))
+#        elif(int(secondsToAdd)<86400):
+#            currentDateTime = currentDateTime + DT.timedelta(seconds = secondsToAdd%60)
+#            minutesToAdd = secondsToAdd/60
+#            if(minutesToAdd<60):
+#                currentDateTime = currentDateTime + DT.timedelta(minutes = minutesToAdd)
+#            else:
+#                currentDateTime = currentDateTime + DT.timedelta(minutes = minutesToAdd%60,hours = minutesToAdd/60)
         
         return self.reWrite_UTC_Time(currentDateTime)
             
@@ -409,8 +408,8 @@ class CBRSRequestHandler(object):
                 self.assertion.grantId = self.grantId  
             self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "grantId", self.grantId) 
             
-            if(self.shorterGrantTime != True):                
-                secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForGrantExpireTime")[0].firstChild.data)                          
+            if(self.shorterGrantTime != True):
+                secondsToAdd = int(consts.SECONDS_TO_ADD_FOR_GRANT_EXPIRE_TIME)               
             else:
                 secondsToAdd = consts.SHORTER_GRANT_EXPIRY_TIME
             
