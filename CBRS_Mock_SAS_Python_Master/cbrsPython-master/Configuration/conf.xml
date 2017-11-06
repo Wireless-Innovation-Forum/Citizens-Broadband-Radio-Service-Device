@@ -8,4 +8,5 @@
 	<pemFilePath>\certificates\flaskcert1.pem</pemFilePath>
 	<keyFilePath>\certificates\flaskcbsdiot.key</keyFilePath>
 	<caCerts>\certificates\cacertidan1.pem</caCerts>
+	<cpiCert>\certificates\pi_ca.crt</cpiCert>
 </cbrsParams>

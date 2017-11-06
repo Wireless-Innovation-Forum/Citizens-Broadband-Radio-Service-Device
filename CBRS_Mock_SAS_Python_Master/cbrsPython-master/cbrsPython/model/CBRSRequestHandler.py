@@ -11,6 +11,11 @@ from xml.dom import minidom
 from random import *
 import os
 from time import sleep
+import json
+import jsonschema
+import jwt
+from cryptography.x509 import load_pem_x509_certificate
+from cryptography.hazmat.backends import default_backend
 
 
 class CBRSRequestHandler(object):
@@ -189,8 +194,14 @@ class CBRSRequestHandler(object):
                     
         except Exception as e:
             self.validationErrorAccuredInEngine = True  
-            raise IOError (str(e))                                                                                                              
-                
+            raise IOError (str(e))
+        # Check CPI data in registration message, if present...                                                                                                              
+        if(typeOfCalling == consts.REGISTRATION_SUFFIX_HTTP):
+            if 'cpiSignatureData' in httpRequest:
+                if self.checkCpiSignedData(dict(httpRequest['cpiSignatureData'])) == False:
+                    self.validationErrorAccuredInEngine = True
+                    raise IOError ("cpiSignature check failed")
+                    
         if(typeOfCalling==consts.GRANT_SUFFIX_HTTP):
             ### if it is a grant request we need to initialize the valid duration time between the heartbeats
             self.validDurationTime = self.assertion.get_Duration_Time_From_Grant_Json(self.get_Expected_Json_File_Name())
@@ -426,4 +437,49 @@ class CBRSRequestHandler(object):
                 else:
                     raise IOError('There is no requested parameters in the request message')                  
         else:
-            pass                            
+            pass
+        
+    def checkCpiSignedData(self,cpiSigData):
+        """ Given cpiSignatureData from registration request message, verifies the signature on data,
+            and checks data with jsonSchema for cpiSignatureData
+        """
+        self.loggerHandler.print_to_Logs_Files("Registration message contains cpiSignatureData", False)
+        
+        encoded_cpi_data = cpiSigData['protectedHeader'] \
+                        + '.' + cpiSigData['encodedCpiSignedData'] \
+                        + '.' + cpiSigData['digitalSignature']
+        unverified_cpi_payload = jwt.decode(encoded_cpi_data, verify=False)     ### This is data without signature check
+        self.loggerHandler.print_to_Logs_Files("encodedCpiSignedData contents = "+json.dumps(unverified_cpi_payload, indent=4), False)
+        try:
+            cpi_cert_filename = str(self.dirPath)+ str(self.enviormentConfFile.getElementsByTagName('cpiCert')[0].firstChild.data)
+            cpi_cert = open(cpi_cert_filename, 'r').read()
+            cpi_cert_obj = load_pem_x509_certificate(cpi_cert, default_backend())
+            cpi_public_key = cpi_cert_obj.public_key()
+        except:
+            self.loggerHandler.print_to_Logs_Files('Error in loading CPI certificate file', True)
+            return False
+        try:
+            verified_cpi_payload = jwt.decode(encoded_cpi_data, cpi_public_key)
+            self.loggerHandler.print_to_Logs_Files("verified signature on cpiSignatureData", False)
+        except:
+            self.loggerHandler.print_to_Logs_Files("cpiSignatureData signature error", False)
+            return False
+
+        schema_filename = str(self.dirPath)+str(self.enviormentConfFile.getElementsByTagName('jsonsRepoPath')[0].firstChild.data)+'OptionalParams\cpiSignatureDataSchema.json'
+        try:
+            file = open(schema_filename, 'r')
+            cpi_schema = json.load(file)
+        except:
+            self.loggerHandler.print_to_Logs_Files("Error opening cpiSignatureDataSchema", True)
+            return False
+        try:
+            x = jsonschema.validate(verified_cpi_payload, cpi_schema)
+            self.loggerHandler.print_to_Logs_Files("cpiSignatureData data successfully validated against jsonschema ", False)
+        except jsonschema.ValidationError as e:
+            self.loggerHandler.print_to_Logs_Files('cpiSignature decoded json schema validation error = '+ e.message, True)
+            return False
+        except:
+            self.loggerHandler.print_to_Logs_Files('jsonschema validate fail', False)
+            return False
+            
+        return True
