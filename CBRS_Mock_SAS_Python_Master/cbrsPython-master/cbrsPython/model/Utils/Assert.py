@@ -63,7 +63,7 @@ class Assertion(object):
         if(bool(self.get_Attribute_Value_From_Json(jsonExpected,"fullBandReport"))==True):
                 self.check_Fullband_Measurement_Report (httpRequest)                                                                                                  
          
-        x = JsonComparisonUtils.are_same(jsonExpectedObj[0],httpRequest,False,self.dontCheckNode)
+        x = JsonComparisonUtils.are_same(jsonExpectedObj[0],httpRequest,False,self.dontCheckNode)    
         if(False in x and printIfFalse == True):
             self.loggerHandler.print_to_Logs_Files(x,True)
         try:
