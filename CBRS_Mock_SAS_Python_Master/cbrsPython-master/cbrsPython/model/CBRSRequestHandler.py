@@ -114,7 +114,14 @@ class CBRSRequestHandler(object):
                     raise IOError (str(e))   
         
         if(typeOfCalling==consts.HEART_BEAT_SUFFIX_HTTP): 
-             
+
+            if(self.lastHeartBeatTime != None):
+                if(not self.is_Valid_Heart_Beat_Time()):
+                    self.validationErrorAccuredInEngine = True
+                    return consts.HEART_BEAT_TIMEOUT_MESSAGE
+            else:
+                self.lastHeartBeatTime = DT.datetime.utcnow()   
+		
             if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"measReportRequested"))==True):         
                 self.isMeasRepRequested = True   
                     
@@ -276,11 +283,12 @@ class CBRSRequestHandler(object):
         the method get the current time and compare the time that had passed from the last heartbeat
         check if it is less then what pulled from the last grant response
         '''
-        currentTime = DT.datetime.now()
+        currentTime = DT.datetime.utcnow()
         timeBetween = (currentTime-self.lastHeartBeatTime).total_seconds()
-        if(float(timeBetween)-3.0>float(self.validDurationTime)):
+        self.loggerHandler.print_to_Logs_Files("The time interval between two heartbeat request messages is " + str(timeBetween), True)        
+        if(float(timeBetween)>float(self.validDurationTime)):
             return False
-        self.lastHeartBeatTime = DT.datetime.now()            
+        self.lastHeartBeatTime = DT.datetime.utcnow()            
         return True
   
     def process_response(self,typeOfCalling,httpRequest): 
