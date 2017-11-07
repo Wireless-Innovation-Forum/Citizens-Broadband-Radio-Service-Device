@@ -321,11 +321,14 @@ class CBRSRequestHandler(object):
                     self.change_Value_Of_Param_In_Dict(specificRespJson, "grantExpireTime", result)
                       
         elif(typeOfCalling == consts.REGISTRATION_SUFFIX_HTTP):
-            if(self.cbsdId==None):
-                self.cbsdId = httpRequest["fccId"]+ "Mock-SAS" + self.cbsdSerialNumber
-                self.assertion.cbsdId = self.cbsdId
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
-        
+            if specificRespJson['response']['responseCode'] == 0:
+                if(self.cbsdId==None):
+                    self.cbsdId = httpRequest["fccId"]+ "Mock-SAS" + self.cbsdSerialNumber
+                    self.assertion.cbsdId = self.cbsdId
+                self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)
+            elif 'cbsdId' in specificRespJson:
+                del specificRespJson['cbsdId']
+                  
         elif(typeOfCalling == consts.DEREGISTRATION_SUFFIX_HTTP):
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
         
