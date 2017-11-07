@@ -16,6 +16,7 @@ import jsonschema
 import jwt
 from cryptography.x509 import load_pem_x509_certificate
 from cryptography.hazmat.backends import default_backend
+import base64
 
 
 class CBRSRequestHandler(object):
@@ -328,11 +329,14 @@ class CBRSRequestHandler(object):
                     self.change_Value_Of_Param_In_Dict(specificRespJson, "grantExpireTime", result)
                       
         elif(typeOfCalling == consts.REGISTRATION_SUFFIX_HTTP):
-            if(self.cbsdId==None):
-                self.cbsdId = httpRequest["fccId"]+ "Mock-SAS" + self.cbsdSerialNumber
-                self.assertion.cbsdId = self.cbsdId
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
-        
+            if specificRespJson['response']['responseCode'] == 0:
+                if(self.cbsdId==None):
+                    self.cbsdId = httpRequest["fccId"]+ "Mock-SAS" + self.cbsdSerialNumber
+                    self.assertion.cbsdId = self.cbsdId
+                self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)
+            elif 'cbsdId' in specificRespJson:
+                del specificRespJson['cbsdId']
+                  
         elif(typeOfCalling == consts.DEREGISTRATION_SUFFIX_HTTP):
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
         
@@ -452,7 +456,13 @@ class CBRSRequestHandler(object):
             and checks data with jsonSchema for cpiSignatureData
         """
         self.loggerHandler.print_to_Logs_Files("Registration message contains cpiSignatureData", False)
-        
+        decodedHeader = json.loads(base64.standard_b64decode(cpiSigData['protectedHeader']))
+        self.loggerHandler.print_to_Logs_Files("protectedHeader = "+str(decodedHeader), False)
+        if 'alg' in decodedHeader:
+            if decodedHeader['alg'] not in consts.CPI_SIGNATURE_VALID_TYPES:
+                self.loggerHandler.print_to_Logs_Files("protectedHeader signed with wrong algorithm: "+decodedHeader['alg'], True)
+                return False
+            
         encoded_cpi_data = cpiSigData['protectedHeader'] \
                         + '.' + cpiSigData['encodedCpiSignedData'] \
                         + '.' + cpiSigData['digitalSignature']
@@ -470,7 +480,7 @@ class CBRSRequestHandler(object):
             verified_cpi_payload = jwt.decode(encoded_cpi_data, cpi_public_key)
             self.loggerHandler.print_to_Logs_Files("verified signature on cpiSignatureData", False)
         except:
-            self.loggerHandler.print_to_Logs_Files("cpiSignatureData signature error", False)
+            self.loggerHandler.print_to_Logs_Files("cpiSignatureData signature error", True)
             return False
 
         schema_filename = str(self.dirPath)+str(self.enviormentConfFile.getElementsByTagName('jsonsRepoPath')[0].firstChild.data)+'OptionalParams\cpiSignatureDataSchema.json'
