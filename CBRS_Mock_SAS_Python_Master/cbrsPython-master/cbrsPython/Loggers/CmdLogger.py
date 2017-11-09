@@ -24,7 +24,7 @@ class CmdLogger(Observer):
     
     def finishStep(self,response,typeOfCalling,stepStatus):
         if stepStatus==StepStatus.PASSED:
-            self.print_To_Terminal(consts.VALIDATION_PASSED_MESSAGE + str(typeOfCalling) + " " + consts.RESPONSE_NODE_NAME.title())
+            self.print_To_Terminal(datetime.utcnow().replace(microsecond=0).isoformat()+'Z: '+consts.VALIDATION_PASSED_MESSAGE + str(typeOfCalling) + " " + consts.RESPONSE_NODE_NAME.title())
         else:
             self.print_To_Terminal(response)
         

@@ -31,6 +31,7 @@ class CBRSRequestHandler(object):
         self.oldHttpReq                         = None
         self.validDurationTime                  = 0
         self.lastHeartBeatTime                  = None
+        self.secondLastHeartBeatTime            = None
         self.grantBeforeHeartBeat               = False
         self.validationErrorAccuredInEngine     = False
         self.isLastStepInCSV                    = False
@@ -47,7 +48,8 @@ class CBRSRequestHandler(object):
         self.cbsdId                             = None
         self.grantId                            = 0
         self.expectedRelBeforeDeragistration    = False
-        self.isDelayTriggered                   = False                                       
+        self.isDelayTriggered                   = False
+        self.delayEndTime                       = DT.datetime.utcnow()                                       
         self.secondsForDelay                    = 0                                            
         self.isMeasRepRequested                 = False                                        
         self.stopGrantRenew                     = False                                                
@@ -93,8 +95,14 @@ class CBRSRequestHandler(object):
     def handle_Http_Req(self,httpRequest,typeOfCalling):
         
         req = httpRequest
-        if(self.isDelayTriggered==True and typeOfCalling!=consts.HEART_BEAT_SUFFIX_HTTP):                                                                                                        
-            sleep(2*(self.secondsForDelay))                                                                                                   
+        if(self.isDelayTriggered==True):                                                                                                        
+            current_time = DT.datetime.utcnow()
+            deltaT = self.delayEndTime - current_time
+            remainingTimeToSleep = int(deltaT.total_seconds()) + 5      # sleep until HBT absent is over, plus extra 5 sec
+            if remainingTimeToSleep <= 0:
+                remainingTimeToSleep = 1
+            self.loggerHandler.print_to_Logs_Files('request message received while HBT is absent, sleep '+str(remainingTimeToSleep)+' sec before responding', False)                                                                                                        
+            sleep(remainingTimeToSleep)                                                                                                                                                                                                    
         
         if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"noMoreStep"))==True):          
             self.isLastStepInCSV = True                  
@@ -177,7 +185,8 @@ class CBRSRequestHandler(object):
                     return consts.GRANT_BEFORE_HEARTBEAT_ERROR                  
                 self.Initialize_Repeats_Type_Allowed(consts.HEART_BEAT_SUFFIX_HTTP,httpRequest, typeOfCalling)
                 self.numberOfHearbeatRequests=1 
-                self.lastHeartBeatTime = DT.datetime.now()       
+                self.lastHeartBeatTime = DT.datetime.now()
+                self.secondLastHeartBeatTime = self.lastHeartBeatTime      
         else:
             if(typeOfCalling==consts.GRANT_SUFFIX_HTTP):
                 self.grantBeforeHeartBeat = True
@@ -235,7 +244,9 @@ class CBRSRequestHandler(object):
     def is_Absent_Response_Set(self,expectedJsonName):                                            
         theFlag = (bool(self.assertion.get_Attribute_Value_From_Json(expectedJsonName,"isAbsentResponse")))     
         if theFlag == True:                                                                                     
-            self.isDelayTriggered = True                                                                        
+            self.isDelayTriggered = True
+            self.delayEndTime = DT.datetime.utcnow() + DT.timedelta(seconds = self.secondsForDelay)
+            self.loggerHandler.print_to_Logs_Files('LAST HBT RESPONSE THAT SET TRANSMIT_EXPIRE_TIME WAS AT:  '+str(self.secondLastHeartBeatTime), True)                                                                      
             return True                                                                                                     
         
     def Is_Repeats_Available(self,expectedJsonName,typeOfCalling):
@@ -286,9 +297,10 @@ class CBRSRequestHandler(object):
         '''
         currentTime = DT.datetime.utcnow()
         timeBetween = (currentTime-self.lastHeartBeatTime).total_seconds()
-        self.loggerHandler.print_to_Logs_Files("The time interval between two heartbeat request messages is " + str(timeBetween), True)        
+        self.loggerHandler.print_to_Logs_Files("The time interval between two heartbeat request messages is " + str(timeBetween), False)        
         if(float(timeBetween)>float(self.validDurationTime)):
             return False
+        self.secondLastHeartBeatTime=  self.lastHeartBeatTime
         self.lastHeartBeatTime = DT.datetime.utcnow()            
         return True
   

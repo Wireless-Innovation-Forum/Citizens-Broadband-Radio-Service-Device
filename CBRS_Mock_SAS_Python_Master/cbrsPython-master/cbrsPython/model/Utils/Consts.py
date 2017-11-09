@@ -6,7 +6,7 @@ DEFAULT_RULE_APPLIED =                      "FCC_PART_96"
 DEFAULT_CHANNEL_TYPE =                      "GAA"
 SECONDS_TO_ADD_FOR_GRANT_EXPIRE_TIME =      604800          # seconds ahead for grantExpireTime - 1 week
 SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME =         200             # seconds ahead for transmitExpireTime
-SECONDS_FOR_DELAY_RESPONSE =                40              # seconds to delay response, if flagged in jsonExpected
+SECONDS_FOR_DELAY_RESPONSE =                SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME   # Worst-case value
 CPI_SIGNATURE_VALID_TYPES =                 ['RS256', 'ES256']
 
 ### Other Constants
