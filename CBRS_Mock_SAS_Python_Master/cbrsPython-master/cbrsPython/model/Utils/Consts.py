@@ -67,3 +67,4 @@ TYPE_NAME_OF_FOLDER      =                  "enter log of test to the specific f
 VALIDATION_PASSED_MESSAGE =                 "validation passed successfully, the engine sent "
 GOODBYE_MESSAGE =                           "The last test had been finished and no other csv file had been entered,  goodbye"
 QUIT_PROGRAM_MESSAGE =                      "you decided to quit the program have a good day"
+HEARTBEAT_INTERVAL =                        120

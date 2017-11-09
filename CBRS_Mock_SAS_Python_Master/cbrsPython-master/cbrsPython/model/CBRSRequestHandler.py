@@ -438,6 +438,9 @@ class CBRSRequestHandler(object):
             
             if (not 'channelType' in jsonResponsedefined):
                 jsonResponsedefined['channelType'] = consts.DEFAULT_CHANNEL_TYPE
+				
+            if(not "heartbeatInterval" in jsonResponsedefined):
+                jsonResponsedefined["heartbeatInterval"] = consts.HEARTBEAT_INTERVAL				
                 
             result = self.get_Expire_Time(secondsToAdd)
             self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "grantExpireTime", result) 
