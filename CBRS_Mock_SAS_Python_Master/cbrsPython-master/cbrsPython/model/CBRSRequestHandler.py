@@ -246,7 +246,8 @@ class CBRSRequestHandler(object):
         if theFlag == True:                                                                                     
             self.isDelayTriggered = True
             self.delayEndTime = DT.datetime.utcnow() + DT.timedelta(seconds = self.secondsForDelay)
-            self.loggerHandler.print_to_Logs_Files('LAST HBT RESPONSE THAT SET TRANSMIT_EXPIRE_TIME WAS AT:  '+str(self.secondLastHeartBeatTime), True)                                                                      
+            if self.secondLastHeartBeatTime != None:
+                self.loggerHandler.print_to_Logs_Files('LAST HBT RESPONSE THAT SET TRANSMIT_EXPIRE_TIME WAS AT:  '+str(self.secondLastHeartBeatTime), True)                                                                      
             return True                                                                                                     
         
     def Is_Repeats_Available(self,expectedJsonName,typeOfCalling):
@@ -379,18 +380,6 @@ class CBRSRequestHandler(object):
                         return self.reWrite_UTC_Time(currentDateTime)
                     
         currentDateTime = currentDateTime + DT.timedelta(seconds = secondsToAdd) 
-                
-#        if(int(secondsToAdd) <60):
-#            currentDateTime = currentDateTime + DT.timedelta(seconds = 30)
-#        elif(int(secondsToAdd)<3600):
-#            currentDateTime = currentDateTime + DT.timedelta(seconds = secondsToAdd%60 , minutes = int(secondsToAdd/60))
-#        elif(int(secondsToAdd)<86400):
-#            currentDateTime = currentDateTime + DT.timedelta(seconds = secondsToAdd%60)
-#            minutesToAdd = secondsToAdd/60
-#            if(minutesToAdd<60):
-#                currentDateTime = currentDateTime + DT.timedelta(minutes = minutesToAdd)
-#            else:
-#                currentDateTime = currentDateTime + DT.timedelta(minutes = minutesToAdd%60,hours = minutesToAdd/60)
         
         return self.reWrite_UTC_Time(currentDateTime)
             
