@@ -1,0 +1,10 @@
+{
+    "name":"powerMeasurement_deregistration",   
+    "response":{
+				"deregistrationResponse":[
+					{
+					"response": {"responseCode": 0}				
+					}
+				    ]					  											   			
+	          }
+}
