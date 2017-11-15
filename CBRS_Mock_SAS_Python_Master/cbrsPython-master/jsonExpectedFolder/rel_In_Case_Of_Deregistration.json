@@ -15,8 +15,10 @@
 		"relinquishmentResponse":
 		[
 			{
-				"response": {"responseCode": 0},
-				"responseMessage" : "NOT_SET this is from rel_In_Case_Of_Deregistration"				
+				"response": {
+					"responseCode": 0,
+					"responseMessage" : "NOT_SET this is from rel_In_Case_Of_Deregistration"
+				}				
 			}
 		]
 	}	
