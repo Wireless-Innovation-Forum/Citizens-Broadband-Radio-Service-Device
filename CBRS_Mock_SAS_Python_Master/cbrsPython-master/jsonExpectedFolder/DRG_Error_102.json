@@ -1,0 +1,26 @@
+{
+    "name":"DRG_ERROR_102",
+    "questions":
+				[
+						{
+							"question" : "CBSD stopped RF transmissions when trigger to deregister was done?",
+                            "answers" : ["No", "Yes"], 
+							"expectedAnswer" : "Yes"
+						}
+				],
+			"deregistrationRequest":
+        	[
+            	{
+				}
+			],
+			"response":{
+			"deregistrationResponse" : 
+				[
+					{
+					  "response": {
+						 "responseCode": 102,
+					  }
+					}
+				]  
+			}
+}
