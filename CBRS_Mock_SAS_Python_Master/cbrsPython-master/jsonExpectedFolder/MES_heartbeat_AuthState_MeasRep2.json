@@ -3,11 +3,6 @@
     "measReportRequested" : "True",  
     "questions":
 		[
-			{
-				"question" : "Does Cbsd2 send correct measurement report in heartbeat request message?",
-				"answers" : ["y", "n"], 
-				"expectedAnswer" : "y"
-			}
 		],          
 	"heartbeatRequest": 
 			[ 

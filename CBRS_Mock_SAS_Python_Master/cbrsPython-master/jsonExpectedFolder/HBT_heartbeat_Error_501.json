@@ -3,7 +3,7 @@
     "questions":
 				[
                         {
-                            "question" : "Does cbsd UUT stop transmiting power after receiving the Heartbeat response with response code = 501?",
+                            "question" : "Does cbsd UUT stop transmiting power within 60 seconds of receiving Heartbeat response with responseCode = 501?",
                             "answers" : ["y", "n"], 
 							"expectedAnswer" : "y"
                         }						

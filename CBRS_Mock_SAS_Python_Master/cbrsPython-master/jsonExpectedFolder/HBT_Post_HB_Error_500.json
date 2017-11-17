@@ -3,7 +3,7 @@
     "message":{},
     "questions":[
             {
-               "question" : "Does cbsd UUT stop transmiting power after receiving the Heartbeat response with response code = 500?",
+               "question" : "Does cbsd UUT stop transmiting within 60 seconds of receiving Heartbeat response with responseCode = 500?",
                "answers" : ["y", "n"], 
 			   "expectedAnswer" : "y"
              }						
@@ -28,7 +28,6 @@
         { 
 		   "grantResponse":[ 
 		   		{
-		   			"heartbeatInterval" : 120.0,
 		   			"response" : {"responseCode" : 400}
 		    	}
 		   		],

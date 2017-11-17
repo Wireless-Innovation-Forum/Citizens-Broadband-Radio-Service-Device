@@ -2,11 +2,6 @@
     "name":"HBT_grant_MeasRep_Cbsd",	
     "questions":
 			[
-				{
-					"question" : "Does Cbsd send correct measurement report in grant request message?",
-					"answers" : ["y", "n"], 
-					"expectedAnswer" : "y"
-				}
 			],        
     "measReportRequested" : "True",      
 		"grantRequest":
@@ -28,7 +23,6 @@
 		   "grantResponse":
 		   [ 
 		   	{
-		   	"heartbeatInterval" : 120.0,
 		   	"response" : {"responseCode" : 0}
 		    }
 		   ]

@@ -4,7 +4,7 @@
     "questions":
 		[
 			{
-				"question" : "Does Cbsd stop transmiting power after heartbeat response absent?",
+				"question" : "Does Cbsd stop transmiting within (transmitExpireTime + 60seconds) of last valid heartbeat response?",
 				"answers" : ["y", "n"], 
 				"expectedAnswer" : "y"
 			}
