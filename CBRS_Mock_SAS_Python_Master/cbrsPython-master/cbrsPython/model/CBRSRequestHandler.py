@@ -337,7 +337,10 @@ class CBRSRequestHandler(object):
             self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId)
             if("grantRenew" in httpRequest and self.stopGrantRenew == False):                                                           
                 if(httpRequest["grantRenew"] == True or httpRequest["grantRenew"]=="true"):
-                    secondsToAdd = consts.SHORTER_GRANT_EXPIRY_TIME
+                    if self.shorterGrantTime == False:
+                        secondsToAdd = consts.SECONDS_TO_ADD_FOR_GRANT_EXPIRE_TIME
+                    else:
+                        secondsToAdd = consts.SHORTER_GRANT_EXPIRY_TIME
                     result = self.get_Expire_Time(secondsToAdd)
                     self.change_Value_Of_Param_In_Dict(specificRespJson, "grantExpireTime", result)
                       

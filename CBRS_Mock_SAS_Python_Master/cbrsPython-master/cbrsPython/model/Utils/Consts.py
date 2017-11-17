@@ -9,6 +9,18 @@ SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME =         200             # seconds ahead for 
 SECONDS_FOR_DELAY_RESPONSE =                SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME   # Worst-case value
 CPI_SIGNATURE_VALID_TYPES =                 ['RS256', 'ES256']
 
+HEARTBEAT_INTERVAL =                        120
+
+CBRS_SPECTRUM_HIGH =                        3700000000
+CBRS_SPECTRUM_LOW =                         3550000000
+MAXEIRP_LOW =                               -137
+MAXERIP_HIGH =                              37
+
+SPECTRUM_PAL_HIGH =                         3650000000
+SPECTRUM_PAL_LOW =                          3550000000
+SPECTRUM_GAA_HIGH =                         3700000000
+SPECTRUM_GAA_LOW =                          3550000000
+
 ### Other Constants
 ERROR_VALIDATION_MESSAGE =                  "ERROR - An Error occurred while comparing between actual and expected request"
 RESULTS_OF_TEST_MESSAGE =                   "The final result of the test : "
@@ -67,14 +79,5 @@ TYPE_NAME_OF_FOLDER      =                  "enter log of test to the specific f
 VALIDATION_PASSED_MESSAGE =                 "validation passed successfully, the engine sent "
 GOODBYE_MESSAGE =                           "The last test had been finished and no other csv file had been entered,  goodbye"
 QUIT_PROGRAM_MESSAGE =                      "you decided to quit the program have a good day"
-HEARTBEAT_INTERVAL =                        120
-SPECTRUM_PAL_HIGH =                         3650000000
-SPECTRUM_PAL_LOW =                          3550000000
-SPECTRUM_GAA_HIGH =                         3700000000
-SPECTRUM_GAA_LOW =                          3550000000
 START_POWER_MEAS_TEST =                     "The Mock-SAS has been started please enabling CBSD for the power measurement test, the Mock-SAS will keep running during the test"
-CBRS_SPECTRUM_HIGH =                        3700000000
-CBRS_SPECTRUM_LOW =                         3550000000
-MAXEIRP_LOW =                               -137
-MAXERIP_HIGH =                              37
 BAD_CARRIER_BW_SELECT =                     "The combination of carrier number and bandwidth is not valid, please try again"
