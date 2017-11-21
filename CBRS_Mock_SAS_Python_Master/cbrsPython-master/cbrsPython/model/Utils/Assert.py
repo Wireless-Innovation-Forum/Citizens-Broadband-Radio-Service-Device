@@ -193,7 +193,7 @@ class Assertion(object):
         the method get the optional parameter of the suffix type json and check if it requested from the CBSD if it is it add them to the expected json. json schema is used for the data validation.
         '''
         current_path = str(self.dirPath)
-        configurable_file_path = os.path.join(current_path,'','Configuration','ObjectListConfig')     
+        configurable_file_path = os.path.join(current_path, 'Configuration','ObjectListConfig')     
         later_Defined_params_file = open(os.path.join(str(configurable_file_path), "laterDefindedOptional.json"))
         
         if(consts.REQUEST_NODE_NAME in str(suffix)):
