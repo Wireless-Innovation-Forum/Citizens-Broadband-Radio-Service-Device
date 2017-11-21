@@ -63,7 +63,7 @@ class Assertion(object):
         if(bool(self.get_Attribute_Value_From_Json(jsonExpected,"fullBandReport"))==True):
                 self.check_Fullband_Measurement_Report (httpRequest)                                                                                                  
          
-        x = JsonComparisonUtils.are_same(jsonExpectedObj[0],httpRequest,False,self.dontCheckNode)
+        x = JsonComparisonUtils.are_same(jsonExpectedObj[0],httpRequest,False,self.dontCheckNode)    
         if(False in x and printIfFalse == True):
             self.loggerHandler.print_to_Logs_Files(x,True)
         try:
@@ -182,7 +182,11 @@ class Assertion(object):
         except Exception as e:
             if e.message == "node not exists":
                 return consts.SUFFIX_NOT_EXISTS_IN_EXPECTED_JSON_FILE
-        return responsePart[consts.GRANT_SUFFIX_HTTP+consts.RESPONSE_NODE_NAME.title()][0]['heartbeatInterval']
+        try:
+            return responsePart[consts.GRANT_SUFFIX_HTTP+consts.RESPONSE_NODE_NAME.title()][0]['heartbeatInterval']
+        except:
+            return consts.HEARTBEAT_INTERVAL
+    
     
     def add_Json_Optional_Parameters(self,expected,httpRequest,suffix):
         '''

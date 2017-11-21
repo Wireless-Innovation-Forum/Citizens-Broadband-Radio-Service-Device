@@ -1,0 +1,10 @@
+{
+    "name":"powerMeasurement_grant",
+    "response":{
+          "grantResponse":[ 
+		   			{
+		   			"response" : {"responseCode" : 0}
+		    		}
+		   			]			  											   			
+	          }
+}

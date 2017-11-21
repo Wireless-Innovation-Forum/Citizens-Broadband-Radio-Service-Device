@@ -11,6 +11,12 @@ from xml.dom import minidom
 from random import *
 import os
 from time import sleep
+import json
+import jsonschema
+import jwt
+from cryptography.x509 import load_pem_x509_certificate
+from cryptography.hazmat.backends import default_backend
+import base64
 
 
 class CBRSRequestHandler(object):
@@ -25,6 +31,7 @@ class CBRSRequestHandler(object):
         self.oldHttpReq                         = None
         self.validDurationTime                  = 0
         self.lastHeartBeatTime                  = None
+        self.secondLastHeartBeatTime            = None
         self.grantBeforeHeartBeat               = False
         self.validationErrorAccuredInEngine     = False
         self.isLastStepInCSV                    = False
@@ -41,7 +48,8 @@ class CBRSRequestHandler(object):
         self.cbsdId                             = None
         self.grantId                            = 0
         self.expectedRelBeforeDeragistration    = False
-        self.isDelayTriggered                   = False                                       
+        self.isDelayTriggered                   = False
+        self.delayEndTime                       = DT.datetime.utcnow()                                       
         self.secondsForDelay                    = 0                                            
         self.isMeasRepRequested                 = False                                        
         self.stopGrantRenew                     = False                                                
@@ -69,12 +77,9 @@ class CBRSRequestHandler(object):
                             
         if(not cbsdFoundInJsons):
             raise IOError("ERROR - missing registration json in one of the csv columns with the cbsd serial number " + self.cbsdSerialNumber)
-        try:
-            grantExpireTime = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForGrantExpireTime")[0].firstChild.data)
-            transmitTime = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForTransmitExpireTime")[0].firstChild.data)
-        except Exception:
-            raise IOError("ERROR - for the cbrs with the serial number : " + self.cbsdSerialNumber + " the conf file" +
-                          " must include the parameters : secondsToAddForGrantExpireTime,secondsToAddForTransmitExpireTime")
+
+        grantExpireTime = int(consts.SECONDS_TO_ADD_FOR_GRANT_EXPIRE_TIME)
+        transmitTime = int(consts.SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME)
         if(grantExpireTime<transmitTime):
             raise IOError("ERROR - for the cbrs with the serial number : " + self.cbsdSerialNumber +  " the transmit time is bigger than the grant expire time")
         
@@ -90,8 +95,14 @@ class CBRSRequestHandler(object):
     def handle_Http_Req(self,httpRequest,typeOfCalling):
         
         req = httpRequest
-        if(self.isDelayTriggered==True and typeOfCalling!=consts.HEART_BEAT_SUFFIX_HTTP):                                                                                                        
-            sleep(2*(self.secondsForDelay))                                                                                                   
+        if(self.isDelayTriggered==True):                                                                                                        
+            current_time = DT.datetime.utcnow()
+            deltaT = self.delayEndTime - current_time
+            remainingTimeToSleep = int(deltaT.total_seconds()) + 5      # sleep until HBT absent is over, plus extra 5 sec
+            if remainingTimeToSleep <= 0:
+                remainingTimeToSleep = 1
+            self.loggerHandler.print_to_Logs_Files('request message received while HBT is absent, sleep '+str(remainingTimeToSleep)+' sec before responding', False)                                                                                                        
+            sleep(remainingTimeToSleep)                                                                                                                                                                                                    
         
         if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"noMoreStep"))==True):          
             self.isLastStepInCSV = True                  
@@ -112,7 +123,14 @@ class CBRSRequestHandler(object):
                     raise IOError (str(e))   
         
         if(typeOfCalling==consts.HEART_BEAT_SUFFIX_HTTP): 
-             
+
+            if(self.lastHeartBeatTime != None):
+                if(not self.is_Valid_Heart_Beat_Time()):
+                    self.validationErrorAccuredInEngine = True
+                    return consts.HEART_BEAT_TIMEOUT_MESSAGE
+            else:
+                self.lastHeartBeatTime = DT.datetime.utcnow()   
+		
             if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"measReportRequested"))==True):         
                 self.isMeasRepRequested = True   
                     
@@ -167,7 +185,8 @@ class CBRSRequestHandler(object):
                     return consts.GRANT_BEFORE_HEARTBEAT_ERROR                  
                 self.Initialize_Repeats_Type_Allowed(consts.HEART_BEAT_SUFFIX_HTTP,httpRequest, typeOfCalling)
                 self.numberOfHearbeatRequests=1 
-                self.lastHeartBeatTime = DT.datetime.now()       
+                self.lastHeartBeatTime = DT.datetime.now()
+                self.secondLastHeartBeatTime = self.lastHeartBeatTime      
         else:
             if(typeOfCalling==consts.GRANT_SUFFIX_HTTP):
                 self.grantBeforeHeartBeat = True
@@ -192,8 +211,14 @@ class CBRSRequestHandler(object):
                     
         except Exception as e:
             self.validationErrorAccuredInEngine = True  
-            raise IOError (str(e))                                                                                                              
-                
+            raise IOError (str(e))
+        # Check CPI data in registration message, if present...                                                                                                              
+        if(typeOfCalling == consts.REGISTRATION_SUFFIX_HTTP):
+            if 'cpiSignatureData' in httpRequest:
+                if self.checkCpiSignedData(dict(httpRequest['cpiSignatureData'])) == False:
+                    self.validationErrorAccuredInEngine = True
+                    raise IOError ("cpiSignature check failed")
+                    
         if(typeOfCalling==consts.GRANT_SUFFIX_HTTP):
             ### if it is a grant request we need to initialize the valid duration time between the heartbeats
             self.validDurationTime = self.assertion.get_Duration_Time_From_Grant_Json(self.get_Expected_Json_File_Name())
@@ -219,7 +244,10 @@ class CBRSRequestHandler(object):
     def is_Absent_Response_Set(self,expectedJsonName):                                            
         theFlag = (bool(self.assertion.get_Attribute_Value_From_Json(expectedJsonName,"isAbsentResponse")))     
         if theFlag == True:                                                                                     
-            self.isDelayTriggered = True                                                                        
+            self.isDelayTriggered = True
+            self.delayEndTime = DT.datetime.utcnow() + DT.timedelta(seconds = self.secondsForDelay)
+            if self.secondLastHeartBeatTime != None:
+                self.loggerHandler.print_to_Logs_Files('LAST HBT RESPONSE THAT SET TRANSMIT_EXPIRE_TIME WAS AT:  '+str(self.secondLastHeartBeatTime), True)                                                                      
             return True                                                                                                     
         
     def Is_Repeats_Available(self,expectedJsonName,typeOfCalling):
@@ -231,7 +259,7 @@ class CBRSRequestHandler(object):
         return bool(self.assertion.get_Attribute_Value_From_Json(expectedJsonName,"repeatsAllowed"))
 
     def compare_Json_Req(self,httpRequest,expectedJsonFileName,typeOfCalling,keys=None):
-        self.secondsForDelay = int(self.cbrsConfFile.getElementsByTagName("secondsForDelayResponse")[0].firstChild.data)                       
+        self.secondsForDelay = int(consts.SECONDS_FOR_DELAY_RESPONSE)
         if(not self.is_Absent_Response_Set(self.get_Expected_Json_File_Name())==True):                                      
             self.assertion.compare_Json_Req(httpRequest,expectedJsonFileName,typeOfCalling+consts.REQUEST_NODE_NAME,keys)           
 
@@ -268,11 +296,13 @@ class CBRSRequestHandler(object):
         the method get the current time and compare the time that had passed from the last heartbeat
         check if it is less then what pulled from the last grant response
         '''
-        currentTime = DT.datetime.now()
+        currentTime = DT.datetime.utcnow()
         timeBetween = (currentTime-self.lastHeartBeatTime).total_seconds()
-        if(float(timeBetween)-3.0>float(self.validDurationTime)):
+        self.loggerHandler.print_to_Logs_Files("The time interval between two heartbeat request messages is " + str(timeBetween), False)        
+        if(float(timeBetween)>float(self.validDurationTime)):
             return False
-        self.lastHeartBeatTime = DT.datetime.now()            
+        self.secondLastHeartBeatTime=  self.lastHeartBeatTime
+        self.lastHeartBeatTime = DT.datetime.utcnow()            
         return True
   
     def process_response(self,typeOfCalling,httpRequest): 
@@ -300,23 +330,29 @@ class CBRSRequestHandler(object):
             if specificRespJson["response"]["responseCode"] in self.heartbeatErrorList or self.immediatelyShutdown == True:
                 secondsToAdd = 0
             else:
-                secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForTransmitExpireTime")[0].firstChild.data)
+                secondsToAdd = int(consts.SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME)
             result = self.get_Expire_Time(secondsToAdd,specificRespJson)
             self.change_Value_Of_Param_In_Dict(specificRespJson, "transmitExpireTime", result)
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
             self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId)
             if("grantRenew" in httpRequest and self.stopGrantRenew == False):                                                           
                 if(httpRequest["grantRenew"] == True or httpRequest["grantRenew"]=="true"):
-                    secondsToAdd = consts.SHORTER_GRANT_EXPIRY_TIME
+                    if self.shorterGrantTime == False:
+                        secondsToAdd = consts.SECONDS_TO_ADD_FOR_GRANT_EXPIRE_TIME
+                    else:
+                        secondsToAdd = consts.SHORTER_GRANT_EXPIRY_TIME
                     result = self.get_Expire_Time(secondsToAdd)
                     self.change_Value_Of_Param_In_Dict(specificRespJson, "grantExpireTime", result)
                       
         elif(typeOfCalling == consts.REGISTRATION_SUFFIX_HTTP):
-            if(self.cbsdId==None):
-                self.cbsdId = httpRequest["fccId"]+ "Mock-SAS" + self.cbsdSerialNumber
-                self.assertion.cbsdId = self.cbsdId
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
-        
+            if specificRespJson['response']['responseCode'] == 0:
+                if(self.cbsdId==None):
+                    self.cbsdId = httpRequest["fccId"]+ "Mock-SAS" + self.cbsdSerialNumber
+                    self.assertion.cbsdId = self.cbsdId
+                self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)
+            elif 'cbsdId' in specificRespJson:
+                del specificRespJson['cbsdId']
+                  
         elif(typeOfCalling == consts.DEREGISTRATION_SUFFIX_HTTP):
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
         
@@ -345,18 +381,8 @@ class CBRSRequestHandler(object):
                 if("responseCode" in specificRespJson["response"]):
                     if(specificRespJson["response"]["responseCode"] !=0):
                         return self.reWrite_UTC_Time(currentDateTime)
-                
-        if(int(secondsToAdd) <60):
-            currentDateTime = currentDateTime + DT.timedelta(seconds = 30)
-        elif(int(secondsToAdd)<3600):
-            currentDateTime = currentDateTime + DT.timedelta(seconds = secondsToAdd%60 , minutes = int(secondsToAdd/60))
-        elif(int(secondsToAdd)<86400):
-            currentDateTime = currentDateTime + DT.timedelta(seconds = secondsToAdd%60)
-            minutesToAdd = secondsToAdd/60
-            if(minutesToAdd<60):
-                currentDateTime = currentDateTime + DT.timedelta(minutes = minutesToAdd)
-            else:
-                currentDateTime = currentDateTime + DT.timedelta(minutes = minutesToAdd%60,hours = minutesToAdd/60)
+                    
+        currentDateTime = currentDateTime + DT.timedelta(seconds = secondsToAdd) 
         
         return self.reWrite_UTC_Time(currentDateTime)
             
@@ -370,18 +396,25 @@ class CBRSRequestHandler(object):
         '''
         The code below is to build up SpectrumInquiry response message when multiple spectrum 
         included, not required pre-setup in expected json file
-        '''                     
+        '''
+# if available, use channelType from first instance of inquiredSpectrum, else default
+        try:
+            siq_channelType = jsonResonsedefined['availableChannel'][0]['channelType']  
+        except:
+            siq_channelType = consts.DEFAULT_CHANNEL_TYPE
+# if available, use ruleApplied from first instance of inquiredSpectrum, else default 
+        try:
+            siq_ruleApplied = jsonResonsedefined['availableChannel'][0]['ruleApplied']
+        except:
+            siq_ruleApplied = consts.DEFAULT_RULE_APPLIED
+                    
         if(jsonResonsedefined["response"]["responseCode"] ==0):
             if "availableChannel" in jsonResonsedefined:
                 availableChannel=[]
                 for itemReq in httpRequest["inquiredSpectrum"]:
                     responseChannel = {}
-                    responseChannel["ruleApplied"]="FCC_PART_96"
-                
-                    if(itemReq["lowFrequency"]>consts.SPECTRUM_GAA_LOW and itemReq["highFrequency"] < consts.SPECTRUM_GAA_HIGH):
-                        responseChannel["channelType"]="GAA"
-                    elif(itemReq["lowFrequency"]>consts.SPECTRUM_PAL_LOW and itemReq["highFrequency"] < consts.SPECTRUM_PAL_HIGH):
-                        responseChannel["channelType"]="PAL"
+                    responseChannel["ruleApplied"]= siq_ruleApplied
+                    responseChannel["channelType"]= siq_channelType
                 
                     responseChannel["frequencyRange"] = itemReq
                     if "maxEirp" in jsonResonsedefined["availableChannel"][0]:
@@ -402,10 +435,16 @@ class CBRSRequestHandler(object):
                 self.assertion.grantId = self.grantId  
             self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "grantId", self.grantId) 
             
-            if(self.shorterGrantTime != True):                
-                secondsToAdd = int(self.cbrsConfFile.getElementsByTagName("secondsToAddForGrantExpireTime")[0].firstChild.data)                          
+            if(self.shorterGrantTime != True):
+                secondsToAdd = int(consts.SECONDS_TO_ADD_FOR_GRANT_EXPIRE_TIME)               
             else:
                 secondsToAdd = consts.SHORTER_GRANT_EXPIRY_TIME
+            
+            if (not 'channelType' in jsonResponsedefined):
+                jsonResponsedefined['channelType'] = consts.DEFAULT_CHANNEL_TYPE
+				
+            if(not "heartbeatInterval" in jsonResponsedefined):
+                jsonResponsedefined["heartbeatInterval"] = consts.HEARTBEAT_INTERVAL				
                 
             result = self.get_Expire_Time(secondsToAdd)
             self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "grantExpireTime", result) 
@@ -417,4 +456,55 @@ class CBRSRequestHandler(object):
                 else:
                     raise IOError('There is no requested parameters in the request message')                  
         else:
-            pass                            
+            pass
+        
+    def checkCpiSignedData(self,cpiSigData):
+        """ Given cpiSignatureData from registration request message, verifies the signature on data,
+            and checks data with jsonSchema for cpiSignatureData
+        """
+        self.loggerHandler.print_to_Logs_Files("Registration message contains cpiSignatureData", False)
+        decodedHeader = json.loads(base64.standard_b64decode(cpiSigData['protectedHeader']))
+        self.loggerHandler.print_to_Logs_Files("protectedHeader = "+str(decodedHeader), False)
+        if 'alg' in decodedHeader:
+            if decodedHeader['alg'] not in consts.CPI_SIGNATURE_VALID_TYPES:
+                self.loggerHandler.print_to_Logs_Files("protectedHeader signed with wrong algorithm: "+decodedHeader['alg'], True)
+                return False
+            
+        encoded_cpi_data = cpiSigData['protectedHeader'] \
+                        + '.' + cpiSigData['encodedCpiSignedData'] \
+                        + '.' + cpiSigData['digitalSignature']
+        unverified_cpi_payload = jwt.decode(encoded_cpi_data, verify=False)     ### This is data without signature check
+        self.loggerHandler.print_to_Logs_Files("encodedCpiSignedData contents = "+json.dumps(unverified_cpi_payload, indent=4), False)
+        try:
+            cpi_cert_filename = str(self.dirPath)+ str(self.enviormentConfFile.getElementsByTagName('cpiCert')[0].firstChild.data)
+            cpi_cert = open(cpi_cert_filename, 'r').read()
+            cpi_cert_obj = load_pem_x509_certificate(cpi_cert, default_backend())
+            cpi_public_key = cpi_cert_obj.public_key()
+        except:
+            self.loggerHandler.print_to_Logs_Files('Error in loading CPI certificate file', True)
+            return False
+        try:
+            verified_cpi_payload = jwt.decode(encoded_cpi_data, cpi_public_key)
+            self.loggerHandler.print_to_Logs_Files("verified signature on cpiSignatureData", False)
+        except:
+            self.loggerHandler.print_to_Logs_Files("cpiSignatureData signature error", True)
+            return False
+
+        schema_filename = str(self.dirPath)+str(self.enviormentConfFile.getElementsByTagName('jsonsRepoPath')[0].firstChild.data)+'OptionalParams\cpiSignatureDataSchema.json'
+        try:
+            file = open(schema_filename, 'r')
+            cpi_schema = json.load(file)
+        except:
+            self.loggerHandler.print_to_Logs_Files("Error opening cpiSignatureDataSchema", True)
+            return False
+        try:
+            x = jsonschema.validate(verified_cpi_payload, cpi_schema)
+            self.loggerHandler.print_to_Logs_Files("cpiSignatureData data successfully validated against jsonschema ", False)
+        except jsonschema.ValidationError as e:
+            self.loggerHandler.print_to_Logs_Files('cpiSignature decoded json schema validation error = '+ e.message, True)
+            return False
+        except:
+            self.loggerHandler.print_to_Logs_Files('jsonschema validate fail', False)
+            return False
+            
+        return True

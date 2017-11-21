@@ -23,9 +23,7 @@
     "required": [ "radioTechnology" ],
     "properties": {
       "radioTechnology": { "enum": [ "E_UTRA", "CAMBIUM_NETWORKS" ],
-                           "description": "Which PHY radio technology is used by the device in the 3.5GHz band" },
-      "supportedSpec": { "type": "string",
-                         "description": "Description of the spec of the radio technology supported." }
+                           "description": "Which PHY radio technology is used by the device in the 3.5GHz band" }
     		}
 	    }
 

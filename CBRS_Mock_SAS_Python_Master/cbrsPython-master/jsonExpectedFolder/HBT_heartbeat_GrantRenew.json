@@ -3,7 +3,7 @@
     "questions":
 		[
 			{
-				"question" : "does the CBSD under testing get grant renew successfully?",
+				"question" : "does the CBSD under testing renew its grant successfully?",
 				"answers" : ["y", "n"], 
 				"expectedAnswer" : "y"
 			}

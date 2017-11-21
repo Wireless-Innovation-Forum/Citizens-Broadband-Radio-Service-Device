@@ -1,0 +1,13 @@
+{
+    "name":"powerMeasurement_Registration", 
+    "response":{
+         "registrationResponse" :[
+                     {
+                        "cbsdId": "None",
+                        "response": {
+                               "responseCode": 0
+                               }
+                       }                                   
+                   ]			  											   			
+	          }
+}

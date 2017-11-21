@@ -1,0 +1,10 @@
+{
+    "name":"powerMeasurement_relinquishment",    
+    "response":{
+		   "relinquishmentResponse":[ 
+					{ 
+                    "response":{"responseCode":0}
+					}
+					]				  											   			
+	          }
+}

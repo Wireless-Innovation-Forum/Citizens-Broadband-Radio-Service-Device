@@ -4,9 +4,9 @@
     "questions":
 		[
 			{
-				"question" : "Does cbsd UUT stop transmiting power after the Heartbeat response absent?",
+				"question" : "Did cbsd UUT start transmission during test?",
 				"answers" : ["y", "n"], 
-				"expectedAnswer" : "y"
+				"expectedAnswer" : "n"
 			}
 		],              
 		"heartbeatRequest": 

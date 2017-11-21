@@ -1,0 +1,12 @@
+{
+    "name":"powerMeasurement_heartbeat",   
+    "response":{
+    	  "heartbeatResponse":[ 
+    				{
+    				"response" : {
+      					"responseCode" : 0
+    					}
+  					}
+  					]			  											   			
+	          }
+}

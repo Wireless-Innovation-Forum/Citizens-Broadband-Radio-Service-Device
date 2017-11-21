@@ -22,7 +22,9 @@
 		           "ruleApplied": "FCC_PART_96"
 		        }
 		     ],     
-		"response":{"responseCode":0}
+		"response":{
+				"responseCode":0
+				}
 		}	
 		]
     }

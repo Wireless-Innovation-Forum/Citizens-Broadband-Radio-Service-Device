@@ -11,7 +11,6 @@
 		   "grantResponse":
 		   [ 
 		   	{
-		   	"heartbeatInterval" : 120.0,
     		"measReportConfig" : "RECEIVED_POWER_WITH_GRANT",  		   	
 		   	"response" : {"responseCode" : 0}
 		    }

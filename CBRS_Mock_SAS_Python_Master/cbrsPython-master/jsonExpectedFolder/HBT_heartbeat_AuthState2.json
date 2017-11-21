@@ -3,12 +3,7 @@
     "questions":
 		[
 			{
-				"question" : "Does the CBSD2 is working as expected?",
-				"answers" : ["y", "n"], 
-				"expectedAnswer" : "y"
-			},
-			{
-				"question" : "Does the CBSD2 transmit power prior to AUTHORIZED state?",
+				"question" : "Does the CBSD2 transmit power prior to AUTHORIZED state (first successful HBT response)?",
 				"answers" : ["y", "n"], 
 				"expectedAnswer" : "n"
 			}			

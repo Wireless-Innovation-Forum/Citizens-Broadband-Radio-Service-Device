@@ -12,7 +12,6 @@
 		   "grantResponse":
 		   [ 
 		   	{
-		   	"heartbeatInterval" : 120.0,
 		   	"response" : {"responseCode" : 0}
 		    }
 		   ]

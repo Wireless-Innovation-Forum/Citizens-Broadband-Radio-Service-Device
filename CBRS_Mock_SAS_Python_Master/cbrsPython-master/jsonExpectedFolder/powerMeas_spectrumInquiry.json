@@ -1,0 +1,10 @@
+{
+    "name":"powerMeasurement_spectrumInquiry", 
+    "response":{
+		  "spectrumInquiryResponse":[ 
+      			{      
+		       "response":{"responseCode":0}
+				}	
+				]	  											   			
+	     }
+}
