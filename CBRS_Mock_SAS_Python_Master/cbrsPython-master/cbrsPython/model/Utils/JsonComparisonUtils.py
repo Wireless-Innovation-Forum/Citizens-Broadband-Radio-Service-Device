@@ -272,11 +272,9 @@ def Get_Json_After_Parse_To_Dic(jsonFileName, confFile, dirPath):
     the method get the jsonFileName the config file and the path leading to that file
     perform a loading of the json in an order way to an dictionary    
     '''
-#    filePath = str(dirPath) + confFile.getElementsByTagName("jsonsRepoPath")[0].firstChild.data
     filePath = os.path.normpath(os.path.join(str(dirPath), confFile.getElementsByTagName("jsonsRepoPath")[0].firstChild.data))
 
     if("Optional" in str(jsonFileName)):
-#        filePath = filePath + "OptionalParams\\"
         filePath = os.path.join(filePath, "OptionalParams")
 
     myfile = open(os.path.join(filePath,str(jsonFileName)))

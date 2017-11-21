@@ -30,7 +30,6 @@ class XmlLogger(Observer):
             self.folder_Name = folder_Name
             self.dir_Path = dir_Path       
             self.log_Name = log_Name
-#            newpath = str(dir_Path)+ str(r'\\Logs\\SpecificFolderOfTests\\' + folder_Name)
             newpath = os.path.join(str(dir_Path), 'Logs', 'SpecificFolderOfTests', folder_Name)
         if not os.path.exists(newpath):
             os.makedirs(newpath)
@@ -85,13 +84,10 @@ class XmlLogger(Observer):
         self.testCase.set("stop",str(int(self.totimestamp())))
         self.set_end_time()
         tree = ET.ElementTree(self.root)
-#        newFolderPath = str(self.dir_Path) + "\\Logs\\SpecificFolderOfTests\\" +self.folder_Name
         newFolderPath = os.path.join(str(self.dir_Path), "Logs", "SpecificFolderOfTests", self.folder_Name)
 
-#        tree.write(newFolderPath +"\\xml\\" + self.folder_Name+ "-testsuite" ".xml")
         tree.write(os.path.join(newFolderPath, "xml", self.folder_Name+"-testsuite"+".xml"))
 
-#        allurePath = str(self.dir_Path)+ "\\allure-cli\\bin"
         allurePath = os.path.join(str(self.dir_Path), "allure-cli", "bin")
 
         os.chdir(allurePath)
@@ -143,7 +139,6 @@ class XmlLogger(Observer):
         
     def initialize_From_Existing_Xml(self,dir_Path,folder_Name):
         try:
-#            tree = ET.parse(str(dir_Path) + "\\Logs\\SpecificFolderOfTests\\" +folder_Name +"\\xml\\" + folder_Name+"-testsuite" ".xml")
             tree = ET.parse(os.path.join(str(dir_Path), "Logs","SpecificFolderOfTests", folder_Name, "xml", folder_Name+"-testsuite"), method=".xml")
 
         except Exception:

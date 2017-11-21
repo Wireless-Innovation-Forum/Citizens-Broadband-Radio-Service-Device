@@ -39,7 +39,6 @@ class Assertion(object):
         off the client and the server the json expected and the real json sent from the client 
         '''
         self.dontCheckNode = []
-        
         try:
             jsonExpectedObj = JsonComparisonUtils.get_Node_Of_Json_Parsed(jsonExpected,suffix,self.confFile,self.dirPath)
         except Exception as e:

@@ -12,8 +12,6 @@ class CmdLogger(Observer):
     
     def startTest(self,dir_Path,log_Name,folder_Name=None):
         if(log_Name==consts.CLI_SESSION):
-#            log_file =  '\Logs\CMDSessions\cmdSession_' + str(datetime.now().strftime("%Y_%m_%d_%H_%M_%S")) +'.log'
-#            log_file =  '\Logs\CMDSessions\cmdSession_' + datetime.utcnow().replace(microsecond=0).isoformat() +'Z.log'
             log_file = os.path.join('Logs','CMDSessions', 'cmdSession_'+ datetime.utcnow().replace(microsecond=0).isoformat() +'Z.log')
 
             log_file = log_file.replace(':','.')

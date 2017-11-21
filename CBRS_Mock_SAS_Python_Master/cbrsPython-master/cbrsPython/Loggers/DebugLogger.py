@@ -15,8 +15,6 @@ class DebugLogger(Observer):
     
     def startTest(self,dir_Path,log_Name,folder_Name=None):
         if(log_Name!= consts.CLI_SESSION):
-#            log_file = '\\Logs\\LogsPerTest\\'+log_Name+"_" + str(datetime.now().strftime("%Y_%m_%d_%H_%M_%S")) +'.log' 
-#            log_file = '\\Logs\\LogsPerTest\\'+log_Name+"_" + datetime.utcnow().replace(microsecond=0).isoformat() +'Z.log'
             log_file = os.path.join('Logs', 'LogsPerTest', log_Name+"_" + datetime.utcnow().replace(microsecond=0).isoformat() +'Z.log')
             log_file = log_file.replace(':','.')
             self.addLoggerFile(dir_Path,log_Name, log_file)
