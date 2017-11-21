@@ -1,0 +1,29 @@
+{
+    "name":"REG_Error_101_cbsd2",
+	"xmlFilelLinked": "cbsdc2",
+    "questions":
+				[
+ 						{
+							"question" : "There were no RF transmissions from CBSD2 during the test?",
+                            "answers" : ["No", "Yes"], 
+							"expectedAnswer" : "Yes"
+						}
+				],
+			"registrationRequest":
+        	[
+            	{
+ 				  "userId":"${maximumLength:128}", 
+ 				  "fccId":"${maximumLength:128}"  
+				}
+			],
+			"response":{
+			"registrationResponse" : 
+				[
+					{
+					  "response": {
+						 "responseCode": 101
+					  }
+					}
+				]  
+				}
+}

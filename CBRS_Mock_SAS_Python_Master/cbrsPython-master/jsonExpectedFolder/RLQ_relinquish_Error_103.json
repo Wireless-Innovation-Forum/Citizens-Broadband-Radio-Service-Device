@@ -1,0 +1,30 @@
+{
+    "name":"RLQ_relinquish_Error_102",
+    "questions":
+				[
+                        {
+                            "question" : "Did CBSD #1 UUT stop transmit upon sending Relinquishment Request?",
+                            "answers" : ["y", "n"], 
+							"expectedAnswer" : "y"
+                        }					
+				],			      
+        
+		"relinquishmentRequest": 
+			[ 
+			{
+    		}
+  			],
+	"response":
+     		{ 
+    		"relinquishmentResponse":
+    			[ 
+    			{
+    				"response" : {
+      					"responseCode" : 103
+    					}
+  				}
+		 ]
+	}
+
+	     
+}

@@ -1,0 +1,23 @@
+{
+    "name":"RLQ_Success",
+    "questions":
+				[
+                        {
+						}
+				],
+			"relinquishmentRequest":
+        	[
+            	{
+				}
+			],
+			"response":{
+			"relinquishmentResponse" : 
+				[
+					{
+					  "response": {
+						 "responseCode": 0
+					  }
+					}
+				]  
+				}
+}
