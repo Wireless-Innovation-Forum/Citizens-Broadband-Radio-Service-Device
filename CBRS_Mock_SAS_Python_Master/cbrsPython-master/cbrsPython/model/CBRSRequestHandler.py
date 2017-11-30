@@ -185,7 +185,7 @@ class CBRSRequestHandler(object):
                     return consts.GRANT_BEFORE_HEARTBEAT_ERROR                  
                 self.Initialize_Repeats_Type_Allowed(consts.HEART_BEAT_SUFFIX_HTTP,httpRequest, typeOfCalling)
                 self.numberOfHearbeatRequests=1 
-                self.lastHeartBeatTime = DT.datetime.now()
+                self.lastHeartBeatTime = DT.datetime.utcnow()
                 self.secondLastHeartBeatTime = self.lastHeartBeatTime      
         else:
             if(typeOfCalling==consts.GRANT_SUFFIX_HTTP):
