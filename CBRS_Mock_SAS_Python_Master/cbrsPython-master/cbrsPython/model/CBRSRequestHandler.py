@@ -215,9 +215,14 @@ class CBRSRequestHandler(object):
         # Check CPI data in registration message, if present...                                                                                                              
         if(typeOfCalling == consts.REGISTRATION_SUFFIX_HTTP):
             if 'cpiSignatureData' in httpRequest:
-                if self.checkCpiSignedData(dict(httpRequest['cpiSignatureData'])) == False:
+                if 'cbsdCategory' in httpRequest:
+                    if self.checkCpiSignedData(dict(httpRequest['cpiSignatureData']), httpRequest['cbsdCategory']) == False:
+                        self.validationErrorAccuredInEngine = True
+                        raise IOError ("cpiSignature check failed")
+                else:
+                    self.loggerHandler.print_to_Logs_Files("cbsdCategory missing, can't check cpi data against json schema", True)
                     self.validationErrorAccuredInEngine = True
-                    raise IOError ("cpiSignature check failed")
+                    raise IOError ("cpiSignature check failed -- no cbsdCategory in Reg request")
                     
         if(typeOfCalling==consts.GRANT_SUFFIX_HTTP):
             ### if it is a grant request we need to initialize the valid duration time between the heartbeats
@@ -458,18 +463,14 @@ class CBRSRequestHandler(object):
         else:
             pass
         
-    def checkCpiSignedData(self,cpiSigData):
+    def checkCpiSignedData(self,cpiSigData, cbsdCat):
         """ Given cpiSignatureData from registration request message, verifies the signature on data,
             and checks data with jsonSchema for cpiSignatureData
         """
         self.loggerHandler.print_to_Logs_Files("Registration message contains cpiSignatureData", False)
         decodedHeader = json.loads(base64.standard_b64decode(cpiSigData['protectedHeader']))
         self.loggerHandler.print_to_Logs_Files("protectedHeader = "+str(decodedHeader), False)
-        if 'alg' in decodedHeader:
-            if decodedHeader['alg'] not in consts.CPI_SIGNATURE_VALID_TYPES:
-                self.loggerHandler.print_to_Logs_Files("protectedHeader signed with wrong algorithm: "+decodedHeader['alg'], True)
-                return False
-            
+
         encoded_cpi_data = cpiSigData['protectedHeader'] \
                         + '.' + cpiSigData['encodedCpiSignedData'] \
                         + '.' + cpiSigData['digitalSignature']
@@ -484,10 +485,13 @@ class CBRSRequestHandler(object):
             self.loggerHandler.print_to_Logs_Files('Error in loading CPI certificate file', True)
             return False
         try:
-            verified_cpi_payload = jwt.decode(encoded_cpi_data, cpi_public_key)
+            verified_cpi_payload = jwt.decode(encoded_cpi_data, cpi_public_key, algorithms=consts.CPI_SIGNATURE_VALID_TYPES)
             self.loggerHandler.print_to_Logs_Files("verified signature on cpiSignatureData", False)
+        except (jwt.exceptions.InvalidTokenError, jwt.exceptions.DecodeError, jwt.exceptions.InvalidKeyError, jwt.exceptions.InvalidAlgorithmError) as e:
+            self.loggerHandler.print_to_Logs_Files("cpiSignatureData signature error: " +str(e), True)
+            return False
         except:
-            self.loggerHandler.print_to_Logs_Files("cpiSignatureData signature error", True)
+            self.loggerHandler.print_to_Logs_Files("cpiSignatureData signature error: other error", True)
             return False
 
         schema_filename = str(self.dirPath)+str(self.enviormentConfFile.getElementsByTagName('jsonsRepoPath')[0].firstChild.data)+'OptionalParams\cpiSignatureDataSchema.json'
@@ -497,6 +501,11 @@ class CBRSRequestHandler(object):
         except:
             self.loggerHandler.print_to_Logs_Files("Error opening cpiSignatureDataSchema", True)
             return False
+#        If Cat A, then some installationParams must be removed from required list
+        if cbsdCat == 'A':
+            self.loggerHandler.print_to_Logs_Files("cbsdCategory= 'A', removing optional param from cpi_schema", False)
+            for catAparamOptional in consts.CPI_INSTALLPARAM_CATA_OPTIONAL:
+                cpi_schema['definitions']['installationParam']['required'].remove(catAparamOptional)        
         try:
             x = jsonschema.validate(verified_cpi_payload, cpi_schema)
             self.loggerHandler.print_to_Logs_Files("cpiSignatureData data successfully validated against jsonschema ", False)
