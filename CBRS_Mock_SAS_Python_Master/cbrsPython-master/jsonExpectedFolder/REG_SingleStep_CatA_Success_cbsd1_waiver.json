@@ -1,0 +1,43 @@
+{
+    "name":"REG_SingleStep_CatA_Success_cbsd1_waiver",
+	"xmlFilelLinked": "cbsdc1",
+    "questions":
+				[
+						{
+							"question" : "There were no RF transmissions from CBSD1 during the test?",
+                            "answers" : ["No", "Yes"], 
+							"expectedAnswer" : "Yes"
+						}
+				],
+			"registrationRequest":
+        	[
+            	{
+ 				  "userId":"${maximumLength:128}", 
+ 				  "fccId":"${maximumLength:128}",  
+				  "cbsdCategory":{"$or":["A","B"]},
+				  "airInterface":
+					{
+						"radioTechnology":{"$or":["E_UTRA","CAMBIUM_NETWORKS"]}
+						},
+				  "installationParam":
+					{
+						  "latitude":"${range:-90.000000To90.000000}"
+						  ,"longitude":"${range:-180.000000To180.000000}"
+						  ,"height":"${range:0To10000}"
+						  ,"heightType":{"$or":["AGL","AMSL"]}
+						  ,"indoorDeployment":{"$or":["true","false"]}
+						  ,"antennaGain":"${range:-127To128}"
+						}
+					}
+			],
+			"response":{
+			"registrationResponse": 
+				[
+					{
+					  "response": {
+						 "responseCode": 0
+					  }
+					}
+				]  
+				} 
+}

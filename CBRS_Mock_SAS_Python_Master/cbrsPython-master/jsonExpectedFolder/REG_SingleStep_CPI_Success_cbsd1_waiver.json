@@ -1,0 +1,40 @@
+{
+    "name":"REG_SingleStep_CPI_Success_cbsd1_waiver",
+	"xmlFilelLinked": "cbsdc1",
+    "questions":
+				[
+						{
+							"question" : "There were no RF transmissions from CBSD1 during the test?",
+                            "answers" : ["No", "Yes"], 
+							"expectedAnswer" : "Yes"
+						}
+				],
+			"registrationRequest":
+        	[
+            	{
+ 				  "userId":"${maximumLength:128}", 
+ 				  "fccId":"${maximumLength:128}",  
+				  "cpiSignatureData":
+						{	
+							"protectedHeader":"${maximumLength:128}"
+							,"encodedCpiSignedData":"${maximumLength:1024}"
+							,"digitalSignature":"${maximumLength:1024}"
+						},
+				  "cbsdCategory":{"$or":["A","B"]},
+				  "airInterface":
+					{
+						"radioTechnology":{"$or":["E_UTRA","CAMBIUM_NETWORKS"]}
+						}
+				}
+			],
+			"response":{
+			"registrationResponse": 
+				[
+					{
+					  "response": {
+						 "responseCode": 0
+					  }
+					}
+				]  
+				}
+}

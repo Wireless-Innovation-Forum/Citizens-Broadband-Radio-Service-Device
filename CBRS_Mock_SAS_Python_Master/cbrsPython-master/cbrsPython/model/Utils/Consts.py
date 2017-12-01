@@ -8,8 +8,9 @@ SECONDS_TO_ADD_FOR_GRANT_EXPIRE_TIME =      604800          # seconds ahead for 
 SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME =         200             # seconds ahead for transmitExpireTime
 SECONDS_FOR_DELAY_RESPONSE =                SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME   # Worst-case value
 CPI_SIGNATURE_VALID_TYPES =                 ['RS256', 'ES256']
+CPI_INSTALLPARAM_CATA_OPTIONAL =            ['antennaAzimuth', 'antennaDowntilt', 'antennaBeamwidth']   # params REG-Cond for Cat B, optional for Cat A
 
-HEARTBEAT_INTERVAL =                        120
+HEARTBEAT_INTERVAL =                        60
 
 CBRS_SPECTRUM_HIGH =                        3700000000
 CBRS_SPECTRUM_LOW =                         3550000000

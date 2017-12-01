@@ -48,6 +48,8 @@
 		"installationParam": {
 			"type": "object",
 			"description": "Air interface parameter for a CBSD",
+			"required": ["latitude", "longitude", "height", "heightType", "indoorDeployment",
+						"antennaGain", "antennaAzimuth", "antennaDowntilt", "antennaBeamwidth"],			
 			"additionalProperties": false,
 			"properties": {
 				"latitude": {
