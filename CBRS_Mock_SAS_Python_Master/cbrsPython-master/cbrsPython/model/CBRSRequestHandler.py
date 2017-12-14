@@ -326,7 +326,18 @@ class CBRSRequestHandler(object):
         elif (typeOfCalling == consts.RELINQUISHMENT_SUFFIX_HTTP):
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
             self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId) 
-            
+            if specificRespJson['response']['responseCode'] == 102 or specificRespJson['response']['responseCode'] == 103:
+                if 'responseData' in specificRespJson['response']:
+                    if 'cbsdId' in specificRespJson['response']['responseData']:
+                        del specificRespJson['cbsdId']
+                        del specificRespJson['grantId']
+                    elif 'grantId' in specificRespJson['response']['responseData']:
+                        del specificRespJson['grantId']
+                    else:
+                        pass    # responseCode = 102 or 103, responseData exists, but not 'cbsdId' or 'grantId'... what to do?  Currently keeps cbsdId and grantId in response
+                else:
+                    pass    # responseCode = 102 or 103, responseData doesn't exist.  What to do?  Currently keeps cbsdId and grantId in response
+
         elif(typeOfCalling == consts.GRANT_SUFFIX_HTTP):
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
             self.processGrantResponse(specificRespJson,httpRequest)            

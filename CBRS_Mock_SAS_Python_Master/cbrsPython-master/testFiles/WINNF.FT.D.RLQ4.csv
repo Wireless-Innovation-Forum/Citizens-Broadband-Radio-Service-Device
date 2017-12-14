@@ -1,7 +1,0 @@
-jsonFileName,jsonFileName2
-REG_MultiStep_Success_Cbsd1.json,REG_MultiStep_Success_Cbsd2.json
-HBT_spectrumInquiry_Cbsd.json,HBT_spectrumInquiry_Cbsd.json
-HBT_grant_Cbsd.json,HBT_grant_Cbsd.json
-HBT_heartbeat_GrantedState.json,HBT_heartbeat_GrantedState.json
-HBT_heartbeat_Auth_Repeats.json,HBT_heartbeat_Auth_Repeats.json
-RLQ_relinquish_Error_102.json,RLQ_relinquish_Error_102_2.json
