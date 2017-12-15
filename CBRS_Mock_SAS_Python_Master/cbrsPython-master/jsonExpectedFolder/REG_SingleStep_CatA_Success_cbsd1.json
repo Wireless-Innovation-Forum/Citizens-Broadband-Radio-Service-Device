@@ -15,7 +15,7 @@
  				  "userId":"${maximumLength:128}", 
  				  "fccId":"${maximumLength:128}",  
 				  "measCapability":{"$or":[["RECEIVED_POWER_WITHOUT_GRANT"],["RECEIVED_POWER_WITH_GRANT"],["RECEIVED_POWER_WITHOUT_GRANT","RECEIVED_POWER_WITH_GRANT"],["RECEIVED_POWER_WITH_GRANT","RECEIVED_POWER_WITHOUT_GRANT"] ]},
-				  "cbsdCategory":"A",
+				  "cbsdCategory":{"$or":["A","B"]},
 				  "airInterface":
 					{
 						"radioTechnology":{"$or":["E_UTRA","CAMBIUM_NETWORKS"]}

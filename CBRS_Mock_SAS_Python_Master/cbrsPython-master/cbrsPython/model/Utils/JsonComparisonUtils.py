@@ -6,7 +6,6 @@ Created on Apr 23, 2017
 
 
 import json
-import os
 from __builtin__ import True
 
 
@@ -272,12 +271,10 @@ def Get_Json_After_Parse_To_Dic(jsonFileName, confFile, dirPath):
     the method get the jsonFileName the config file and the path leading to that file
     perform a loading of the json in an order way to an dictionary    
     '''
-    filePath = os.path.normpath(os.path.join(str(dirPath), confFile.getElementsByTagName("jsonsRepoPath")[0].firstChild.data))
-
+    filePath = str(dirPath) + confFile.getElementsByTagName("jsonsRepoPath")[0].firstChild.data
     if("Optional" in str(jsonFileName)):
-        filePath = os.path.join(filePath, "OptionalParams")
-
-    myfile = open(os.path.join(filePath,str(jsonFileName)))
+        filePath = filePath + "OptionalParams\\"
+    myfile = open(filePath + str(jsonFileName))
     jsonAfterParse = json.load(myfile, object_pairs_hook=OrderedDict)
     return jsonAfterParse
 

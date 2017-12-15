@@ -4,27 +4,20 @@
   "type": "object",
   "properties": {
   
-  "groupingParam": {
+  "groupParam": {
+    "type": "object",
+    "required": [ "groupType", "groupId" ],
     "description": "Container for information about a CBSD membership group.",
-    "type": "array",
-    "items": {
-    	"type": "object",
-    	"required": [ "groupType", "groupId" ],
-    	"properties": {
-    		"groupType": {
-    			"enum": [ "INTERFERENCE_COORDINATION" ],
-	            "description": "Type of the group"
-	           },
-      		"groupId": {
-      			"type": "string",
-				"maxLength" : 128,      
-	            "description": "ID of the group" 
-	            }
-    	 }
-      }
-   },
-   
- "airInterface": {
+    "properties": {
+      "groupType": { "enum": [ "INTERFERENCE_COORDINATION" ],
+	             "description": "Type of the group" },
+      "groupId": { "type": "string",
+				   "maxLength" : 128,      
+	               "description": "ID of the group" }
+    		     }
+  	       },
+
+  "airInterface": {
     "type": "object",
     "description": "Air interface parameter for a CBSD",
     "required": [ "radioTechnology" ],
