@@ -54,7 +54,7 @@ def run_New_Test(dirPath, confFile, loggerHandler):
     if(inputAnswer!="quit"):
         try: 
             ### initialize the test definition from the csv file 
-            csvFileParser = CsvFileParser(str(dirPath) + confFile.getElementsByTagName("testRepoPath")[0].firstChild.data + inputAnswer,confFile,dirPath)
+            csvFileParser = CsvFileParser(os.path.normpath(os.path.join(str(dirPath), confFile.getElementsByTagName("testRepoPath")[0].firstChild.data, inputAnswer)),confFile,dirPath)
             testDefinition = TestDefinition(csvFileParser.initializeTestDefinition(),csvFileParser.find_Number_Of_Cols())
         except IOError as e:  
             ### in case there is file not found error try to enter new csv file name
@@ -83,8 +83,9 @@ def run_New_Test(dirPath, confFile, loggerHandler):
         flaskServer.enodeBController = ENodeBController(cliHandler.engine)       
         ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2) # use TLS to avoid POODLE
         ctx.verify_mode = ssl.CERT_REQUIRED
-        ctx.load_verify_locations(str(dirPath) + get_Element_From_Config_File(confFile,"caCerts"))
-        ctx.load_cert_chain(str(dirPath) + get_Element_From_Config_File(confFile,"pemFilePath"), str(dirPath) + get_Element_From_Config_File(confFile,"keyFilePath"))         
+        ctx.load_verify_locations(os.path.normpath(os.path.join(str(dirPath), get_Element_From_Config_File(confFile,"caCerts"))))
+        ctx.load_cert_chain(os.path.normpath(os.path.join(str(dirPath), get_Element_From_Config_File(confFile,"pemFilePath"))),
+                            os.path.normpath(os.path.join(str(dirPath), get_Element_From_Config_File(confFile,"keyFilePath"))))         
         # get the certificates for https from config file               
         cliHandler.server = flaskServer.runFlaskServer(get_Element_From_Config_File(confFile,"hostIp"),get_Element_From_Config_File(confFile,"port"),ctx)         
         # run flask server using the host name and port  from conf file
@@ -101,12 +102,13 @@ def create_Log_Folder():
     '''
     the method create logs folder with three folder inside if the folder not created already
     '''
-    logsFolderPath = str(dirPath)+"\\Logs"
+    logsFolderPath = os.path.join(str(dirPath), "Logs")
+    print str(logsFolderPath)
     if not os.path.exists(logsFolderPath):
             os.makedirs(logsFolderPath)
-            os.makedirs(logsFolderPath + "\\SpecificFolderOfTests")
-            os.makedirs(logsFolderPath + "\\LogsPerTest")
-            os.makedirs(logsFolderPath + "\\CMDSessions")
+            os.makedirs(os.path.join(logsFolderPath, "SpecificFolderOfTests"))
+            os.makedirs(os.path.join(logsFolderPath, "LogsPerTest"))
+            os.makedirs(os.path.join(logsFolderPath, "CMDSessions"))
 
 def initialize_Reports():
     '''
@@ -121,9 +123,11 @@ def initialize_Reports():
     loggerHandler.register(debugLogger)
 
 current_path = os.path.dirname(os.path.realpath(__file__))
-dirPath = Path(__file__).parents[2]
+dirPath = os.path.dirname(os.path.dirname(current_path))
+
 create_Log_Folder()
-confFile= minidom.parse(str(dirPath) +"\\Configuration\\conf.xml") 
+confFile= minidom.parse(os.path.join(str(dirPath),'Configuration', 'conf.xml'))
+
 loggerHandler = loggerObserver(dirPath)
 initialize_Reports()
 run_New_Test(dirPath, confFile, loggerHandler)
