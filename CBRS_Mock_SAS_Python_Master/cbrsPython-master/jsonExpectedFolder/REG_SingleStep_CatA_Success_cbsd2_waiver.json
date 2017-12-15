@@ -14,7 +14,7 @@
             	{
  				  "userId":"${maximumLength:128}", 
  				  "fccId":"${maximumLength:128}",   
-				  "cbsdCategory":{"$or":["A","B"]},
+				  "cbsdCategory":"A",
 				  "airInterface":
 					{
 						"radioTechnology":{"$or":["E_UTRA","CAMBIUM_NETWORKS"]}
