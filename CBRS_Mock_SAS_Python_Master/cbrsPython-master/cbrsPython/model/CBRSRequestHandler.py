@@ -164,9 +164,6 @@ class CBRSRequestHandler(object):
             if(typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):                                                                           
                 if(int(self.numberOfHearbeatRequests)<int(self.heartBeatLimitCounter)):
                     self.numberOfHearbeatRequests+=1
-                    if(not self.is_Valid_Heart_Beat_Time()):
-                        self.validationErrorAccuredInEngine = True
-                        return consts.HEART_BEAT_TIMEOUT_MESSAGE                      
                 else:
                     self.validationErrorAccuredInEngine = True
                     return consts.HEART_BEAT_REACHED_TO_LIMIT_MESSAGE
