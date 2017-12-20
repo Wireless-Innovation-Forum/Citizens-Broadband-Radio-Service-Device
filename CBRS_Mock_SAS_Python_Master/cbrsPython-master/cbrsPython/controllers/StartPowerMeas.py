@@ -221,6 +221,7 @@ if __name__ == '__main__':
     WSGIRequestHandler.protocol_version = "HTTP/1.1"  
     ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2) # use TLS to avoid POODLE
     ctx.verify_mode = ssl.CERT_REQUIRED
+    ctx.set_ciphers(consts.WINNF_APPROVED_CIPHERS)
     ctx.load_verify_locations(str(dirPath) + get_Element_From_Config_File(confFile,"caCerts"))
     ctx.load_cert_chain(str(dirPath) + get_Element_From_Config_File(confFile,"pemFilePath"), str(dirPath) + get_Element_From_Config_File(confFile,"keyFilePath")) 
     host_ip = get_Element_From_Config_File(confFile,"hostIp")

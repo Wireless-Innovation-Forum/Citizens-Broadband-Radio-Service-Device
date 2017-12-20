@@ -22,6 +22,16 @@ SPECTRUM_PAL_LOW =                          3550000000
 SPECTRUM_GAA_HIGH =                         3700000000
 SPECTRUM_GAA_LOW =                          3550000000
 
+WINNF_APPROVED_CIPHER_LIST = [
+    'AES128-GCM-SHA256',                # TLS_RSA_WITH_AES_128_GCM_SHA256
+    'AES256-GCM-SHA384',                # TLS_RSA_WITH_AES_256_GCM_SHA384
+    'ECDHE-ECDSA-AES128-GCM-SHA256',    # TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+    'ECDHE-ECDSA-AES256-GCM-SHA384',    # TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    'ECDHE-RSA-AES128-GCM-SHA256',      # TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    ]
+
+WINNF_APPROVED_CIPHERS = ':'.join(WINNF_APPROVED_CIPHER_LIST) # string of ciphers separated by colons
+
 ### Other Constants
 ERROR_VALIDATION_MESSAGE =                  "ERROR - An Error occurred while comparing between actual and expected request"
 RESULTS_OF_TEST_MESSAGE =                   "The final result of the test : "
