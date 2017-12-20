@@ -212,7 +212,11 @@ class CBRSRequestHandler(object):
         # Check CPI data in registration message, if present...                                                                                                              
         if(typeOfCalling == consts.REGISTRATION_SUFFIX_HTTP):
             if 'cpiSignatureData' in httpRequest:
-                if 'cbsdCategory' in httpRequest:
+                if 'installationParam' in httpRequest:
+                    self.loggerHandler.print_to_Logs_Files("ERROR: cpiSignatureData and installationParam exist in same registration message ", True)
+                    self.validationErrorAccuredInEngine = True
+                    raise IOError ("failure -- cpiSignatureData and installationParam exist in same registration message")
+                elif 'cbsdCategory' in httpRequest:
                     if self.checkCpiSignedData(dict(httpRequest['cpiSignatureData']), httpRequest['cbsdCategory']) == False:
                         self.validationErrorAccuredInEngine = True
                         raise IOError ("cpiSignature check failed")
