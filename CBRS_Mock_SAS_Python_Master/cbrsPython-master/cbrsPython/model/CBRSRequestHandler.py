@@ -103,8 +103,8 @@ class CBRSRequestHandler(object):
     def handle_Http_Req(self,httpRequest,typeOfCalling):
         
         req = httpRequest
+        current_time = DT.datetime.utcnow()
         if(self.isDelayTriggered==True):                                                                                                        
-            current_time = DT.datetime.utcnow()
             deltaT = self.delayEndTime - current_time
             remainingTimeToSleep = int(deltaT.total_seconds()) + 5      # sleep until HBT absent is over, plus extra 5 sec
             if remainingTimeToSleep <= 0:
@@ -133,11 +133,11 @@ class CBRSRequestHandler(object):
         if(typeOfCalling==consts.HEART_BEAT_SUFFIX_HTTP): 
 
             if(self.lastHeartBeatTime != None):
-                if(not self.is_Valid_Heart_Beat_Time()):
+                if(not self.is_Valid_Heart_Beat_Time(current_time)):
                     self.validationErrorAccuredInEngine = True
                     return consts.HEART_BEAT_TIMEOUT_MESSAGE
-            else:
-                self.lastHeartBeatTime = DT.datetime.utcnow()   
+            else:   
+                self.lastHeartBeatTime = current_time   
 		
             if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"measReportRequested"))==True):         
                 self.isMeasRepRequested = True   
@@ -190,7 +190,7 @@ class CBRSRequestHandler(object):
                     return consts.GRANT_BEFORE_HEARTBEAT_ERROR                  
                 self.Initialize_Repeats_Type_Allowed(consts.HEART_BEAT_SUFFIX_HTTP,httpRequest, typeOfCalling)
                 self.numberOfHearbeatRequests=1 
-                self.lastHeartBeatTime = DT.datetime.utcnow()
+                self.lastHeartBeatTime = current_time
                 self.secondLastHeartBeatTime = self.lastHeartBeatTime      
         else:
             if(typeOfCalling==consts.GRANT_SUFFIX_HTTP):
@@ -305,18 +305,18 @@ class CBRSRequestHandler(object):
         self.repeatsType = repeatType
         self.repeatesAllowed = True
         
-    def is_Valid_Heart_Beat_Time(self):
+    def is_Valid_Heart_Beat_Time(self, currentTime):
         ''''
         the method get the current time and compare the time that had passed from the last heartbeat
         check if it is less then what pulled from the last grant response
         '''
-        currentTime = DT.datetime.utcnow()
         timeBetween = (currentTime-self.lastHeartBeatTime).total_seconds()
-        self.loggerHandler.print_to_Logs_Files("The time interval between two heartbeat request messages is " + str(timeBetween), False)        
-        if(float(timeBetween)>float(self.validDurationTime)):
+        heartbeatInterval_failure_thershold =  float(self.validDurationTime) + float(consts.HEARTBEAT_INTERVAL_GRACE_PERIOD)
+        self.loggerHandler.print_to_Logs_Files("Time interval between two heartbeat request messages is: " + str(timeBetween)+", limit is: "+str(heartbeatInterval_failure_thershold), False)        
+        if(float(timeBetween)> heartbeatInterval_failure_thershold ):
             return False
         self.secondLastHeartBeatTime=  self.lastHeartBeatTime
-        self.lastHeartBeatTime = DT.datetime.utcnow()            
+        self.lastHeartBeatTime = currentTime            
         return True
   
     def process_response(self,typeOfCalling,httpRequest): 
