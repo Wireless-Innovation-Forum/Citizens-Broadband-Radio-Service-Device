@@ -100,10 +100,9 @@ class CBRSRequestHandler(object):
             self.jsonSteps.remove(step)
                                         
             
-    def handle_Http_Req(self,httpRequest,typeOfCalling):
+    def handle_Http_Req(self,httpRequest,typeOfCalling, current_time):
         
         req = httpRequest
-        current_time = DT.datetime.utcnow()
         if(self.isDelayTriggered==True):                                                                                                        
             deltaT = self.delayEndTime - current_time
             remainingTimeToSleep = int(deltaT.total_seconds()) + 5      # sleep until HBT absent is over, plus extra 5 sec
