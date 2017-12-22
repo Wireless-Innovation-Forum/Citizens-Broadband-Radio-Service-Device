@@ -47,6 +47,8 @@ WINNF_APPROVED_CIPHER_LIST = [
 
 WINNF_APPROVED_CIPHERS = ':'.join(WINNF_APPROVED_CIPHER_LIST) # string of ciphers separated by colons
 
+MAX_NUM_HBT_FOR_MEASREPORT =    5   # number of HBT responses for measReport to appear, before failing test
+
 ### Other Constants
 ERROR_VALIDATION_MESSAGE =                  "ERROR - An Error occurred while comparing between actual and expected request"
 RESULTS_OF_TEST_MESSAGE =                   "The final result of the test : "
