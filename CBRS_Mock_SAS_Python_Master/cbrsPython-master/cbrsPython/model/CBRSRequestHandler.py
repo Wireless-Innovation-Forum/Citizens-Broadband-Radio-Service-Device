@@ -378,7 +378,11 @@ class CBRSRequestHandler(object):
                 del specificRespJson['cbsdId']
                   
         elif(typeOfCalling == consts.DEREGISTRATION_SUFFIX_HTTP):
-            self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
+            if specificRespJson['response']['responseCode'] == 102 or specificRespJson['response']['responseCode'] == 103:
+                if 'cbsdId' in specificRespJson:
+                    del specificRespJson['cbsdId']
+            else:
+                self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId)  
         
         if(self.expectedRelBeforeDeragistration == True):
             self.numberOfStep-=1
