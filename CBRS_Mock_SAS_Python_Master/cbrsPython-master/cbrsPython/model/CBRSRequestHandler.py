@@ -59,9 +59,9 @@ class CBRSRequestHandler(object):
         self.isDelayTriggered                   = False
         self.delayEndTime                       = DT.datetime.utcnow()                                       
         self.secondsForDelay                    = 0                                            
-        self.isMeasRepRequested                 = False                                        
+        self.expectingMeasReportInSubsequentHbt = False
+        self.measReportCounter                  = 0                                         
         self.stopGrantRenew                     = False                                                
-        self.measReportCounter                  = 0    
         self.heartbeatErrorList                 = [500, 501, 502, 105] 
         self.immediatelyShutdown                = False 
         self.shorterGrantTime                   = False 
@@ -137,27 +137,25 @@ class CBRSRequestHandler(object):
                     return consts.HEART_BEAT_TIMEOUT_MESSAGE
             else:   
                 self.lastHeartBeatTime = current_time   
-		
-            if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"measReportRequested"))==True):         
-                self.isMeasRepRequested = True
                     
             if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"stopGrantRenewFlag"))==True):          
                 self.stopGrantRenew = True                                                                                                               
 
             if(bool(self.assertion.get_Attribute_Value_From_Json(self.get_Expected_Json_File_Name(),"immediatelyShutdown"))==True):          
-                self.immediatelyShutdown = True                     
-            
-            if(self.isMeasRepRequested == True):                                                                                            
-                if(self.assertion.is_Json_Request_Contains_Key(httpRequest, "measReport")):                                                 
-                    self.measReportCounter = 1                                                                                              
-                else :                                                                                                                      
-                    self.measReportCounter +=1                                                                                              
-                print self.measReportCounter                                                                                                
+                self.immediatelyShutdown = True                                                                        
 
-            if(self.measReportCounter>5):                                                                                                   
-                self.validationErrorAccuredInEngine = True                                                                                  
-                return "ERROR - no meas report received in the last 5 heart beats request"                                                      
-                    
+            if self.expectingMeasReportInSubsequentHbt == True:
+                if 'measReport' in httpRequest:
+                    self.expectingMeasReportInSubsequentHbt = False
+                    self.measReportCounter = 0
+                    self.loggerHandler.print_to_Logs_Files('measReport received in heartbeat message', True) 
+                else:
+                    self.measReportCounter += 1
+            if self.measReportCounter >= consts.MAX_NUM_HBT_FOR_MEASREPORT:
+                self.validationErrorAccuredInEngine = True
+                self.loggerHandler.print_to_Logs_Files('Failure: no measReport received in '+str(consts.MAX_NUM_HBT_FOR_MEASREPORT)+' subsequent HBT requests!', True)
+                raise IOError ("no measReport received within "+str(consts.MAX_NUM_HBT_FOR_MEASREPORT)+"heartbeats of measReportConfig")
+            
         if(typeOfCalling == consts.RELINQUISHMENT_SUFFIX_HTTP):
             self.expectedRelBeforeDeragistration =  self.verify_If_Rel_Before_Deregistration_Expected()
             
@@ -327,6 +325,12 @@ class CBRSRequestHandler(object):
                     del jsonAfterParse[item[0]]
         specificRespJson = jsonAfterParse[typeOfCalling+consts.RESPONSE_NODE_NAME.title()][0]
         
+        if 'measReportConfig' in specificRespJson:
+            self.loggerHandler.print_to_Logs_Files('Response message contains measReportConfig', True)
+            if (typeOfCalling == consts.GRANT_SUFFIX_HTTP) or (typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):
+                self.expectingMeasReportInSubsequentHbt = True
+                self.measReportCounter = 0
+
         if(typeOfCalling == consts.SPECTRUM_INQUIERY_SUFFIX_HTTP):
             self.change_Value_Of_Param_In_Dict(specificRespJson,"cbsdId",self.cbsdId)
             self.processSpectrumInquiryResponse(specificRespJson,httpRequest)
@@ -348,7 +352,7 @@ class CBRSRequestHandler(object):
 
         elif(typeOfCalling == consts.GRANT_SUFFIX_HTTP):
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
-            self.processGrantResponse(specificRespJson,httpRequest)            
+            self.processGrantResponse(specificRespJson,httpRequest)         
                         
         elif(typeOfCalling == consts.HEART_BEAT_SUFFIX_HTTP):
             if specificRespJson["response"]["responseCode"] in self.heartbeatErrorList or self.immediatelyShutdown == True:
@@ -470,7 +474,7 @@ class CBRSRequestHandler(object):
             
             if (not 'channelType' in jsonResponsedefined):
                 jsonResponsedefined['channelType'] = consts.DEFAULT_CHANNEL_TYPE
-				
+
             if(not "heartbeatInterval" in jsonResponsedefined):
                 jsonResponsedefined["heartbeatInterval"] = consts.HEARTBEAT_INTERVAL				
                 
