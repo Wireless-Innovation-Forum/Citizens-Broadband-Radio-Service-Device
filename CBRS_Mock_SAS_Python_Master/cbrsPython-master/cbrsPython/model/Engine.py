@@ -32,7 +32,7 @@ class MyEngine(object):
         '''
         the method get the httpRequest and for each request sent it to the correct cbsd request handler
         '''
-        request_arrival_time = DT.datetime.now()
+        request_arrival_time = DT.datetime.utcnow()
         if(self.validationErrorAccuredInEngine==True):
             return "ERROR - error accoured in the last request from the CBRS"
         nodeResponse = typeOfCalling+consts.RESPONSE_NODE_NAME.title()
