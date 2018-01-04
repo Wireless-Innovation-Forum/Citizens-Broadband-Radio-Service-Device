@@ -1,3 +1,16 @@
+# Copyright 2017 CBSD Project Authors. All Rights Reserved.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 ### Program Constants
 WINNF_PROTOCOL_VERSION =                    "v1.1"
@@ -8,8 +21,10 @@ SECONDS_TO_ADD_FOR_GRANT_EXPIRE_TIME =      604800          # seconds ahead for 
 SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME =         200             # seconds ahead for transmitExpireTime
 SECONDS_FOR_DELAY_RESPONSE =                SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME   # Worst-case value
 CPI_SIGNATURE_VALID_TYPES =                 ['RS256', 'ES256']
+CPI_INSTALLPARAM_CATA_OPTIONAL =            ['antennaAzimuth', 'antennaDowntilt', 'antennaBeamwidth']   # params REG-Cond for Cat B, optional for Cat A
 
-HEARTBEAT_INTERVAL =                        120
+HEARTBEAT_INTERVAL =                        60
+HEARTBEAT_INTERVAL_GRACE_PERIOD =           0.005    # seconds
 
 CBRS_SPECTRUM_HIGH =                        3700000000
 CBRS_SPECTRUM_LOW =                         3550000000
@@ -20,6 +35,19 @@ SPECTRUM_PAL_HIGH =                         3650000000
 SPECTRUM_PAL_LOW =                          3550000000
 SPECTRUM_GAA_HIGH =                         3700000000
 SPECTRUM_GAA_LOW =                          3550000000
+
+WINNF_APPROVED_CIPHER_LIST = [
+    'AES128-GCM-SHA256',                # TLS_RSA_WITH_AES_128_GCM_SHA256
+    'AES256-GCM-SHA384',                # TLS_RSA_WITH_AES_256_GCM_SHA384
+    'ECDHE-ECDSA-AES128-GCM-SHA256',    # TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+    'ECDHE-ECDSA-AES256-GCM-SHA384',    # TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    'ECDHE-RSA-AES128-GCM-SHA256',      # TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    '@STRENGTH'
+    ]
+
+WINNF_APPROVED_CIPHERS = ':'.join(WINNF_APPROVED_CIPHER_LIST) # string of ciphers separated by colons
+
+MAX_NUM_HBT_FOR_MEASREPORT =    5   # number of HBT responses for measReport to appear, before failing test
 
 ### Other Constants
 ERROR_VALIDATION_MESSAGE =                  "ERROR - An Error occurred while comparing between actual and expected request"

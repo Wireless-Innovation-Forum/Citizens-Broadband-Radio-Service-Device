@@ -1,8 +1,16 @@
-'''
-Created on Apr 24, 2017
-
-@author: iagmon
-'''
+# Copyright 2017 CBSD Project Authors. All Rights Reserved.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import threading
 from threading import Thread
 from CLIUtils.CsvFileParser import CsvFileParser
@@ -93,7 +101,7 @@ def start_another_test(confFile,dirPath,loggerHandler):
         
         if (inputAnsweres !="quit"):   
             try:
-                csvFileParser = CsvFileParser(str(dirPath) + confFile.getElementsByTagName("testRepoPath")[0].firstChild.data + inputAnsweres,confFile,dirPath)
+                csvFileParser = CsvFileParser(os.path.normpath(os.path.join(str(dirPath),confFile.getElementsByTagName("testRepoPath")[0].firstChild.data,inputAnsweres)),confFile,dirPath)
                 testDefinition = TestDefinition(csvFileParser.initializeTestDefinition(),csvFileParser.find_Number_Of_Cols())
                 test_execution(confFile,dirPath,loggerHandler,inputAnsweres,testDefinition)
                 NoInput = False

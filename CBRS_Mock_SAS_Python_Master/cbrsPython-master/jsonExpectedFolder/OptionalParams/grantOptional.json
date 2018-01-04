@@ -23,7 +23,7 @@
     		"maxEirp": { 
                  "type": "number",
 				 "minimum": -137,
-				 "maximum": 30, 
+				 "maximum": 37, 
                  "description": "The peak operating power in dBm/MHz to be used by the CBSD within this operating parameter set" 
                  },
     		"operationFrequencyRange": {   

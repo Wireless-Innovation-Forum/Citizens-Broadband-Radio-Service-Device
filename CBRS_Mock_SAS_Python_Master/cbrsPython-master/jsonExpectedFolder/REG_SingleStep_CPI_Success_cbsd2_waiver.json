@@ -1,10 +1,10 @@
 {
-    "name":"REG_SingleStep_CPI_Success_cbsd1",
-	"xmlFilelLinked": "cbsdc1",
+    "name":"REG_SingleStep_CPI_Success_cbsd2_waiver",
+	"xmlFilelLinked": "cbsdc2",
     "questions":
 				[
 						{
-							"question" : "There were no RF transmissions from CBSD1 during the test?",
+							"question" : "There were no RF transmissions from CBSD2 during the test?",
                             "answers" : ["No", "Yes"], 
 							"expectedAnswer" : "Yes"
 						}
@@ -14,7 +14,6 @@
             	{
  				  "userId":"${maximumLength:128}", 
  				  "fccId":"${maximumLength:128}",  
-				  "measCapability":{"$or":[["RECEIVED_POWER_WITHOUT_GRANT"],["RECEIVED_POWER_WITH_GRANT"],["RECEIVED_POWER_WITHOUT_GRANT","RECEIVED_POWER_WITH_GRANT"],["RECEIVED_POWER_WITH_GRANT","RECEIVED_POWER_WITHOUT_GRANT"] ]},
 				  "cpiSignatureData":
 						{	
 							"protectedHeader":"${maximumLength:128}"

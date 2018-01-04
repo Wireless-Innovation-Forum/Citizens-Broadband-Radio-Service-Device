@@ -20,7 +20,8 @@
     			[ 
     			{
     				"response" : {
-      					"responseCode" : 102
+      					"responseCode" : 102,
+      					"responseData" : ["grantId"]
     					}
   				}
 		 ]

@@ -1,3 +1,16 @@
+# Copyright 2017 CBSD Project Authors. All Rights Reserved.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 from Loggers.LogObserver import Observer
 import os
 import datetime as DT
@@ -30,12 +43,12 @@ class XmlLogger(Observer):
             self.folder_Name = folder_Name
             self.dir_Path = dir_Path       
             self.log_Name = log_Name
-            newpath = str(dir_Path)+ str(r'\\Logs\\SpecificFolderOfTests\\' + folder_Name)
+            newpath = os.path.join(str(dir_Path), 'Logs', 'SpecificFolderOfTests', folder_Name)
         if not os.path.exists(newpath):
             os.makedirs(newpath)
-            os.makedirs(newpath + "\\chrome")
-            os.makedirs(newpath + "\\fireFox")
-            os.makedirs(newpath + "\\xml")
+            os.makedirs(os.path.join(newpath, "chrome"))
+            os.makedirs(os.path.join(newpath, "fireFox"))
+            os.makedirs(os.path.join(newpath, "xml"))
             self.build_folder_xml(dir_Path,folder_Name)
         else:
             self.initialize_From_Existing_Xml(dir_Path,folder_Name)
@@ -84,11 +97,14 @@ class XmlLogger(Observer):
         self.testCase.set("stop",str(int(self.totimestamp())))
         self.set_end_time()
         tree = ET.ElementTree(self.root)
-        newFolderPath = str(self.dir_Path) + "\\Logs\\SpecificFolderOfTests\\" +self.folder_Name
-        tree.write(newFolderPath +"\\xml\\" + self.folder_Name+ "-testsuite" ".xml")
-        allurePath = str(self.dir_Path)+ "\\allure-cli\\bin"
+        newFolderPath = os.path.join(str(self.dir_Path), "Logs", "SpecificFolderOfTests", self.folder_Name)
+
+        tree.write(os.path.join(newFolderPath, "xml", self.folder_Name+"-testsuite"+".xml"))
+
+        allurePath = os.path.join(str(self.dir_Path), "allure-cli", "bin")
+
         os.chdir(allurePath)
-        newPath = newFolderPath +"\\fireFox"
+        newPath = os.path.join(newFolderPath,"fireFox")
         if not os.path.exists(newPath):
             os.makedirs(newPath)
         os.system("allure generate " + newFolderPath  + " -o "+newPath)       
@@ -96,7 +112,7 @@ class XmlLogger(Observer):
         
     def create_Batch_File(self,newFolderPath,allurePath):
         
-        infile=open(newFolderPath + "\\chrome\\chromeReport.bat", "w")#Opens the file
+        infile=open(os.path.join(newFolderPath,"chrome", "chromeReport.bat"), "w")#Opens the file
         infile.write("CD " +allurePath + " \n")#Writes the desired contents to the file
         infile.write("allure report open -o " + newFolderPath+ "\\fireFox")
         infile.close()#Closes the file       
@@ -136,16 +152,17 @@ class XmlLogger(Observer):
         
     def initialize_From_Existing_Xml(self,dir_Path,folder_Name):
         try:
-            tree = ET.parse(str(dir_Path) + "\\Logs\\SpecificFolderOfTests\\" +folder_Name +"\\xml\\" + folder_Name+"-testsuite" ".xml")
+            tree = ET.parse(os.path.join(str(dir_Path), "Logs","SpecificFolderOfTests", folder_Name, "xml", folder_Name+"-testsuite"), method=".xml")
+
         except Exception:
             print "the folder : " + folder_Name + " , does not contains xml file you wish to delete it (enter yes or no) " 
             inputAnswer=raw_input()
             if(inputAnswer == "yes"):
-                os.rmdir(str(dir_Path) + "\\Logs\\SpecificFolderOfTests\\" +folder_Name+"\\xml")
-                os.rmdir(str(dir_Path) + "\\Logs\\SpecificFolderOfTests\\" +folder_Name+"\\fireFox")
-                os.rmdir(str(dir_Path) + "\\Logs\\SpecificFolderOfTests\\" +folder_Name+"\\chrome")
+                os.rmdir(os.path.join(str(dir_Path), "Logs","SpecificFolderOfTests", folder_Name, "xml"))
+                os.rmdir(os.path.join(str(dir_Path), "Logs", "SpecificFolderOfTests", folder_Name, "fireFox"))
+                os.rmdir(os.path.join(str(dir_Path), "Logs", "SpecificFolderOfTests", folder_Name, "chrome"))
                 time.sleep(0.5)
-                os.rmdir(str(dir_Path) + "\\Logs\\SpecificFolderOfTests\\" +folder_Name)
+                os.rmdir(os.path.join(str(dir_Path), "Logs","SpecificFolderOfTests", folder_Name))
             raise IOError("The folder not contain xml file please try again")
             
         self.root = tree.getroot()
