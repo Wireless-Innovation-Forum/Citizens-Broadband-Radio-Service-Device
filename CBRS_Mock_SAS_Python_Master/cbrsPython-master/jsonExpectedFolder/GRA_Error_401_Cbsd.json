@@ -1,0 +1,27 @@
+{
+    "name":"GRA_Error_401_Cbsd",
+		"questions":
+		[
+		{
+			"question" : "There were no RF transmissions from cbsd1 during the test?", 
+						"answers" : ["y", "n"],  
+						"expectedAnswer" : "y" 
+		}
+		],
+		
+		"grantRequest":
+		[ 
+        {
+
+        }        
+		], 
+		"response":
+        { 
+		   "grantResponse":
+		   [ 
+		   	{
+		   	"response" : {"responseCode" : 401}
+		    }
+		   ]
+   }
+}
