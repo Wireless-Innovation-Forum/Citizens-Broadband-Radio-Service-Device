@@ -11,7 +11,7 @@
 		   "grantResponse":
 		   [ 
 		   	{
-    		"measReportConfig" : "RECEIVED_POWER_WITHOUT_GRANT",  		   	
+    		"measReportConfig" : ["RECEIVED_POWER_WITHOUT_GRANT"],  		   	
 		   	"response" : {"responseCode" : 0}
 		    }
 		   ]

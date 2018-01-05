@@ -1,0 +1,37 @@
+{
+    "name":"HBT_Post_HB_Error_501_granted",	
+    "postErrorMessage":"True",
+    "questions":[
+            {
+               "question" : "Did the CBSD transmit at any time during the test?",
+               "answers" : ["y", "n"], 
+			   "expectedAnswer" : "n"
+             }						
+			 ],			    
+	"relinquishmentRequest":
+		[ 
+			{ 
+			}
+		], 
+	"heartbeatRequest": 
+			[ 
+			{
+    			"operationState": "GRANTED"			
+  			}
+  			],		 
+	"response":
+        { 
+		   "relinquishmentResponse":[ 
+				{ 
+                 	"response":{"responseCode":0}
+				}
+				],
+    		"heartbeatResponse":[ 
+    			{
+    				"response" : {
+      					"responseCode" : 103
+    					}
+  				}
+		 		]								   
+   		}
+}
