@@ -101,7 +101,7 @@ def start_another_test(confFile,dirPath,loggerHandler):
         
         if (inputAnsweres !="quit"):   
             try:
-                csvFileParser = CsvFileParser(str(dirPath) + confFile.getElementsByTagName("testRepoPath")[0].firstChild.data + inputAnsweres,confFile,dirPath)
+                csvFileParser = CsvFileParser(os.path.normpath(os.path.join(str(dirPath),confFile.getElementsByTagName("testRepoPath")[0].firstChild.data,inputAnsweres)),confFile,dirPath)
                 testDefinition = TestDefinition(csvFileParser.initializeTestDefinition(),csvFileParser.find_Number_Of_Cols())
                 test_execution(confFile,dirPath,loggerHandler,inputAnsweres,testDefinition)
                 NoInput = False
