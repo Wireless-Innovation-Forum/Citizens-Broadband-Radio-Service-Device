@@ -38,9 +38,9 @@ class CsvFileParser(object):
                 for row in reader: 
                     index =0
                     for col in row:
-                        expression = Path(self.confFile.getElementsByTagName("jsonsRepoPath")[0].firstChild.data+ row[col])
+                        expression = Path(os.path.join(self.confFile.getElementsByTagName("jsonsRepoPath")[0].firstChild.data,row[col]))
                         #pathExpected = Path((str(Path(__file__).parents[3]) + str(expression)))
-                        pathExpected = str(self.dirPath) + str(expression)
+                        pathExpected = os.path.join(str(self.dirPath),str(expression))
                         if row[col]!="":
                             if Path.exists(Path(pathExpected)) :
                                 steps.append(Step(row[col],index))

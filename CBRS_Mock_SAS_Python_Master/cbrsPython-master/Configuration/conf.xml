@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <cbrsParams>
-	<jsonsRepoPath>\jsonExpectedFolder\</jsonsRepoPath>
-	<testRepoPath>\testFiles\</testRepoPath>
+	<jsonsRepoPath>jsonExpectedFolder</jsonsRepoPath>
+	<testRepoPath>testFiles</testRepoPath>
 	<hostIp>127.0.0.1</hostIp>
 	<port>5000</port>
 	<heartbeatLimit>30</heartbeatLimit>
-	<pemFilePath>\certificates\flaskcert1.pem</pemFilePath>
-	<keyFilePath>\certificates\flaskcbsdiot.key</keyFilePath>
-	<caCerts>\certificates\cacertidan1.pem</caCerts>
-	<cpiCert>\certificates\cpi_ca.crt</cpiCert>
+	<pemFilePath>certificates/flaskcert1.pem</pemFilePath>
+	<keyFilePath>certificates/flaskcbsdiot.key</keyFilePath>
+	<caCerts>certificates/cacertidan1.pem</caCerts>
+	<cpiCert>certificates/cpi_ca.crt</cpiCert>
 </cbrsParams>
