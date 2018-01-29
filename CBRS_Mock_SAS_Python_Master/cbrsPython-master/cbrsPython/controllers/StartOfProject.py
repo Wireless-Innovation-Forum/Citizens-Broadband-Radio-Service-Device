@@ -101,7 +101,7 @@ def run_New_Test(dirPath, confFile, loggerHandler):
         ctx.load_cert_chain(os.path.normpath(os.path.join(str(dirPath), get_Element_From_Config_File(confFile,"pemFilePath"))),
                             os.path.normpath(os.path.join(str(dirPath), get_Element_From_Config_File(confFile,"keyFilePath"))))         
         # get the certificates for https from config file               
-        cliHandler.server = flaskServer.runFlaskServer(get_Element_From_Config_File(confFile,"hostIp"),get_Element_From_Config_File(confFile,"port"),ctx)         
+        cliHandler.server = flaskServer.runFlaskServer(get_Element_From_Config_File(confFile,"hostIp"),int(get_Element_From_Config_File(confFile,"port")),ctx)         
         # run flask server using the host name and port  from conf file
         
         if (cliHandler.engine.check_Validation_Error()):
