@@ -40,6 +40,7 @@ class CsvFileParser(object):
                     for col in row:
                         expression = Path(os.path.join(self.confFile.getElementsByTagName("jsonsRepoPath")[0].firstChild.data,row[col]))
                         #pathExpected = Path((str(Path(__file__).parents[3]) + str(expression)))
+                        pathExpected = os.path.join(str(self.dirPath),str(expression).rstrip())
                         if row[col]!="":
                             if Path.exists(Path(pathExpected)) :
                                 steps.append(Step(row[col],index))
