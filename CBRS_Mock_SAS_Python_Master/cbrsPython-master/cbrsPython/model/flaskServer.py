@@ -101,10 +101,11 @@ def shutdown():
     '''
     logger = enodeBController.engine.loggerHandler
     app.app_context()
-    func = request.environ.get(consts.NAME_OF_SERVER_WERKZUG)
-    func()
+#    func = request.environ.get(consts.NAME_OF_SERVER_WERKZUG)
+#    func()
     if("ERROR" in str(request.args['validationMessage'])):
         logger.finish_Step("the server shot down because :  " + str(request.args['validationMessage']),False,StepStatus.FAILED)
+        logger.print_to_Logs_Files(str(request.args['validationMessage']), True)
         return abort(400, str(request.args['validationMessage']))
     return consts.SERVER_SHUT_DOWN_MESSAGE + consts.TEST_HAD_BEEN_FINISHED_FLASK
 
