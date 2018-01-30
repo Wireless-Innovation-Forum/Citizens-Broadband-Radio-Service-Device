@@ -441,21 +441,21 @@ class CBRSRequestHandler(object):
             siq_ruleApplied = consts.DEFAULT_RULE_APPLIED
                     
         if(jsonResonsedefined["response"]["responseCode"] ==0):
-            if "availableChannel" in jsonResonsedefined:
-                availableChannel=[]
-                for itemReq in httpRequest["inquiredSpectrum"]:
-                    responseChannel = {}
-                    responseChannel["ruleApplied"]= siq_ruleApplied
-                    responseChannel["channelType"]= siq_channelType
-                
-                    responseChannel["frequencyRange"] = itemReq
-                    if "maxEirp" in jsonResonsedefined["availableChannel"][0]:
-                        responseChannel["maxEirp"]=jsonResonsedefined["availableChannel"][0]["maxEirp"]
-                    if "groupingParam" in jsonResonsedefined["availableChannel"][0]:
-                        responseChannel["groupingParam"] = jsonResonsedefined["availableChannel"][0]["groupingParam"]
-                    availableChannel.append(responseChannel)
-                self.change_Value_Of_Param_In_Dict(jsonResonsedefined, "availableChannel", availableChannel)
-                                  
+            if "availableChannel" not in jsonResonsedefined:
+                jsonResonsedefined['availableChannel'] = ['']
+            availableChannel=[]
+            for itemReq in httpRequest["inquiredSpectrum"]:
+                responseChannel = {}
+                responseChannel["ruleApplied"]= siq_ruleApplied
+                responseChannel["channelType"]= siq_channelType                
+                responseChannel["frequencyRange"] = itemReq
+                if "maxEirp" in jsonResonsedefined["availableChannel"][0]:
+                    responseChannel["maxEirp"]=jsonResonsedefined["availableChannel"][0]["maxEirp"]
+                if "groupingParam" in jsonResonsedefined["availableChannel"][0]:
+                    responseChannel["groupingParam"] = jsonResonsedefined["availableChannel"][0]["groupingParam"]
+                availableChannel.append(responseChannel)
+            self.change_Value_Of_Param_In_Dict(jsonResonsedefined, "availableChannel", availableChannel)
+          
         else:
             pass
     
