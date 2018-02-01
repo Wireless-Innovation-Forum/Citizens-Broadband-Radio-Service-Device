@@ -259,7 +259,7 @@ class RequestHandler(object):
                         if itemReq["lowFrequency"] >= self.spectrumConf[i]["lowFrequency"] and \
                                 itemReq["highFrequency"] <= self.spectrumConf[i]["highFrequency"]:
                             responseChannel["frequencyRange"] = itemReq                                 
-                            responseChannel["ruleApplied"]="FCC PART 96"                    
+                            responseChannel["ruleApplied"]="FCC_PART_96"                    
                             responseChannel["maxEirp"]=self.currentGrantEIRP
                             if(itemReq["lowFrequency"]>consts.SPECTRUM_GAA_LOW and itemReq["highFrequency"] < consts.SPECTRUM_GAA_HIGH):
                                 responseChannel["channelType"]="GAA"
@@ -273,7 +273,7 @@ class RequestHandler(object):
                             responseChannel["frequencyRange"] = {}
                             responseChannel["frequencyRange"]["highFrequency"]=self.spectrumConf[i]["highFrequency"]
                             responseChannel["frequencyRange"]["lowFrequency"]=self.spectrumConf[i]["lowFrequency"]
-                            responseChannel["ruleApplied"]="FCC PART 96"
+                            responseChannel["ruleApplied"]="FCC_PART_96"
                             responseChannel["maxEirp"]=self.currentGrantEIRP
                             if(responseChannel["frequencyRange"]["lowFrequency"]>=consts.SPECTRUM_GAA_LOW and \
                                     responseChannel["frequencyRange"]["highFrequency"]<=consts.SPECTRUM_GAA_HIGH):
