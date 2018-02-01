@@ -47,50 +47,57 @@ def sent_Flask_Req_To_Server(typeOfCalling):
         logger.finish_Step(response,typeOfCalling,StepStatus.PASSED)           
         return jsonify(response)
     
-    if(typeOfCalling!=consts.REGISTRATION_SUFFIX_HTTP):
-        finalResp = []
-        nonRegistereddata = {
-                                                            "response":{"responseCode":103,
-                                                            "responseData": [
-                                                                "cbsdId"
-                                                                ]
-                                                                        }
-                                                              }
-        
-        
-        finalResp = []
-        if len(json_dict[typeOfCalling+consts.REQUEST_NODE_NAME])>1:
-            for req in json_dict[typeOfCalling+consts.REQUEST_NODE_NAME]:
-                finalResp.append(nonRegistereddata)
-            return jsonify( {str(typeOfCalling)+"Response": finalResp})
-        else:
-            return jsonify( {str(typeOfCalling)+"Response": [{
-                                                        "response":{"responseCode":103,
-                                                        "responseData": [
-                                                            "cbsdId"
-                                                            ]
-                                                                    }
-                                                          }]
-                         })
+    finalResp = []
+    responseName = str(typeOfCalling)+"Response"
+    for req in json_dict[typeOfCalling+consts.REQUEST_NODE_NAME]:
+        x = enodeBController.engine.generate_canned_response(req, typeOfCalling)
+        finalResp.append(x[responseName][0])
 
-
-                
-                
-    else:
-        registeredData = {
-                                                        "response":{"responseCode":103}
-                                                    }
-        allRegisteredData =[]
-        
-        if len(json_dict[typeOfCalling+consts.REQUEST_NODE_NAME])>1:
-            for req in json_dict[typeOfCalling+consts.REQUEST_NODE_NAME]:
-                allRegisteredData.append(registeredData)
-            return jsonify( {str(typeOfCalling)+"Response": allRegisteredData})
-        else:
-            return jsonify( {str(typeOfCalling)+"Response": [{
-                                                            "response":{"responseCode":103}
-                                                        }]
-                            })
+    return jsonify( {responseName: finalResp})
+#     if(typeOfCalling!=consts.REGISTRATION_SUFFIX_HTTP):
+#         finalResp = []
+#         nonRegistereddata = {
+#                                                             "response":{"responseCode":103,
+#                                                             "responseData": [
+#                                                                 "cbsdId"
+#                                                                 ]
+#                                                                         }
+#                                                               }
+#         
+#         
+#         finalResp = []
+#         if len(json_dict[typeOfCalling+consts.REQUEST_NODE_NAME])>1:
+#             for req in json_dict[typeOfCalling+consts.REQUEST_NODE_NAME]:
+#                 finalResp.append(nonRegistereddata)
+#             return jsonify( {str(typeOfCalling)+"Response": finalResp})
+#         else:
+#             return jsonify( {str(typeOfCalling)+"Response": [{
+#                                                         "response":{"responseCode":103,
+#                                                         "responseData": [
+#                                                             "cbsdId"
+#                                                             ]
+#                                                                     }
+#                                                           }]
+#                          })
+# 
+# 
+#                 
+#                 
+#     else:
+#         registeredData = {
+#                                                         "response":{"responseCode":103}
+#                                                     }
+#         allRegisteredData =[]
+#         
+#         if len(json_dict[typeOfCalling+consts.REQUEST_NODE_NAME])>1:
+#             for req in json_dict[typeOfCalling+consts.REQUEST_NODE_NAME]:
+#                 allRegisteredData.append(registeredData)
+#             return jsonify( {str(typeOfCalling)+"Response": allRegisteredData})
+#         else:
+#             return jsonify( {str(typeOfCalling)+"Response": [{
+#                                                             "response":{"responseCode":103}
+#                                                         }]
+#                             })
 
        
 @app.route('/shutdown', methods=['GET', 'POST'])
