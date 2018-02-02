@@ -7,7 +7,17 @@
                "answers" : ["y", "n"], 
 			   "expectedAnswer" : "y"
              }						
-			 ],			    
+			 ],
+	"registrationRequest":[ 
+			{ 
+
+  		}
+		],
+	"spectrumInquiryRequest":[ 
+			{ 
+
+  		}
+		],			    
 	"grantRequest":[ 
 			{ 
 
@@ -18,14 +28,23 @@
 			{ 
 			}
 		], 
-	"heartbeatRequest": 
-			[ 
-			{
-			  "operationState": "GRANTED"	
-  			}
-  			],		 
+	"deregistrationRequest":[ 
+			{ 
+
+  		}
+		],
 	"response":
-        { 
+        {
+          "registrationResponse":[ 
+		   		{
+		   			"response" : {"responseCode" : 200}
+		    	}
+		   		],
+		   "spectrumInquiryResponse":[ 
+				{ 
+                 	"response":{"responseCode":0}
+				}
+				],		
 		   "grantResponse":[ 
 		   		{
 		   			"response" : {"responseCode" : 400}
@@ -36,12 +55,10 @@
                  	"response":{"responseCode":0}
 				}
 				],
-    		"heartbeatResponse":[ 
-    			{
-    				"response" : {
-      					"responseCode" : 500
-    					}
-  				}
-		 		]								   
+			"deregistrationResponse":[ 
+				{ 
+                 	"response":{"responseCode":0}
+				}
+				]								   
    		}
 }
