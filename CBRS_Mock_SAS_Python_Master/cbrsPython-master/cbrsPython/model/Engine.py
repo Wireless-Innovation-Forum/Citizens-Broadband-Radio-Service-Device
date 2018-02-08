@@ -152,14 +152,21 @@ class MyEngine(object):
             response instead of an error message...
         '''    
         if callType == 'registration':
-            rsp = { 'registrationResponse': {
+            rsp = { 'registrationResponse':[ {
                         'response': {
                             'responseCode': 200
                             }
-                        }
+                        } ]
                    }
+        elif 'cbsdId' not in req:
+            rsp = { str(callType)+'Response': [ {
+                        'response': {
+                            'responseCode': 102,
+                            'responseData': ['cbsdId'] }
+                            }
+                    ] }
         elif callType == 'spectrumInquiry':
-            rsp = { 'spectrumInquiryResponse': {
+            rsp = { 'spectrumInquiryResponse': [ {
                             'cbsdId': req['cbsdId'],
                             'availableChannel': {
                                 'frequencyRange': {
@@ -172,64 +179,80 @@ class MyEngine(object):
                             'response': {
                                 'responseCode': 0
                                 }
-                            }
+                            } ]
                        }
         elif callType == 'grant':
-            rsp = { 'grantResponse': {
+            rsp = { 'grantResponse': [ {
                             'cbsdId': req['cbsdId'],
                             'response': {
                                 'responseCode': 400
                                 }
-                            }
+                            } ]
                        }    
         elif callType == 'heartbeat':
             if 'grantId' in req:
-                rsp = { 'heartbeatResponse': {
-                            'cbsdId': req['cbsdId'],
-                            'grantId': req['grantId'],
-                            'transmitExpireTime': (DT.datetime.utcnow().replace(microsecond=0) + DT.timedelta(seconds=consts.SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME)).isoformat()+'Z',
-                            'response': {
-                                'responseCode': 0
-                                }
+                if 'operationState' in req:
+                    if req['operationState'] == 'AUTHORIZED':
+                        rspCode = 0
+                        txTime = (DT.datetime.utcnow().replace(microsecond=0) + DT.timedelta(seconds=consts.SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME)).isoformat()+'Z'
+                    else:
+                        rspCode = 501
+                        txTime = (DT.datetime.utcnow().replace(microsecond=0)).isoformat()+'Z'
+                    rsp = { 'heartbeatResponse': [ {
+                                'cbsdId': req['cbsdId'],
+                                'grantId': req['grantId'],
+                                'transmitExpireTime': txTime,
+                                'response': {
+                                    'responseCode': rspCode
+                                    }
+                            } ]
+                        }
+                else:
+                    rsp = { 'heartbeatResponse': [ {
+                                'cbsdId': req['cbsdId'],
+                                'response': {
+                                    'responseCode': 102,
+                                    'responseData': ['operationState']
+                                    }
+                                } ]
                             }
-                       }
             else:
-                rsp = { 'heartbeatResponse': {
+                rsp = { 'heartbeatResponse': [ {
                             'cbsdId': req['cbsdId'],
                             'response': {
                                 'responseCode': 102,
                                 'responseData': ['grantId']
                                 }
-                            }
+                            } ]
                        }
         elif callType == 'relinquishment':
             if 'grantId' in req:
-                rsp = { 'relinquishmentResponse': {
+                rsp = { 'relinquishmentResponse': [ {
                             'cbsdId': req['cbsdId'],
                             'grantId': req['grantId'],
                             'response': {
                                 'responseCode': 0
                                 }
-                            }
+                            } ]
                        }
             else:
-                rsp = { 'relinquishmentResponse': {
+                rsp = { 'relinquishmentResponse': [ {
                             'cbsdId': req['cbsdId'],
                             'response': {
                                 'responseCode': 102,
                                 'responseData': ['grantId']
                                 }
-                            }
+                            } ]
                        }
         elif callType == 'deregistration':
-            rsp = { 'deregistrationResponse': {
+            rsp = { 'deregistrationResponse': [ {
                             'cbsdId': req['cbsdId'],
                             'response': {
                                 'responseCode': 0
                                 }
-                            }
+                            } ]
                        }
         else:   # unknown callType -- should never get here...
-            rsp ={ 'unknownMessageResponse': 'response not defined'}
+            rsp ={ 'unknownMessageResponse': ['response not defined']}
             
         return rsp  

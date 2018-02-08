@@ -29,7 +29,7 @@
     		"heartbeatResponse":[ 
     			{
     				"response" : {
-      					"responseCode" : 103
+      					"responseCode" : 501
     					}
   				}
 		 		]								   

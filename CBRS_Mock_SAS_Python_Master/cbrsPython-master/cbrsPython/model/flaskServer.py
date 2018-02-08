@@ -19,7 +19,10 @@ import json
 from controllers.CLIUtils.enums import StepStatus
 from __builtin__ import True
 import flask
+import datetime as DT
 
+PRINT_MSG_BETWEEN_TESTS = False           # print msg to screen for req/resp between test cases
+NICE_MSG_HANDLING_BETWEEN_TESTS = True     # False = old handling (respCode=103), True = nicer handling
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
@@ -47,50 +50,71 @@ def sent_Flask_Req_To_Server(typeOfCalling):
         logger.finish_Step(response,typeOfCalling,StepStatus.PASSED)           
         return jsonify(response)
     
-    if(typeOfCalling!=consts.REGISTRATION_SUFFIX_HTTP):
-        finalResp = []
-        nonRegistereddata = {
-                                                            "response":{"responseCode":103,
-                                                            "responseData": [
-                                                                "cbsdId"
-                                                                ]
-                                                                        }
-                                                              }
+    finalResp = []
+    timeNow = (DT.datetime.utcnow().replace(microsecond=0)).isoformat()+'Z'
+    if NICE_MSG_HANDLING_BETWEEN_TESTS == True:
+        responseName = str(typeOfCalling)+"Response"
+        for req in json_dict[typeOfCalling+consts.REQUEST_NODE_NAME]:
+            x = enodeBController.engine.generate_canned_response(req, typeOfCalling)
+            finalResp.append(x[responseName][0])
+    
+        if PRINT_MSG_BETWEEN_TESTS == True:
+            print timeNow+" - RECEIVED = " +str(json_dict)
+            print timeNow+" - SENT =  "+str({responseName: finalResp})
+        return jsonify( {responseName: finalResp})
         
-        
-        finalResp = []
-        if len(json_dict[typeOfCalling+consts.REQUEST_NODE_NAME])>1:
-            for req in json_dict[typeOfCalling+consts.REQUEST_NODE_NAME]:
-                finalResp.append(nonRegistereddata)
-            return jsonify( {str(typeOfCalling)+"Response": finalResp})
+    else:       # old method of canned responses.  To be deprecated...
+        if(typeOfCalling!=consts.REGISTRATION_SUFFIX_HTTP):
+            finalResp = []
+            nonRegistereddata = {  "response": {
+                                    "responseCode":103,
+                                    "responseData": ["cbsdId"]
+                                    }
+                                }
+         
+            finalResp = []
+            if len(json_dict[typeOfCalling+consts.REQUEST_NODE_NAME])>1:
+                for req in json_dict[typeOfCalling+consts.REQUEST_NODE_NAME]:
+                    finalResp.append(nonRegistereddata)
+                if PRINT_MSG_BETWEEN_TESTS == True:
+                    print timeNow+" - RECEIVED = " +str(json_dict) 
+                    print timeNow+" - SENT =  "+str({str(typeOfCalling)+"Response": finalResp})
+                return jsonify( {str(typeOfCalling)+"Response": finalResp})
+            else:
+                finalResp = {str(typeOfCalling)+"Response": [{
+                                    "response":{"responseCode":103,
+                                                "responseData": ["cbsdId"]
+                                                }
+                                }]
+                             }
+                if PRINT_MSG_BETWEEN_TESTS == True:
+                    print timeNow+" - RECEIVED = " +str(json_dict) 
+                    print timeNow+" - SENT =  "+str(finalResp)
+                return jsonify(finalResp)
+                 
         else:
-            return jsonify( {str(typeOfCalling)+"Response": [{
-                                                        "response":{"responseCode":103,
-                                                        "responseData": [
-                                                            "cbsdId"
-                                                            ]
-                                                                    }
-                                                          }]
-                         })
-
-
-                
-                
-    else:
-        registeredData = {
+            registeredData = {
                                                         "response":{"responseCode":103}
                                                     }
-        allRegisteredData =[]
-        
-        if len(json_dict[typeOfCalling+consts.REQUEST_NODE_NAME])>1:
-            for req in json_dict[typeOfCalling+consts.REQUEST_NODE_NAME]:
-                allRegisteredData.append(registeredData)
-            return jsonify( {str(typeOfCalling)+"Response": allRegisteredData})
-        else:
-            return jsonify( {str(typeOfCalling)+"Response": [{
-                                                            "response":{"responseCode":103}
-                                                        }]
-                            })
+            allRegisteredData =[]
+         
+            if len(json_dict[typeOfCalling+consts.REQUEST_NODE_NAME])>1:
+                for req in json_dict[typeOfCalling+consts.REQUEST_NODE_NAME]:
+                    allRegisteredData.append(registeredData)
+                finalResp = {str(typeOfCalling)+"Response": allRegisteredData}
+                if PRINT_MSG_BETWEEN_TESTS == True:
+                    print timeNow+" - RECEIVED = " +str(json_dict)
+                    print timeNow+" - SENT =  "+str(finalResp)
+                return jsonify( finalResp)
+            else:
+                finalResp = {str(typeOfCalling)+"Response": [{
+                                                    "response":{"responseCode":103}
+                                                }]
+                            }
+                if PRINT_MSG_BETWEEN_TESTS == True:
+                    print timeNow+" - RECEIVED = " +str(json_dict) 
+                    print timeNow+" - SENT =  "+str(finalResp)
+                return jsonify(finalResp)
 
        
 @app.route('/shutdown', methods=['GET', 'POST'])
@@ -101,10 +125,11 @@ def shutdown():
     '''
     logger = enodeBController.engine.loggerHandler
     app.app_context()
-    func = request.environ.get(consts.NAME_OF_SERVER_WERKZUG)
-    func()
+#    func = request.environ.get(consts.NAME_OF_SERVER_WERKZUG)
+#    func()
     if("ERROR" in str(request.args['validationMessage'])):
         logger.finish_Step("the server shot down because :  " + str(request.args['validationMessage']),False,StepStatus.FAILED)
+        logger.print_to_Logs_Files(str(request.args['validationMessage']), True)
         return abort(400, str(request.args['validationMessage']))
     return consts.SERVER_SHUT_DOWN_MESSAGE + consts.TEST_HAD_BEEN_FINISHED_FLASK
 

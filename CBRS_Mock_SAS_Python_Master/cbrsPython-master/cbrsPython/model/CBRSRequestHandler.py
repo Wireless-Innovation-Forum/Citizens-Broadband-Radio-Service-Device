@@ -67,13 +67,14 @@ class CBRSRequestHandler(object):
         self.shorterGrantTime                   = False 
         self.postErrorMessage                   = False     
         self.set_Current_Json_Steps(testDefinition, EnviormentConfFile, dirPath)         
-        
+        self.transmitExpireTime                 = ''
+        self.grantExpireTime                    = ''
     
     def set_Current_Json_Steps(self,testDefinition,confFile,dirPath):
         cbsdFoundInJsons = False
         for jsonCol in testDefinition.jsonNamesOfSteps:
             xmlFileLinked = jsonComparer.get_Node_Of_Json_Parsed(jsonCol[0],"xmlFilelLinked",confFile,dirPath)
-            xmlPath = str(self.dirPath) +"\\Configuration\\CBSDconfig\\"+ xmlFileLinked+".xml"
+            xmlPath = os.path.join(str(self.dirPath), "Configuration", "CBSDconfig", xmlFileLinked+".xml")
             if os.path.exists(xmlPath)==False:
                 raise IOError("ERROR - missing cbrs conf file of the CBSD : " + self.cbsdSerialNumber)
             self.cbrsConfFile = minidom.parse(xmlPath)
@@ -360,6 +361,7 @@ class CBRSRequestHandler(object):
             else:
                 secondsToAdd = int(consts.SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME)
             result = self.get_Expire_Time(secondsToAdd,specificRespJson)
+            self.transmitExpireTime = result
             self.change_Value_Of_Param_In_Dict(specificRespJson, "transmitExpireTime", result)
             self.change_Value_Of_Param_In_Dict(specificRespJson, "cbsdId", self.cbsdId) 
             self.change_Value_Of_Param_In_Dict(specificRespJson, "grantId", self.grantId)
@@ -370,8 +372,12 @@ class CBRSRequestHandler(object):
                     else:
                         secondsToAdd = consts.SHORTER_GRANT_EXPIRY_TIME
                     result = self.get_Expire_Time(secondsToAdd)
+                    self.grantExpireTime = result
                     self.change_Value_Of_Param_In_Dict(specificRespJson, "grantExpireTime", result)
-                      
+                    self.loggerHandler.print_to_Logs_Files('grantRenew received in HBT request message', True)
+            if self.transmitExpireTime > self.grantExpireTime:
+                self.transmitExpireTime = self.grantExpireTime
+                self.change_Value_Of_Param_In_Dict(specificRespJson, "transmitExpireTime", self.transmitExpireTime)
         elif(typeOfCalling == consts.REGISTRATION_SUFFIX_HTTP):
             if specificRespJson['response']['responseCode'] == 0:
                 if(self.cbsdId==None):
@@ -441,21 +447,21 @@ class CBRSRequestHandler(object):
             siq_ruleApplied = consts.DEFAULT_RULE_APPLIED
                     
         if(jsonResonsedefined["response"]["responseCode"] ==0):
-            if "availableChannel" in jsonResonsedefined:
-                availableChannel=[]
-                for itemReq in httpRequest["inquiredSpectrum"]:
-                    responseChannel = {}
-                    responseChannel["ruleApplied"]= siq_ruleApplied
-                    responseChannel["channelType"]= siq_channelType
-                
-                    responseChannel["frequencyRange"] = itemReq
-                    if "maxEirp" in jsonResonsedefined["availableChannel"][0]:
-                        responseChannel["maxEirp"]=jsonResonsedefined["availableChannel"][0]["maxEirp"]
-                    if "groupingParam" in jsonResonsedefined["availableChannel"][0]:
-                        responseChannel["groupingParam"] = jsonResonsedefined["availableChannel"][0]["groupingParam"]
-                    availableChannel.append(responseChannel)
-                self.change_Value_Of_Param_In_Dict(jsonResonsedefined, "availableChannel", availableChannel)
-                                  
+            if "availableChannel" not in jsonResonsedefined:
+                jsonResonsedefined['availableChannel'] = ['']
+            availableChannel=[]
+            for itemReq in httpRequest["inquiredSpectrum"]:
+                responseChannel = {}
+                responseChannel["ruleApplied"]= siq_ruleApplied
+                responseChannel["channelType"]= siq_channelType                
+                responseChannel["frequencyRange"] = itemReq
+                if "maxEirp" in jsonResonsedefined["availableChannel"][0]:
+                    responseChannel["maxEirp"]=jsonResonsedefined["availableChannel"][0]["maxEirp"]
+                if "groupingParam" in jsonResonsedefined["availableChannel"][0]:
+                    responseChannel["groupingParam"] = jsonResonsedefined["availableChannel"][0]["groupingParam"]
+                availableChannel.append(responseChannel)
+            self.change_Value_Of_Param_In_Dict(jsonResonsedefined, "availableChannel", availableChannel)
+          
         else:
             pass
     
@@ -479,6 +485,7 @@ class CBRSRequestHandler(object):
                 jsonResponsedefined["heartbeatInterval"] = consts.HEARTBEAT_INTERVAL				
                 
             result = self.get_Expire_Time(secondsToAdd)
+            self.grantExpireTime = result
             self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "grantExpireTime", result) 
             
             if "operationParam" in jsonResponsedefined:
@@ -504,7 +511,7 @@ class CBRSRequestHandler(object):
         unverified_cpi_payload = jwt.decode(encoded_cpi_data, verify=False)     ### This is data without signature check
         self.loggerHandler.print_to_Logs_Files("encodedCpiSignedData contents = "+json.dumps(unverified_cpi_payload, indent=4), False)
         try:
-            cpi_cert_filename = str(self.dirPath)+ str(self.enviormentConfFile.getElementsByTagName('cpiCert')[0].firstChild.data)
+            cpi_cert_filename = os.path.normpath(os.path.join(str(self.dirPath), str(self.enviormentConfFile.getElementsByTagName('cpiCert')[0].firstChild.data)))
             cpi_cert = open(cpi_cert_filename, 'r').read()
             cpi_cert_obj = load_pem_x509_certificate(cpi_cert, default_backend())
             cpi_public_key = cpi_cert_obj.public_key()
@@ -521,7 +528,7 @@ class CBRSRequestHandler(object):
             self.loggerHandler.print_to_Logs_Files("cpiSignatureData signature error: other error", True)
             return False
 
-        schema_filename = str(self.dirPath)+str(self.enviormentConfFile.getElementsByTagName('jsonsRepoPath')[0].firstChild.data)+'OptionalParams\cpiSignatureDataSchema.json'
+        schema_filename = os.path.normpath(os.path.join(str(self.dirPath), str(self.enviormentConfFile.getElementsByTagName('jsonsRepoPath')[0].firstChild.data),'OptionalParams', 'cpiSignatureDataSchema.json'))
         try:
             file = open(schema_filename, 'r')
             cpi_schema = json.load(file)

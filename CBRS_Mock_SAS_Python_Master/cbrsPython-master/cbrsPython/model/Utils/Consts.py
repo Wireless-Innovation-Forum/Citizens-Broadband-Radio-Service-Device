@@ -24,7 +24,7 @@ CPI_SIGNATURE_VALID_TYPES =                 ['RS256', 'ES256']
 CPI_INSTALLPARAM_CATA_OPTIONAL =            ['antennaAzimuth', 'antennaDowntilt', 'antennaBeamwidth']   # params REG-Cond for Cat B, optional for Cat A
 
 HEARTBEAT_INTERVAL =                        60
-HEARTBEAT_INTERVAL_GRACE_PERIOD =           0.005    # seconds
+HEARTBEAT_INTERVAL_GRACE_PERIOD =           5.0    # seconds
 
 CBRS_SPECTRUM_HIGH =                        3700000000
 CBRS_SPECTRUM_LOW =                         3550000000

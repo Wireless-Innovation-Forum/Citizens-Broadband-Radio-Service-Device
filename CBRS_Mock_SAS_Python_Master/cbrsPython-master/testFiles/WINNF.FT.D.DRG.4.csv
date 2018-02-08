@@ -1,8 +1,8 @@
 jsonFileName,jsonFileName2
-REG_MultiStep_Success_cbsd1.json,REG_MultiStep_Success_cbsd2.json 
-HBT_spectrumInquiry_Cbsd.json,HBT_spectrumInquiry_Cbsd.json 
-HBT_grant_Cbsd.json,HBT_grant_Cbsd.json 
-HBT_heartbeat_GrantedState.json,HBT_heartbeat_GrantedState.json 
-HBT_heartbeat_Auth_Repeats.json,HBT_heartbeat_Auth_Repeats.json 
-RLQ_Success.json,RLQ_Success.json 
-DRG_Error_102.json,DRG_Error_102.json 
+REG_MultiStep_Success_cbsd1.json,REG_MultiStep_Success_cbsd2.json
+HBT_spectrumInquiry_Cbsd.json,HBT_spectrumInquiry_Cbsd.json
+HBT_grant_Cbsd.json,HBT_grant_Cbsd.json
+HBT_heartbeat_GrantedState.json,HBT_heartbeat_GrantedState.json
+HBT_heartbeat_Auth_Repeats.json,HBT_heartbeat_Auth_Repeats.json
+RLQ_Success.json,RLQ_Success.json
+DRG_Error_102.json,DRG_Error_102.json

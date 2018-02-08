@@ -259,7 +259,7 @@ class RequestHandler(object):
                         if itemReq["lowFrequency"] >= self.spectrumConf[i]["lowFrequency"] and \
                                 itemReq["highFrequency"] <= self.spectrumConf[i]["highFrequency"]:
                             responseChannel["frequencyRange"] = itemReq                                 
-                            responseChannel["ruleApplied"]="FCC PART 96"                    
+                            responseChannel["ruleApplied"]="FCC_PART_96"                    
                             responseChannel["maxEirp"]=self.currentGrantEIRP
                             if(itemReq["lowFrequency"]>consts.SPECTRUM_GAA_LOW and itemReq["highFrequency"] < consts.SPECTRUM_GAA_HIGH):
                                 responseChannel["channelType"]="GAA"
@@ -273,7 +273,7 @@ class RequestHandler(object):
                             responseChannel["frequencyRange"] = {}
                             responseChannel["frequencyRange"]["highFrequency"]=self.spectrumConf[i]["highFrequency"]
                             responseChannel["frequencyRange"]["lowFrequency"]=self.spectrumConf[i]["lowFrequency"]
-                            responseChannel["ruleApplied"]="FCC PART 96"
+                            responseChannel["ruleApplied"]="FCC_PART_96"
                             responseChannel["maxEirp"]=self.currentGrantEIRP
                             if(responseChannel["frequencyRange"]["lowFrequency"]>=consts.SPECTRUM_GAA_LOW and \
                                     responseChannel["frequencyRange"]["highFrequency"]<=consts.SPECTRUM_GAA_HIGH):
@@ -356,22 +356,17 @@ class RequestHandler(object):
                 self.change_Value_Of_Param_In_Dict(grantResp, "response", responseResult)    
                                  
         if(grantResp["response"]["responseCode"] !=0):
-            newAvailableChannel = []
-            for i in range(len(self.spectrumConf)): 
+#            newAvailableChannel = []
+            for i in range(len(self.spectrumConf)):
+                ## NOTE: this only works for len(self.spectrumConf = 1), protocol does not allow array of operationParam
                 newResponseChannel ={}
-                newResponseChannel["frequencyRange"] = {}
-                newResponseChannel["frequencyRange"]["highFrequency"]=self.spectrumConf[i]["highFrequency"]
-                newResponseChannel["frequencyRange"]["lowFrequency"]=self.spectrumConf[i]["lowFrequency"]
-                newResponseChannel["ruleApplied"]="FCC PART 96"
+                newResponseChannel["operationFrequencyRange"] = {}
+                newResponseChannel["operationFrequencyRange"]["highFrequency"]=self.spectrumConf[i]["highFrequency"]
+                newResponseChannel["operationFrequencyRange"]["lowFrequency"]=self.spectrumConf[i]["lowFrequency"]
                 newResponseChannel["maxEirp"]=self.currentGrantEIRP
-                if(newResponseChannel["frequencyRange"]["lowFrequency"]>=consts.SPECTRUM_GAA_LOW and \
-                            newResponseChannel["frequencyRange"]["highFrequency"]<=consts.SPECTRUM_GAA_HIGH):
-                    newResponseChannel["channelType"]="GAA"  
-                elif(newResponseChannel["frequencyRange"]["lowFrequency"]>=consts.SPECTRUM_PAL_LOW and \
-                            newResponseChannel["frequencyRange"]["highFrequency"]<=consts.SPECTRUM_PAL_HIGH):
-                    newResponseChannel["channelType"]="PAL"                         
-                newAvailableChannel.append(newResponseChannel)
-            self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "availableChannel", newAvailableChannel)
+                         
+#                newAvailableChannel.append(newResponseChannel)
+            self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "operationParam", newResponseChannel)
             self.loggerHandler.print_to_Logs_Files('The Grant response code is not 0, applicable spectrum parameters have been sent out.', True)                                                  
   
             
