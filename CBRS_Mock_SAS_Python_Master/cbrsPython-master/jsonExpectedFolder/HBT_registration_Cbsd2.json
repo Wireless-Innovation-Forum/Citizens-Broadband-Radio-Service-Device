@@ -1,7 +1,11 @@
 {
-    "name":"Cbsd2_Registration",
+    "name":"HBT_registration_Cbsd2",
      "xmlFilelLinked": "cbsdc2",
-    "registrationRequest":[
+	"questions":
+		[
+		],  
+
+	"registrationRequest":[
 				{
 
                 }

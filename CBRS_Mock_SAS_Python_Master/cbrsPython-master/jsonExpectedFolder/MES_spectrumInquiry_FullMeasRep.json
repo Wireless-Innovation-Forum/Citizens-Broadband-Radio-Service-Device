@@ -1,6 +1,8 @@
 {
-    "name":"HBT_spectrumInquiry_FullMeasRep",  
-    "questions": {},
+    "name":"MES_spectrumInquiry_FullMeasRep",  
+	"questions":
+		[
+		],  
     "appearAlways":"True",
     "measReportRequested" : "True",  
     "fullBandReport" : "True",        

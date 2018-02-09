@@ -1,7 +1,11 @@
 {
-    "name":"HBT_heartbeat_AuthorizedState_Repeats",
+    "name":"HBT_heartbeat_Auth_Repeats",
     "repeatsAllowed":"True",      
-		"heartbeatRequest": 
+    "questions":
+			[
+			],
+
+	"heartbeatRequest": 
 			[ 
 			{
     			"operationState": "AUTHORIZED"

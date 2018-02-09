@@ -1,13 +1,14 @@
 {
     "name":"HBT_Post_HB_Error_502",	
     "message":{},
-    "questions":[
+    "questions":
+		[
             {
-               "question" : "Did cbsd UUT stop transmiting withing 60 seconds of receiving Heartbeat response with responseCode = 502?",
+               "question" : "Did the CBSD stop RF transmission within 60 seconds of receiving Heartbeat response with responseCode = 502?",
                "answers" : ["y", "n"], 
 			   "expectedAnswer" : "y"
-             }						
-			 ],			    
+            }						
+		],			    
 	"relinquishmentRequest":
 		[ 
 			{ 

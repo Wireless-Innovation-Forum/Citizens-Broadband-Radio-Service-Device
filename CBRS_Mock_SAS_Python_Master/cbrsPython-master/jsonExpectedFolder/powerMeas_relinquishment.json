@@ -1,5 +1,8 @@
 {
-    "name":"powerMeasurement_relinquishment",    
+    "name":"powerMeas_relinquishment",    
+	"questions":
+		[
+		],  
     "response":{
 		   "relinquishmentResponse":[ 
 					{ 

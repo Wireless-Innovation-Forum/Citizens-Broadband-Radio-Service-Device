@@ -3,11 +3,11 @@
 	"xmlFilelLinked": "cbsdc1",
     "questions":
 				[
- 						{
-							"question" : "There were no RF transmissions from CBSD1 during the test?",
-                            "answers" : ["No", "Yes"], 
-							"expectedAnswer" : "Yes"
-						}
+ 					{
+						"question" : "Were there RF transmissions from the CBSD1 during the test?", 
+						"answers" : ["y", "n"],  
+						"expectedAnswer" : "n"
+ 					}
 				],
 			"registrationRequest":
         	[

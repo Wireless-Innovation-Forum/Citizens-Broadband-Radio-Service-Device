@@ -1,5 +1,8 @@
 {
-    "name":"powerMeasurement_deregistration",   
+    "name":"powerMeas_deregistration",   
+	"questions":
+		[
+		],  
     "response":{
 				"deregistrationResponse":[
 					{

@@ -1,13 +1,13 @@
 {
     "name":"HBT_heartbeat_Error_105",
     "questions":
-				[
-                        {
-                            "question" : "Does cbsd UUT stop transmiting power within 60 seconds of receiving Heartbeat response with responseCode = 105?",
-                            "answers" : ["y", "n"], 
-							"expectedAnswer" : "y"
-                        }						
-				],			      
+			[
+                {
+                    "question" : "Did the CBSD stop RF transmission within 60 seconds of receiving Heartbeat response with responseCode = 105?",
+                    "answers" : ["y", "n"], 
+					"expectedAnswer" : "y"
+                }						
+			],			      
        
 		"heartbeatRequest": 
 			[ 

@@ -2,13 +2,13 @@
     "name":"HBT_heartbeat_Error_500_cbsd2",
     "noMoreStep" : "True",
     "questions":
-				[
-                        {
-                            "question" : "Does cbsd2 stop transmiting power within 60 seconds of receiving Heartbeat response with responseCode = 500?",
-                            "answers" : ["y", "n"], 
-							"expectedAnswer" : "y"
-                        }						
-				],			      
+			[
+                {
+                    "question" : "Did the CBSD2 stop RF transmission within 60 seconds of receiving Heartbeat response with responseCode = 500?",
+                    "answers" : ["y", "n"], 
+					"expectedAnswer" : "y"
+                }						
+			],			      
       
 	"heartbeatRequest": 
 			[ 

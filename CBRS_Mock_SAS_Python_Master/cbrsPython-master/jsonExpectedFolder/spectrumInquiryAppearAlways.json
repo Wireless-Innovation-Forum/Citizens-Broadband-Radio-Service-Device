@@ -1,5 +1,5 @@
 {
-    "name":"Spectrum_Inquiry_Appear_Always_Mock_SAS_31_Aug_2017",  
+    "name":"spectrumInquiryAppearAlways",  
     "questions":
 	[
 		{
@@ -13,7 +13,7 @@
 			"expectedAnswer" : "yes"
 		},
 		{
-			"question" : "CBSD is not transmitting unless an authorized grant is available?",
+			"question" : "Was the CBSD not transmitting unless an authorized grant is available?",
 			"answers" : ["yes", "no"], 
 			"expectedAnswer" : "yes"
 		}

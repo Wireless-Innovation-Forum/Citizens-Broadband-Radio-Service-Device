@@ -1,6 +1,10 @@
 {
-    "name":"HBT_heartbeat_GrantedState",  
-		"heartbeatRequest": 
+    "name":"HBT_heartbeat_GrantedState_Error501",  
+	"questions":
+		[
+		],  
+
+	"heartbeatRequest": 
 			[ 
 			{
     			"operationState": "GRANTED"

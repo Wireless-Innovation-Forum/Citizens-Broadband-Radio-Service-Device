@@ -1,13 +1,14 @@
 {
     "name":"HBT_Post_HB_Error_501_granted",	
     "postErrorMessage":"True",
-    "questions":[
+    "questions":
+		[
             {
                "question" : "Did the CBSD transmit at any time during the test?",
                "answers" : ["y", "n"], 
 			   "expectedAnswer" : "n"
-             }						
-			 ],			    
+            }						
+		],			    
 	"relinquishmentRequest":
 		[ 
 			{ 

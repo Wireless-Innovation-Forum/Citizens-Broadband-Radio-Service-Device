@@ -1,5 +1,5 @@
 {
-    "name":"HBT_heartbeat_GrantedState_MeasRep",
+    "name":"MES_heartbeat_GrantedState_MeasRep",
     "measReportRequested" : "True",  
     "questions":
 		[

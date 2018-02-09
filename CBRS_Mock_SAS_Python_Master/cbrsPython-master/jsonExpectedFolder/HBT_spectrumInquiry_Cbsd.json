@@ -1,8 +1,11 @@
 {
     "name":"HBT_spectrumInquiry_Cbsd",  
-    "questions": {},
     "appearAlways":"True",    
-    "spectrumInquiryRequest": 
+	"questions":
+		[
+		],  
+
+		"spectrumInquiryRequest": 
 				[
 				{ 
 
