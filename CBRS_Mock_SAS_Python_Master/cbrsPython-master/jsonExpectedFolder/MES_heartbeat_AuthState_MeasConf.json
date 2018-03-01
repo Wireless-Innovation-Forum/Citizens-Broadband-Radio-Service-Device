@@ -1,5 +1,9 @@
 {
-    "name":"HBT_heartbeat_GrantedState_MeasConf",  
+    "name":"MES_heartbeat_AuthState_MeasConf",  
+	"questions":
+		[
+		],  
+
 	"heartbeatRequest": 
 			[ 
 			{

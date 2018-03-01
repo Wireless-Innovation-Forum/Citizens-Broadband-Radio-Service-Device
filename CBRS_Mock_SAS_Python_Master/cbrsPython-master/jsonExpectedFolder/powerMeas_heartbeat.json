@@ -1,5 +1,8 @@
 {
-    "name":"powerMeasurement_heartbeat",   
+    "name":"powerMeas_heartbeat",   
+	"questions":
+		[
+		],  
     "response":{
     	  "heartbeatResponse":[ 
     				{

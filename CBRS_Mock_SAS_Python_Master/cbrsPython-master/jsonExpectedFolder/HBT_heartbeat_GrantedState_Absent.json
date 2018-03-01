@@ -1,10 +1,10 @@
 {
-    "name":"HBT_heartbeat_GrantedState", 
+    "name":"HBT_heartbeat_GrantedState_Absent", 
     "isAbsentResponse": "True", 
     "questions":
 		[
 			{
-				"question" : "Did cbsd UUT start transmission during test?",
+				"question" : "Were there RF transmissions from the CBSD during the test?",
 				"answers" : ["y", "n"], 
 				"expectedAnswer" : "n"
 			}
@@ -21,7 +21,7 @@
     			[ 
     			{
     				"response" : {
-      					"responseCode" : 0
+      					"responseCode" : 501
     					}
   				}
 	

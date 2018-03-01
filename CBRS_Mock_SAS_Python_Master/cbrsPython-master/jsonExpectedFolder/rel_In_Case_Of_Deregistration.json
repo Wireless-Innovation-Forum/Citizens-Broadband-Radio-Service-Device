@@ -1,10 +1,8 @@
 {
-    "name":"Relinquishment in case of Deregistration",  
+    "name":"rel_In_Case_Of_Deregistration",  
     "questions":
-	[
-		{
-		}
-	],
+		[
+		],
 	"relinquishmentRequest":
 	[
 		{

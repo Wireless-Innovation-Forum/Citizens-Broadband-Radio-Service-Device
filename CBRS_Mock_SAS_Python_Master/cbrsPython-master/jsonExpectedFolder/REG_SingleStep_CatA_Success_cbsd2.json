@@ -1,13 +1,13 @@
 {
-    "name":"REG_SingleStep_CatA_cbsd2",
+    "name":"REG_SingleStep_CatA_Success_cbsd2",
 	"xmlFilelLinked": "cbsdc2",
     "questions":
 				[
-						{
-							"question" : "There were no RF transmissions from CBSD2 during the test?",
-                            "answers" : ["No", "Yes"], 
-							"expectedAnswer" : "Yes"
-						}
+ 					{
+						"question" : "Were there RF transmissions from the CBSD2 during the test?", 
+						"answers" : ["y", "n"],  
+						"expectedAnswer" : "n"
+ 					}
 				],
 			"registrationRequest":
         	[

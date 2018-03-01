@@ -1,4 +1,0 @@
-Flask==0.12.0
-enum34==1.1.6
-pathlib==1.0.1
-Flask-Testing==0.6.2

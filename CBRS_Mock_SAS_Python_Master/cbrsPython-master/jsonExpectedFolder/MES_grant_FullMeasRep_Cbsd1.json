@@ -1,9 +1,10 @@
 {
-    "name":"HBT grant Full-band MeasRep Cbsd1",	
+    "name":"MES_grant_FullMeasRep_Cbsd1",	
     "questions":
 			[
 			],    
-    "measReportRequested" : "True", 
+ 
+ "measReportRequested" : "True", 
     "fullBandReport" : "True",         
 		"grantRequest":
 		[ 

@@ -1,6 +1,8 @@
 {
-    "name":"HBT_spectrumInquiry_MeasRep_Cbsd1",  
-    "questions": {},
+    "name":"MES_spectrumInquiry_MeasRep_Cbsd",  
+	"questions":
+		[
+		],  
     "measReportRequested" : "True",      
     "spectrumInquiryRequest": 
 		  [

@@ -1,13 +1,14 @@
 {
     "name":"HBT_Post_HB_Error_501",	
     "postErrorMessage":"True",
-    "questions":[
+    "questions":
+		[
             {
-               "question" : "Does cbsd UUT stop transmiting within 60 seconds of receiving Heartbeat response with responseCode = 501?",
+               "question" : "Did the CBSD stop RF transmission within 60 seconds of receiving Heartbeat response with responseCode = 501?",
                "answers" : ["y", "n"], 
 			   "expectedAnswer" : "y"
-             }						
-			 ],			    
+            }						
+		],			    
 	"relinquishmentRequest":
 		[ 
 			{ 

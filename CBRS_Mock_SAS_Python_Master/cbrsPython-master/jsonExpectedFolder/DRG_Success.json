@@ -1,13 +1,13 @@
 {
     "name":"DRG_Success",
     "questions":
-				[
-                        {
-                            "question" : "Did CBSD send deregistration request and RF transmission stopped at that point?",
-                            "answers" : ["No", "Yes"], 
-							"expectedAnswer" : "Yes"
-						}
-				],
+			[
+				{
+					"question" : "Did the CBSD stop RF transmissions upon sending the Deregister request?",
+                    "answers" : ["y", "n"], 
+					"expectedAnswer" : "y"
+				}
+			],
 			"deregistrationRequest":
         	[
             	{

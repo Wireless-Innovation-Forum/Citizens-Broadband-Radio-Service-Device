@@ -1,15 +1,15 @@
 {
     "name":"RLQ_relinquish_success2",
     "questions":
-				[
-                        {
-                            "question" : "Did CBSD #2 UUT stop transmit upon sending Relinquishment Request?",
-                            "answers" : ["y", "n"], 
-							"expectedAnswer" : "y"
-                        }					
-				],			      
+			[
+				{
+                    "question" : "Did the CBSD2 stop RF transmission upon sending Relinquishment request?",
+                    "answers" : ["y", "n"], 
+					"expectedAnswer" : "y"
+				}					
+			],			      
         
-		"relinquishmentRequest": 
+	"relinquishmentRequest": 
 			[ 
 			{
     		}

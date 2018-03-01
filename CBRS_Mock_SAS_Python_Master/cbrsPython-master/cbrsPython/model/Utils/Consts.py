@@ -13,7 +13,7 @@
 # limitations under the License.
 
 ### Program Constants
-WINNF_PROTOCOL_VERSION =                    "v1.1"
+WINNF_PROTOCOL_VERSION =                    "v1.2"
 SHORTER_GRANT_EXPIRY_TIME =                 360
 DEFAULT_RULE_APPLIED =                      "FCC_PART_96"
 DEFAULT_CHANNEL_TYPE =                      "GAA"

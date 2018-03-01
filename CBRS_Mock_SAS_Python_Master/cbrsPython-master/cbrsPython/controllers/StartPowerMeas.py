@@ -240,7 +240,7 @@ if __name__ == '__main__':
     ctx.load_cert_chain(os.path.normpath(os.path.join(str(dirPath), get_Element_From_Config_File(confFile,"pemFilePath"))),
                         os.path.normpath(os.path.join(str(dirPath), get_Element_From_Config_File(confFile,"keyFilePath"))) )
     host_ip = get_Element_From_Config_File(confFile,"hostIp")
-    sever_port = get_Element_From_Config_File(confFile,"port")
+    sever_port = int(get_Element_From_Config_File(confFile,"port"))
                  
     app.run(host_ip,sever_port,threaded=True,request_handler=WSGIRequestHandler,ssl_context=ctx)       
  

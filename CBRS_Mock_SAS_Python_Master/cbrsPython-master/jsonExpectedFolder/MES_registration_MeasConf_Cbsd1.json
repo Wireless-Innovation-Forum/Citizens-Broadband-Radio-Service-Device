@@ -1,6 +1,9 @@
 {
-    "name":"Cbsd1_Registration",
+    "name":"MES_registration_MeasConf_Cbsd1",
     "xmlFilelLinked": "cbsdc1",
+	"questions":
+		[
+		],  
     "registrationRequest":[
 				{
 

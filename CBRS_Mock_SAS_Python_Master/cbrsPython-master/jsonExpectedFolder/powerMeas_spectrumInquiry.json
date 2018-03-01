@@ -1,5 +1,8 @@
 {
-    "name":"powerMeasurement_spectrumInquiry", 
+    "name":"powerMeas_spectrumInquiry", 
+	"questions":
+		[
+		],  
     "response":{
 		  "spectrumInquiryResponse":[ 
       			{      

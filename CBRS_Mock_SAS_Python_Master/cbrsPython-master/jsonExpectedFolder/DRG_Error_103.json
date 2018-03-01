@@ -1,13 +1,13 @@
 {
     "name":"DRG_ERROR_103",
     "questions":
-				[
-						{
-							"question" : "CBSD stopped RF transmissions when trigger to deregister was done?",
-                            "answers" : ["No", "Yes"], 
-							"expectedAnswer" : "Yes"
-						}
-				],
+			[
+				{
+					"question" : "Did the CBSD stop RF transmissions upon sending the Deregister request?",
+                    "answers" : ["y", "n"], 
+					"expectedAnswer" : "y"
+				}
+			],
 			"deregistrationRequest":
         	[
             	{
@@ -19,7 +19,7 @@
 					{
 					  "response": {
 						 "responseCode": 103,
-						 "responseData": "cbsdId"
+						 "responseData": ["cbsdId"]
 					  }
 					}
 				]  
