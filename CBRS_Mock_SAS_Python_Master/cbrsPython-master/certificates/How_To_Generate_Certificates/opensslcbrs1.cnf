@@ -15,7 +15,7 @@
 #################################################################
 # OpenSSL configuration file for X.509 RSA certificates for test labs for CBRS FCC part 96 testing
 # used with openssl-1.0.1e-57.el6.x86_64
-# Version 1.0 2-Feb-2018
+# Version 1.2 1-March-2018
 # Idan Raz iraz@airspan.com
 ##################################################################
 
@@ -316,8 +316,8 @@ subjectAltName = DNS:cbsdmfrca.testharness.cbsd.winnf.github.com
 subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid:always,issuer
 basicConstraints = critical, CA:true
-keyUsage = criticial, cRLSign, keyCertSign
-certiifcatePolicies = 1.3.6.1.4.1.46609.2.1, 1.3.6.1.4.1.46609.1.1.5
+keyUsage = critical, cRLSign, keyCertSign
+certificatePolicies = 1.3.6.1.4.1.46609.2.1, 1.3.6.1.4.1.46609.1.1.5
 subjectAltName = DNS:professionalinstallerca.testharness.cbsd.winnf.github.com
 
 ######################################################################

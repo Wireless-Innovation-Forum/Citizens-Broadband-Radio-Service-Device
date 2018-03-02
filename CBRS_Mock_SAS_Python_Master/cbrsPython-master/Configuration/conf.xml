@@ -5,8 +5,8 @@
 	<hostIp>127.0.0.1</hostIp>
 	<port>5000</port>
 	<heartbeatLimit>30</heartbeatLimit>
-	<pemFilePath>certificates/flaskcert1.pem</pemFilePath>
-	<keyFilePath>certificates/flaskcbsdiot.key</keyFilePath>
-	<caCerts>certificates/cacertidan1.pem</caCerts>
-	<cpiCert>certificates/cpi_ca.crt</cpiCert>
+	<pemFilePath>certificates/sas_certificate.pem</pemFilePath>
+	<keyFilePath>certificates/sas_private_key.key</keyFilePath>
+	<caCerts>certificates/rootCA_certificate.pem</caCerts>
+	<cpiCert>certificates/cpi_certificate.pem</cpiCert>
 </cbrsParams>
