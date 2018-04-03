@@ -320,7 +320,7 @@ class RequestHandler(object):
                         httpRequest['operationParam']['operationFrequencyRange']['highFrequency'] == self.spectrumConf[i]["highFrequency"]:
                     FreqInRange = True
                     if(httpRequest['operationParam']['maxEirp']> self.currentGrantEIRP):
-                        self.validationRequestDataError = True                        
+#                        self.validationRequestDataError = True                        
                         responseResult = {"responseCode" : 400}
                         self.loggerHandler.print_to_Logs_Files('The requested maxEirp value is too high', True)
                         self.change_Value_Of_Param_In_Dict(grantResp, "response", responseResult)  
@@ -350,7 +350,7 @@ class RequestHandler(object):
                         self.change_Value_Of_Param_In_Dict(grantResp, "channelType", channelType)
                         
             if(FreqInRange == False):
-                self.validationRequestDataError = True                    
+#                self.validationRequestDataError = True                    
                 responseResult = {"responseCode" : 400}
                 self.loggerHandler.print_to_Logs_Files('The requested frequency is not in the available spectrum range', True)
                 self.change_Value_Of_Param_In_Dict(grantResp, "response", responseResult)    
