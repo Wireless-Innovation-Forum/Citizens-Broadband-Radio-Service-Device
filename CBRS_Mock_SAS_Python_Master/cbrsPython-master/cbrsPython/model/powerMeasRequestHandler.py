@@ -261,7 +261,7 @@ class RequestHandler(object):
                             responseChannel["frequencyRange"] = itemReq                                 
                             responseChannel["ruleApplied"]="FCC_PART_96"                    
                             responseChannel["maxEirp"]=self.currentGrantEIRP
-                            if(itemReq["lowFrequency"]>consts.SPECTRUM_GAA_LOW and itemReq["highFrequency"] < consts.SPECTRUM_GAA_HIGH):
+                            if(itemReq["lowFrequency"]>=consts.SPECTRUM_GAA_LOW and itemReq["highFrequency"] <= consts.SPECTRUM_GAA_HIGH):
                                 responseChannel["channelType"]="GAA"
                             elif(itemReq["lowFrequency"]>consts.SPECTRUM_PAL_LOW and itemReq["highFrequency"] < consts.SPECTRUM_PAL_HIGH):
                                 responseChannel["channelType"]="PAL"                   
