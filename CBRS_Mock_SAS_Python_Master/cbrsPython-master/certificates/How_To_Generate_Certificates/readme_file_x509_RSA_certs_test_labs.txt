@@ -16,7 +16,7 @@
 
 #################################################################
 # Readme file for generating X.509 RSA certificates for test labs for FCC part 96 testing of CBSD UUT and Domain Proxy UUT
-# Version 1.3 5-April-2018
+# Version 1.4 28-April-2018
 # Idan Raz iraz@airspan.com
 ##################################################################
 
@@ -1398,7 +1398,7 @@ rktZbGGHGtY3lqsEauZqb48=
 # 2) SAS Provider CA which signed the SAS Provider Certificate
 # unified PEM files are: 
 # 1) SAS Provider certificate together with the SAS Provider CA
-# 2) SAS Provider certificate of Unknown CA together with the SAS Provider Unknown CA
+# 2) SAS Provider certificate of Unknown CA together with the SAS Provider CA  (Please note not to combine with the SAS Provider Unknown CA)
 # 3) SAS Provider certificate with expired validity time together with the SAS Provider CA
 # 4) SAS Provider certificate with CRL extensions together with the SAS Provider CA
 # 5) SAS Provider certificate which is corrupted with invalid signature together with the SAS Provider CA
@@ -1422,7 +1422,7 @@ Step 42) concatenate the PEM files of SAS Provider certificate together with SAS
 
 -----END CERTIFICATE-----   
 
-Step 43) concatenate the PEM files of SAS Provider certificate of Unknown CA together with the SAS Provider Unknown CA to create a unified PEM file
+Step 43) concatenate the PEM files of SAS Provider certificate of Unknown CA together with the SAS Provider CA to create a unified PEM file (Please note not to combine with the SAS Provider Unknown CA)
 
 -----BEGIN CERTIFICATE-----
     
@@ -1431,7 +1431,7 @@ Step 43) concatenate the PEM files of SAS Provider certificate of Unknown CA tog
 -----END CERTIFICATE-----
 -----BEGIN CERTIFICATE-----
     
-	< SAS Provider Unknown CA >
+	< SAS Provider CA >
 
 -----END CERTIFICATE-----   
 
