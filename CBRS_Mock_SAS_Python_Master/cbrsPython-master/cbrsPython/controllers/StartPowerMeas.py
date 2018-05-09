@@ -227,9 +227,10 @@ if __name__ == '__main__':
     
     loggerHandler.start_Test(consts.CLI_SESSION)
     loggerHandler.start_Test('PowerMeasTest')
+    loggerHandler.print_to_Logs_Files(consts.WINNF_TEST_HARNESS_RELEASE_TEXT+consts.TEST_HARNESS_VERSION + " - "+ consts.TEST_HARNESS_DATE, True)
     print_final_spectrum_Conf(spectumConfiguration,approveMaxEirp,loggerHandler)    
  
-    loggerHandler.print_To_Terminal(consts.START_POWER_MEAS_TEST)         
+    loggerHandler.print_To_Terminal(consts.START_POWER_MEAS_TEST)
     loggerHandler.print_to_Logs_Files(consts.SELECTED_TEST_FROM_USER_MESSAGE + str('PowerMeasTest') + " is starting now", True)
  
     WSGIRequestHandler.protocol_version = "HTTP/1.1"  

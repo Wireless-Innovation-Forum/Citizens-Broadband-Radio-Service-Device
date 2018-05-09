@@ -89,6 +89,7 @@ def run_New_Test(dirPath, confFile, loggerHandler):
             loggerHandler.print_To_Terminal('The test is starting now!')
         else:
             loggerHandler.start_Test(inputAnswer)
+            loggerHandler.print_to_Logs_Files(consts.WINNF_TEST_HARNESS_RELEASE_TEXT+consts.TEST_HARNESS_VERSION + " - "+ consts.TEST_HARNESS_DATE, True)
             loggerHandler.print_to_Logs_Files(consts.SELECTED_TEST_FROM_USER_MESSAGE + str(inputAnswer) + " is starting now", True)
         cliHandler = CLIHandler(inputAnswer, confFile, dirPath, loggerHandler,testDefinition) 
         # initialize cli session handler

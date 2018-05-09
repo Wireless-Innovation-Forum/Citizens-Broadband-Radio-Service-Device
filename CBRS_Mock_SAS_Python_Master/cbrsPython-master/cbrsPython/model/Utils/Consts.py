@@ -13,6 +13,8 @@
 # limitations under the License.
 
 ### Program Constants
+TEST_HARNESS_VERSION =                      "develop1.0.0.2"
+TEST_HARNESS_DATE =                         "2018-April-09"
 WINNF_PROTOCOL_VERSION =                    "v1.2"
 SHORTER_GRANT_EXPIRY_TIME =                 360
 DEFAULT_RULE_APPLIED =                      "FCC_PART_96"
@@ -50,6 +52,7 @@ WINNF_APPROVED_CIPHERS = ':'.join(WINNF_APPROVED_CIPHER_LIST) # string of cipher
 MAX_NUM_HBT_FOR_MEASREPORT =    5   # number of HBT responses for measReport to appear, before failing test
 
 ### Other Constants
+WINNF_TEST_HARNESS_RELEASE_TEXT =           "WINNF TEST HARNESS RELEASE: "
 ERROR_VALIDATION_MESSAGE =                  "ERROR - An Error occurred while comparing between actual and expected request"
 RESULTS_OF_TEST_MESSAGE =                   "The final result of the test : "
 SET_CSV_FILE_MESSAGE =                      "Please enter a csv file path that include the test you request to run (pay attention insert the csv file without the csv suffix) \n, type quit and press ctrl+c to close"

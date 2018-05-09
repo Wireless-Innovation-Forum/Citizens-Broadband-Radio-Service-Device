@@ -124,7 +124,8 @@ def test_execution(confFile,dirPath,loggerHandler,inputAnsweres,testDefinition):
             start_another_test(confFile,dirPath,loggerHandler)
         loggerHandler.print_to_Logs_Files(consts.SELECT_TO_ADD_TEST_MESSAGE + inputAnsweres + consts.SELECT_TO_ADD_FOLDER_MESSAGE + insertToFolderAnswer,True)
     else:
-        loggerHandler.start_Test(inputAnsweres)       
+        loggerHandler.start_Test(inputAnsweres)
+        loggerHandler.print_to_Logs_Files(consts.WINNF_TEST_HARNESS_RELEASE_TEXT+consts.TEST_HARNESS_VERSION + " - "+ consts.TEST_HARNESS_DATE, True)
         loggerHandler.print_to_Logs_Files(consts.SELECTED_TEST_FROM_USER_MESSAGE + inputAnsweres + " is starting now ",True)
     del insertToFolderAnswer
     cliHandler = CLIHandler(inputAnsweres,confFile,dirPath,loggerHandler,testDefinition)
