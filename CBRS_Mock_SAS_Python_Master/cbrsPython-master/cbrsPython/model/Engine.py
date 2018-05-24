@@ -168,14 +168,16 @@ class MyEngine(object):
         elif callType == 'spectrumInquiry':
             rsp = { 'spectrumInquiryResponse': [ {
                             'cbsdId': req['cbsdId'],
-                            'availableChannel': {
+                            'availableChannel': [
+                                {
                                 'frequencyRange': {
                                     'lowFrequency':  3550000000,
                                     'highFrequency': 3555000000
                                     },
                                 'channelType': 'GAA',
                                 'ruleApplied': 'FCC_PART_96'
-                                },
+                                }
+                                ],
                             'response': {
                                 'responseCode': 0
                                 }

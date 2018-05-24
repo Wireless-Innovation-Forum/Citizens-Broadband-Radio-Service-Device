@@ -29,6 +29,7 @@ class CmdLogger(Observer):
 
             log_file = log_file.replace(':','.')
             self.addLoggerFile(dir_Path,consts.CLI_SESSION, log_file)
+            self.print_To_Terminal(consts.WINNF_TEST_HARNESS_RELEASE_TEXT+consts.TEST_HARNESS_VERSION + " - "+ consts.TEST_HARNESS_DATE)
     
     def startStep(self,json_dict,typeOfCalling,ipRequestAddress=None):
 #        self.print_To_Terminal("Time : " +  str(datetime.now().strftime("%d/%m/%Y %H:%M:%S") 

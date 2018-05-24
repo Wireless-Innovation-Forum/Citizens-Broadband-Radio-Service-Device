@@ -32,6 +32,7 @@ class DebugLogger(Observer):
             log_file = log_file.replace(':','.')
             self.addLoggerFile(dir_Path,log_Name, log_file)
             self.log_Name = log_Name
+            self.print_to_Logs_Files(consts.WINNF_TEST_HARNESS_RELEASE_TEXT+consts.TEST_HARNESS_VERSION + " - "+ consts.TEST_HARNESS_DATE, True)
     
     def startStep(self,json_dict,typeOfCalling,ipRequestAddress=None):
         self.print_to_Logs_Files(typeOfCalling + " request from CBRS  : " + json.dumps(json_dict, indent=4, sort_keys=True),False)

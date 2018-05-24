@@ -16,7 +16,7 @@
 
 #################################################################
 # Readme file for generating X.509 RSA certificates for test labs for FCC part 96 testing of CBSD UUT and Domain Proxy UUT
-# Version 1.2 1-March-2018
+# Version 1.4 28-April-2018
 # Idan Raz iraz@airspan.com
 ##################################################################
 
@@ -69,9 +69,15 @@
 ################################################################### 
 
 ########################################################################
-# All files generated sing the openssl commands below are in PEM format
+# All files generated using the openssl commands below are in PEM format
 # file name convention: private key file name has <file name>.key  , CSR (Certificate Signing Request) file name has <file name>.csr   , certificate file name has <file name>.pem  
-#########################################################################   
+#########################################################################  
+
+########################################################################
+# The machine running the openssl commands must be synchronized UTC time (for example via NTP)
+# this is so the X.509 generated certificates will have correct validity timestamps
+# Before starting the X.509 certificate generation verify your machine with openssl is showing correct and accurate Date and Time Of Day   
+#########################################################################  
  
 ###################################################################
 # First action for test lab is to generate its own Root CA
@@ -739,7 +745,7 @@ A challenge password []:
 
 Step 22) sign the CSR of Professional Installer CA with Root CA
 
-openssl x509 -req -in cpicacsr.csr -CA cbrs_ca1.pem -CAkey rootcapriv.key -CAcreateserial -out -out cpicacert.pem -days 365 -sha384 -extfile /home/opensslcbrs1.cnf -extensions professional_installer_ca
+openssl x509 -req -in cpicacsr.csr -CA cbrs_ca1.pem -CAkey rootcapriv.key -CAcreateserial -out cpicacert.pem -days 365 -sha384 -extfile /home/opensslcbrs1.cnf -extensions professional_installer_ca
 
 Step 23) verify Professional Installer CA parameters 
 
@@ -851,9 +857,6 @@ Certificate:
 # 4) SAS Provider certificate with CRL extensions (for negative security test cases) signed by the SAS Provider CA in previous action
 # 5) SAS Provider certificate which is corrupted with invalid signature (for negative security test cases)
 # in the OpenSSL commands for next steps take note of the -extensions pointing to the correct extension configuration for each certificate type
-# in the SAS Test Harness conf.xml file in directory \cbrsPython-master\Configuration put the relevant private key and SAS Provider certificate created in the following steps
-    <pemFilePath>certificates/sasharnesscert.pem</pemFilePath>    
-	<keyFilePath>certificates/sasharnesspriv.key</keyFilePath>
 #######################################################################################################################
 
 Step 24) generate RSA private key for SAS Provider certificate (for SAS Test Harness regular testing) 
@@ -992,7 +995,7 @@ A challenge password []:
 
 Step 30) sign the CSR of SAS Provider certificate of Unknown CA with SAS Provider Unknown CA
 
-openssl x509 -req -in unknownsascertcsr.csr -CA unkownsasca.pem -CAkey unknownsascaprivkey.key -CAcreateserial -out unknownsascert.pem -days 180 -sha256 -extfile /home/opensslcbrs1.cnf -extensions sas_cert
+openssl x509 -req -in unknownsascertcsr.csr -CA unknownsasca.pem -CAkey unknownsascaprivkey.key -CAcreateserial -out unknownsascert.pem -days 180 -sha256 -extfile /home/opensslcbrs1.cnf -extensions sas_cert
 
 Step 31) verify SAS Provider certificate of Unknown CA parameters 
 
@@ -1306,7 +1309,9 @@ Certificate:
          72:b5:2c:d8:73:7d:b8:83:df:43:82:53:4c:3c:a0:fd:f8:e8:
          0b:5d:61:20:88:6a:f5:df
 
-Step 40) Modify the PEM file of the SAS Provider certificate (for SAS Test Harness regular testing) in order to make it a SAS Provider certificate which is corrupted with invalid signature (for negative security test cases)
+Step 40) Copy the PEM file of the SAS Provider certificate (for SAS Test Harness regular testing) to a new file name sascorruptedcert.pem 
+
+Step 41) Modify the new PEM file sascorruptedcert.pem in order to make it a SAS Provider certificate which is corrupted with invalid signature (for negative security test cases)
 #######################################################################################################################
 # This is done according to https://security.stackexchange.com/questions/60804/creating-an-x-509-certificate-with-an-invalid-signature
 # Modify in the last line of the PEM file one letter in order to make the certificate signature invalid. The {public key,private key} pair of the certificate remain intact.
@@ -1346,7 +1351,7 @@ Bx4WRLk8NmilJd0fVSCH7G/ND0S1wiZbJ7OFfiZjoV+vxhODLzp1ReixJRkWk5VX
 rktZbGGHGtY3lqsEauYqb48=
 -----END CERTIFICATE-----		 
 
-Modified PEM file of the SAS Provider certificate which is corrupted with invalid signature (for negative security test cases):
+File sascorruptedcert.pem modified PEM file of the SAS Provider certificate which is corrupted with invalid signature (for negative security test cases):
 
 -----BEGIN CERTIFICATE-----
 MIIFTTCCAzWgAwIBAgIJAI0+bK72khD3MA0GCSqGSIb3DQEBCwUAMHIxCzAJBgNV
@@ -1385,70 +1390,105 @@ rktZbGGHGtY3lqsEauZqb48=
 # original PEM file last line: rktZbGGHGtY3lqsEauYqb48=
 # modified PEM file last line: rktZbGGHGtY3lqsEauZqb48=
 #######################################################################################################################
-
 		 
 ######################################################################################################################
-# Fourth action for test lab is to create the unified PKI chain PEM file containing sub-CA and root CA
-# PKI chain PEM files are: 
-# 1) SAS Provider PKI chain which contains the SAS Provider CA and Root CA
-# 2) CBSD UUT PKI chain which contains the CBSD Manufacturer CA and Root CA
-# 3) Domain Proxy UUT PKI chain which contains Domain Proxy CA and Root CA
+# Fourth action for test lab is to create a unified PEM file containing SAS Provider Certificate together with its relevant SAS Provider CA (meaning the SAS Provider CA which signed the SAS Provider Certificate)
+# This is according to WINNF-17-S-0022 so during TLS message authentication SAS Harness will send to CBSD/Domain Proxy UUT both the:
+# 1) SAS Harness SAS Provider Certificate   
+# 2) SAS Provider CA which signed the SAS Provider Certificate
+# unified PEM files are: 
+# 1) SAS Provider certificate together with the SAS Provider CA
+# 2) SAS Provider certificate of Unknown CA together with the SAS Provider CA  (Please note not to combine with the SAS Provider Unknown CA)
+# 3) SAS Provider certificate with expired validity time together with the SAS Provider CA
+# 4) SAS Provider certificate with CRL extensions together with the SAS Provider CA
+# 5) SAS Provider certificate which is corrupted with invalid signature together with the SAS Provider CA
+#
+# in the SAS Test Harness conf.xml file in directory \cbrsPython-master\Configuration put the following:
+# 1) private key in <keyFilePath>certificates/sas_private_key.key</keyFilePath> 
+# 2) Unified PEM file of SAS Provider Certificate together with its relevant SAS Provider CA in <pemFilePath>certificates/sas_certificate.pem</pemFilePath>
+# 3) Root CA in <caCerts>certificates/rootCA_certificate.pem</caCerts>    
 #######################################################################################################################
 
-Step 41) concatenate the PEM files of SAS Provider CA and Root CA to create the SAS Provider PKI chain file
+Step 42) concatenate the PEM files of SAS Provider certificate together with SAS Provider CA to create a unified PEM file
 
+-----BEGIN CERTIFICATE-----
+    
+	< SAS Provider certificate >
+	
+-----END CERTIFICATE-----
 -----BEGIN CERTIFICATE-----
     
 	< SAS Provider CA >
+
+-----END CERTIFICATE-----   
+
+Step 43) concatenate the PEM files of SAS Provider certificate of Unknown CA together with the SAS Provider CA to create a unified PEM file (Please note not to combine with the SAS Provider Unknown CA)
+
+-----BEGIN CERTIFICATE-----
+    
+	< SAS Provider certificate of Unknown CA >
 	
 -----END CERTIFICATE-----
 -----BEGIN CERTIFICATE-----
     
-	    < Root CA >
+	< SAS Provider CA >
 
 -----END CERTIFICATE-----   
 
-Step 42) concatenate the PEM files of CBSD Manufacturer CA and Root CA to create the CBSD UUT PKI chain file
+Step 44) concatenate the PEM files of SAS Provider certificate with expired validity time together with the SAS Provider CA to create a unified PEM file
 
 -----BEGIN CERTIFICATE-----
     
-	< CBSD Manufacturer CA >
+	< SAS Provider certificate with expired validity time >
 	
 -----END CERTIFICATE-----
 -----BEGIN CERTIFICATE-----
     
-	    < Root CA >
+	< SAS Provider CA >
 
 -----END CERTIFICATE-----   
 
-Step 43) concatenate the PEM files of Domain Proxy CA and Root CA to create the Domain Proxy UUT PKI chain file
+Step 45) concatenate the PEM files of SAS Provider certificate with CRL extensions together with the SAS Provider CA to create a unified PEM file
 
 -----BEGIN CERTIFICATE-----
     
-	< Domain Proxy CA >
+	< SAS Provider certificate with CRL extensions >
 	
 -----END CERTIFICATE-----
 -----BEGIN CERTIFICATE-----
     
-	    < Root CA >
+	< SAS Provider CA >
 
 -----END CERTIFICATE-----   
 
+Step 46) concatenate the PEM files of SAS Provider certificate which is corrupted with invalid signature together with the SAS Provider CA to create a unified PEM file
+
+-----BEGIN CERTIFICATE-----
+    
+	< SAS Provider certificate which is corrupted with invalid signature >
+	
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+    
+	< SAS Provider CA >
+
+-----END CERTIFICATE-----   
 	 
 ######################################################################################################################
 # Fifth action for test lab is to create the CPI certificate (for test cases where UUT sends CPI Signed Data)
 # CPI certificate is signed by the Professional Installer CA created in previous action
 # 1) CPI private key will be given to vendor of UUT at the time of actual testing in test lab premises in order for UUT to create CPI Signed Data
-# 2) CPI certificate (with the public key) remains for SAS Test Harness
+# 2) CPI certificate (with the public key) remains for SAS Test Harness. 
+# In SAS Harness conf.xml file in directory \cbrsPython-master\Configuration put the following: CPI certificate PEM file in <cpiCert>certificates/cpi_certificate.pem</cpiCert>
 #######################################################################################################################
 
-Step 44) generate RSA private key for CPI certificate (for test cases where UUT sends CPI Signed Data)
+Step 47) generate RSA private key for CPI certificate (for test cases where UUT sends CPI Signed Data)
 
-genrsa -out cpicertprivkey.key 2048
+openssl genrsa -out cpicertprivkey.key 2048
 
-Step 45) generate a CSR for CPI certificate
+Step 48) generate a CSR for CPI certificate
 
-openssl req -new -key cpicertprivkey.key -out cpicertcsr.csr -config /home/opensslcbrs1
+openssl req -new -key cpicertprivkey.key -out cpicertcsr.csr -config /home/opensslcbrs1.cnf
 
 You are about to be asked to enter information that will be incorporated
 into your certificate request.
@@ -1466,11 +1506,11 @@ Please enter the following 'extra' attributes
 to be sent with your certificate request
 A challenge password []:
 
-Step 46) sign the CSR of CPI certificate with Professional Installer CA
+Step 49) sign the CSR of CPI certificate with Professional Installer CA
 
 openssl x509 -req -in cpicertcsr.csr -CA cpicacert.pem -CAkey cpicaprivkey.key -CAcreateserial -out cpicert.pem -days 180 -sha256 -extfile /home/opensslcbrs1.cnf -extensions cpi_cert
 
-Step 47) verify CPI certificate parameters
+Step 50) verify CPI certificate parameters
 
 openssl x509 -in cpicert.pem  -text -noout
 
@@ -1552,6 +1592,158 @@ Certificate:
          04:4b:2b:19:cb:d3:ad:2a:a9:41:2a:e7:07:da:c3:ec:be:66:
          fd:e3:fe:f5:cc:a0:ab:3b
 
+	 
+######################################################################################################################
+# Sixth action for test lab is to create the Certificate Revocation List (CRL file) for negative security test cases
+# Certificate Revocation List will have SAS Provider certificate with CRL extensions created in previous action. This means that the SAS Provider certificate with CRL extensions is Revoked for use.
+# SAS Provider certificate with CRL extensions created in previous action has the following X509v3 CRL Distribution Points:
+# Full Name: URI:http://testharness.cbsd.winnf.com/crlserver.crl
+# This means the Certificate Revocation List file name needs to be crlserver.crl and to be placed in an HTTP server with an FQDN testharness.cbsd.winnf.com  
+#######################################################################################################################
+
+Step 51) Search the opensslcbrs1.cnf file for the [ CA_default ] section for the general directory  
+######################################################################################################################
+# this section points to the directory on the machine running the openssl commands where the following files need to be places:
+# 1) index.txt
+# 2) crlnumber
+# In the opensslcbrs1.cnf file appearing at the end of this Readme file the general directory is /etc/pki/CA according to the following [ CA_default ] section: 
+#       [ CA_default ]
+#       dir		= /etc/pki/CA
+#       database	= $dir/index.txt
+#       crlnumber	= $dir/crlnumber	
+#######################################################################################################################
+
+Step 52) create an empty file index.txt and place it in the general directory given in the [ CA_default ] section
+
+Step 53) create a file crlnumber with content 01 (single text line) and place it in the general directory given in the [ CA_default ] section
+
+Step 54) generate an empty Certificate Revocation List issued by the SAS Provider CA
+
+openssl ca -config /home/opensslcbrs1.cnf -gencrl -keyfile sascapriv.key -cert sascacert.pem -out emptycrl.crl
+
+Step 55) verify the empty Certificate Revocation List parameters
+
+openssl crl -text -noout -in emptycrl.crl
+
+Certificate Revocation List (CRL):
+        Version 2 (0x1)
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: /C=US/O=Airspan Networks/OU=RSA SAS Provider CA9001/CN=WInnForum RSA SAS Provider CA
+        Last Update: Mar 15 16:08:50 2018 GMT
+        Next Update: Apr 14 16:08:50 2018 GMT
+        CRL extensions:
+            X509v3 CRL Number:
+                1
+No Revoked Certificates.
+    Signature Algorithm: sha1WithRSAEncryption
+         5b:c0:78:27:2a:fb:7b:a7:45:72:ca:f1:a6:3d:75:43:79:a1:
+         ea:5e:06:6a:19:9a:b4:08:27:65:f5:e5:21:c6:4e:c0:64:b5:
+         b3:d1:8b:93:ac:54:b9:c4:c9:95:32:98:71:80:18:25:19:c5:
+         88:80:7f:32:0c:e0:5f:4c:ad:d2:8e:8c:d3:47:5c:5d:b2:66:
+         51:89:a9:7b:c9:c9:0f:7e:3b:b9:7b:be:8c:96:fc:4e:21:a3:
+         74:20:fe:e8:b8:31:5b:13:15:e8:8f:14:f5:35:a6:02:5b:a4:
+         d8:d7:28:db:e2:22:b8:65:28:25:e2:e6:dc:54:df:af:1f:8b:
+         c9:ac:9b:84:3d:1c:6e:af:ed:07:6e:1a:da:a0:1e:3a:13:e7:
+         2b:0d:97:65:c0:26:8b:13:7f:18:2c:70:62:cf:5d:d3:d1:87:
+         f3:7a:31:95:c1:2d:d2:84:0e:9e:c5:39:bc:70:9b:8e:99:db:
+         b5:85:22:1b:27:76:3f:49:ac:e8:28:4a:9d:df:76:c3:83:43:
+         cc:fc:41:ac:06:50:ae:bf:9e:43:60:26:4c:cd:d7:70:86:ad:
+         b4:75:74:93:10:86:b8:71:0a:3d:b5:5e:4d:0e:ec:d9:6f:46:
+         51:8b:4a:75:f0:89:6c:8a:56:6a:24:bc:49:55:6f:29:ee:de:
+         81:05:34:1f:70:a3:a3:0f:84:6a:db:e8:fb:5c:a1:96:60:c0:
+         9d:38:1e:1e:38:6a:0d:4b:b3:e3:27:5c:07:bb:77:ef:4e:38:
+         a9:dc:61:8d:23:16:45:72:9b:84:56:8e:a3:46:43:30:f9:d8:
+         65:49:f5:8e:03:64:ec:05:7b:6e:3f:a1:eb:bc:06:47:9d:ec:
+         87:07:44:92:7f:1c:7a:51:39:80:00:d5:8d:ad:44:1d:29:1f:
+         16:1e:12:91:be:7a:62:6d:a3:d7:e3:67:d9:2d:39:05:55:ef:
+         f0:f4:6b:a5:7a:a2:82:2c:37:fe:11:fb:eb:d1:e8:70:21:33:
+         e7:a2:11:3b:73:c0:c0:76:d9:21:fa:74:c6:3b:95:6c:90:18:
+         f0:79:e9:ae:84:e3:12:52:b7:a2:99:b3:32:7d:e9:58:a6:b9:
+         63:de:d8:3e:53:d5:d0:88:67:da:de:ba:a7:1a:2f:97:5c:eb:
+         a4:3b:11:b2:d6:4e:75:d3:c4:21:c6:a7:de:91:dd:d8:09:56:
+         22:ef:83:d9:80:4d:2d:c8:0e:7b:7d:7a:35:b0:bf:50:66:70:
+         c2:e8:59:b3:cc:83:38:c4:c5:aa:cd:48:33:69:87:31:82:7e:
+         3d:d1:f6:87:82:b1:ee:67:17:ce:a7:67:c7:3a:05:a5:62:64:
+         2b:f2:d0:b9:2c:a2:df:23
+
+Step 56) revoke the SAS Provider certificate with CRL extensions issued by the SAS Provider CA
+
+openssl ca -revoke sascrlcert1.pem -config /home/opensslcbrs1.cnf -keyfile sascapriv.key -cert sascacert.pem
+
+Using configuration from /home/opensslcbrs1.cnf
+Adding Entry with serial number 8D3E6CAEF69210FA to DB for /C=US/O=Airspan Networks/OU=WInnForum SAS Provider Certificate/CN=sascertwithcrl.testlab.winnf.github.com 
+Revoking Certificate 8D3E6CAEF69210FA.
+Data Base Updated
+
+#######################################################################################################################
+# Following the revocation there is an update to content of the files index.txt and crlnumber located in the general directory: 
+# index.txt is showing the serial number of the revoked certificate with an R indication
+# crlnumber is updated from 01 to 02
+#######################################################################################################################
+
+Step 57) generate a new Certificate Revocation List issued by the SAS Provider CA
+
+openssl ca -config /home/opensslcbrs1.cnf -gencrl -keyfile sascapriv.key -cert sascacert.pem -out crlserver.crl
+
+Step 58) verify the new Certificate Revocation List parameters
+
+openssl crl -text -noout -in crlserver.crl
+
+Certificate Revocation List (CRL):
+        Version 2 (0x1)
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: /C=US/O=Airspan Networks/OU=RSA SAS Provider CA9001/CN=WInnForum RSA SAS Provider CA
+        Last Update: Mar 15 16:28:51 2018 GMT
+        Next Update: Apr 14 16:28:51 2018 GMT
+        CRL extensions:
+            X509v3 CRL Number:
+                2
+Revoked Certificates:
+    Serial Number: 8D3E6CAEF69210FA
+        Revocation Date: Mar 15 16:23:57 2018 GMT
+    Signature Algorithm: sha1WithRSAEncryption
+         18:74:d1:78:08:69:0c:11:0e:bb:c5:8d:09:fb:ca:3d:52:12:
+         d7:8f:98:7e:26:5c:b2:92:61:32:30:56:db:e4:1e:14:70:7c:
+         77:1b:9a:7b:1d:57:98:43:7c:23:7f:c9:28:dd:26:f7:af:6d:
+         f3:b3:5f:ca:6d:da:e0:23:62:14:4d:33:4f:f5:88:51:1b:03:
+         db:0d:07:80:25:39:92:66:ab:7d:5e:2e:c3:82:7e:d5:94:96:
+         8a:5d:cb:27:fe:06:5b:52:c0:e5:55:09:0a:fc:79:8f:5e:c2:
+         60:84:ba:21:2f:05:0e:d9:14:64:fa:ae:32:94:dd:1e:0a:08:
+         e1:4d:f9:63:75:4d:31:57:16:98:f2:5d:9b:e5:2d:f1:f0:17:
+         65:59:a0:27:e9:a5:7c:db:dc:60:79:45:09:80:9a:0e:22:74:
+         7f:81:33:ea:5e:5f:b4:3e:e9:5a:a8:5b:56:f1:3a:b7:5d:ec:
+         7b:a6:34:b6:04:e3:4b:21:4c:21:02:96:88:d6:ed:03:8b:ac:
+         52:db:3c:68:65:9f:90:c6:b2:16:eb:be:50:28:39:88:70:b7:
+         d4:15:89:81:8a:39:04:be:f7:b8:0a:ea:2b:83:ec:57:28:d7:
+         27:3c:3e:3a:ec:8e:b5:2b:53:a4:24:f5:7a:66:ea:ca:71:5a:
+         cd:ff:e9:52:94:04:5d:04:6f:5c:7c:f7:d1:80:5d:22:92:25:
+         47:6b:f5:fc:fe:11:81:81:47:c8:c9:6f:d0:ea:61:f3:45:79:
+         3b:2c:23:00:c8:20:97:39:3e:49:34:14:76:66:88:7b:e0:a0:
+         84:ec:e4:30:9a:43:f2:08:01:5f:a6:f8:63:03:f3:b8:35:44:
+         d1:a7:6f:be:03:bd:ac:02:74:23:4e:17:b2:c5:d6:b3:84:d9:
+         bb:e3:77:7b:67:d1:65:d6:6c:e9:04:bb:fc:39:13:c7:c8:c7:
+         4b:e8:75:1b:9b:35:2c:f4:59:23:ff:89:a9:d8:40:ad:e8:cf:
+         0e:0c:c3:7a:39:6c:ec:c1:03:75:45:1c:78:38:7e:a6:4a:81:
+         98:21:95:6f:6e:ac:a0:b0:05:19:58:e2:d9:30:a2:79:16:fe:
+         1f:df:ee:07:16:31:5c:66:6f:18:ee:e8:76:66:1c:a7:c1:69:
+         90:45:e9:78:ea:13:1a:9d:6c:ee:e0:84:5b:b0:e3:95:42:d7:
+         05:1c:68:94:43:c2:a8:a3:39:5b:cb:b7:a1:ec:d2:ad:73:3d:
+         6f:07:a0:f5:12:22:86:3c:7d:68:3a:38:cd:77:36:95:75:63:
+         db:ee:ba:dd:77:76:31:4e:72:8e:e6:0b:b7:f0:ec:e3:48:61:
+         d0:87:e8:b1:a9:8b:54:17
+
+#######################################################################################################################
+# Following the revocation there is an update to content of the file crlnumber located in the general directory: 
+# crlnumber is updated from 02 to 03
+#######################################################################################################################
+		 
+Step 59) place the Certificate Revocation List file crlserver.crl in the HTTP server with an FQDN testharness.cbsd.winnf.com
+
+#######################################################################################################################
+# this makes the Certificate Revocation List file available for downloaded from the URI http://testharness.cbsd.winnf.com/crlserver.crl
+# the update time for Certificate Revocation List is 30 days according to the parameter default_crl_days= 30 in the [ CA_default ] section  
+# the negative security test case of SAS Provider certificate with CRL extensions needs to be executed within the validity time of the Certificate Revocation List (between the "Last Update" and "Next Update" appearing in the CRL)
+#######################################################################################################################
 
 ######################################################################################################################
 # At this point test lab finished generating its own required certificates and is now waiting for CBSD/Domain Proxy vendors to submit CSR to test lab
@@ -1561,19 +1753,19 @@ Certificate:
 # CBSD Vendor wants to submit CBSD as UUT for test lab
 # 1) CBSD vendor generates RSA private key for CBSD UUT certificate
 # 2) CBSD vendor generates CSR for CBSD UUT certificate
-# 2.a) Domain Proxy vendor is also required to use the modified file opensslcbrs1.cnf to generate the CSR 
+# 2.a) CBSD vendor is also required to use the modified file opensslcbrs1.cnf to generate the CSR 
 # 2.b) in CSR CBSD vendor needs to fill "Common Name" as <FCC ID>:<device serial number> according to WINNF-17-S-0022 
 # 3) CBSD vendor send to test lab CSR for CBSD UUT certificate (can be by e-mail as CSR has only public key)
 # 4) test lab signs CSR for CBSD UUT with CBSD Manufacturer CA prepared by test lab in previous test lab actions
-# 5) test lab send to CBSD vendor the CBSD UUT certificate, CBSD UUT PKI chain file and the test lab SAS Provider PKI chain file (can be by e-mail as these are the public X.509 certificates)  
+# 5) test lab send to CBSD vendor the CBSD UUT certificate, CBSD Manufacturer CA and the Root CA (can be by e-mail as these are the public X.509 certificates)  
 # in the OpenSSL commands for next steps take note of the -extensions pointing to the correct extension configuration for each certificate type
 ########################################################################################################################
 		 
-Step 48) CBSD vendor generates RSA private key for CBSD UUT certificate  
+Step 60) CBSD vendor generates RSA private key for CBSD UUT certificate  
 
 openssl genrsa -out cbsduutpriv.key 2048
 
-Step 49) CBSD vendor generates a CSR for CBSD UUT certificate
+Step 61) CBSD vendor generates a CSR for CBSD UUT certificate
 
 openssl req -new -key cbsduutpriv.key -out cbsduutcsr.csr -config /home/opensslcbrs1.cnf
 
@@ -1593,13 +1785,13 @@ Please enter the following 'extra' attributes
 to be sent with your certificate request
 A challenge password []:
 
-Step 50) CBSD vendor sends (e-mail) CSR for CBSD UUT certificate to test lab 
+Step 62) CBSD vendor sends (e-mail) CSR for CBSD UUT certificate to test lab 
 
-Step 51) test lab signs the CSR of CBSD UUT certificate with CBSD Manufacturer CA
+Step 63) test lab signs the CSR of CBSD UUT certificate with CBSD Manufacturer CA
 
 openssl x509 -req -in cbsduutcsr.csr -CA cbsdmfrcacert1.pem -CAkey cbsdmfrcapriv.key -CAcreateserial -out cbsduutcert.pem -days 180 -sha256 -extfile /home/opensslcbrs1.cnf -extensions cbsd_cert 
 
-Step 52) verify CBSD UUT certificate parameters 
+Step 64) verify CBSD UUT certificate parameters 
 
 openssl x509 -in cbsduutcert.pem -text -noout
 
@@ -1681,13 +1873,25 @@ Certificate:
          b4:a0:e0:7b:3a:7f:de:f7:c3:e0:05:c5:83:dc:bb:71:1d:2a:
          a7:c6:76:6a:ad:09:3d:33
 
-Step 53) test lab sends (e-mail) to CBSD vendor the CBSD UUT certificate, CBSD UUT PKI chain file and the test lab SAS Provider PKI chain file
+Step 65) test lab sends (e-mail) to CBSD vendor the CBSD UUT certificate, CBSD Manufacturer CA and the Root CA
 
 ######################################################################################################################
-# At this point CBSD vendor can load on its CBSD UUT the CBSD UUT certificate and the test lab SAS Provider PKI chain file
-# When CBSD vendor comes to test lab for testing of CBSD UUT, the test lab in the SAS Test Harness conf.xml file in directory \cbrsPython-master\Configuration puts the CBSD UUT PKI chain file as "caCerts"
-    <caCerts>certificates/cbsdpkichain.pem</caCerts>
-###################################################################################################################### 
+# At this point CBSD vendor can load on its CBSD UUT the CBSD UUT certificate, CBSD Manufacturer CA and the Root CA
+# according to WINNF-17-S-0022 during TLS message authentication CBSD UUT will send to SAS Harness both the:
+# 1) CBSD UUT certificate   
+# 2) CBSD Manufacturer CA which signed the CBSD UUT certificate
+# it is dependent on implementation of CBSD UUT how to do this, but may be done using a unified PEM file: 
+#        -----BEGIN CERTIFICATE-----
+#    
+#	     < CBSD UUT certificate >
+#	
+#        -----END CERTIFICATE-----
+#        -----BEGIN CERTIFICATE-----
+#   
+#	      < CBSD Manufacturer CA >
+#
+#        -----END CERTIFICATE-----    
+#######################################################################################################################
 
 ###################################################################################################################### 
 # Domain Proxy Vendor wants to submit Domain Proxy as UUT for test lab
@@ -1699,15 +1903,15 @@ Step 53) test lab sends (e-mail) to CBSD vendor the CBSD UUT certificate, CBSD U
 # 2.d) FRN of each company can be found in https://fccid.io/  (Searchable FCC ID Database)
 # 3) Domain Proxy vendor send to test lab CSR for Domain Proxy UUT certificate (can be by e-mail as CSR has only public key)
 # 4) test lab signs CSR for Domain Proxy UUT with Domain Proxy CA prepared by test lab in previous test lab actions
-# 5) test lab send to Domain Proxy vendor the Domain Proxy UUT certificate, Domain Proxy UUT PKI chain file and the test lab SAS Provider PKI chain file (can be by e-mail as these are the public X.509 certificates)  
+# 5) test lab send to Domain Proxy vendor the Domain Proxy UUT certificate, Domain Proxy CA and the Root CA (can be by e-mail as these are the public X.509 certificates)  
 # in the OpenSSL commands for next steps take note of the -extensions pointing to the correct extension configuration for each certificate type
 ########################################################################################################################
 	 
-Step 54) Domain Proxy vendor generates RSA private key for Domain Proxy UUT certificate  
+Step 66) Domain Proxy vendor generates RSA private key for Domain Proxy UUT certificate  
 
 openssl genrsa -out domainproxyuutpriv.key 2048
 
-Step 55) Domain Proxy vendor generates a CSR for Domain Proxy UUT certificate
+Step 67) Domain Proxy vendor generates a CSR for Domain Proxy UUT certificate
 
 openssl req -new -key domainproxyuutpriv.key -out dpuut.csr -config /home/opensslcbrs1.cnf
 
@@ -1727,13 +1931,13 @@ Please enter the following 'extra' attributes
 to be sent with your certificate request
 A challenge password []:
 
-Step 56) Domain Proxy vendor sends (e-mail) CSR for Domain Proxy UUT certificate to test lab 
+Step 68) Domain Proxy vendor sends (e-mail) CSR for Domain Proxy UUT certificate to test lab 
 
-Step 57) test lab signs the CSR of Domain Proxy UUT certificate with Domain Proxy CA
+Step 69) test lab signs the CSR of Domain Proxy UUT certificate with Domain Proxy CA
 
 openssl x509 -req -in dpuut.csr -CA dpcacert1.pem -CAkey domainproxycapriv.key -CAcreateserial -out dpuutcert.pem -days 180 -sha256 -extfile /home/opensslcbrs1.cnf -extensions domain_proxy_cert 
 
-Step 58) verify Domain Proxy UUT certificate parameters 
+Step 70) verify Domain Proxy UUT certificate parameters 
 
 openssl x509 -in dpuutcert.pem -text -noout
 
@@ -1815,13 +2019,26 @@ Certificate:
          74:de:99:76:93:b3:32:06:96:0e:7f:cf:aa:ed:ea:e7:fd:33:
          8b:8e:07:e7:dc:6b:98:4e
 
-Step 59) test lab sends (e-mail) to Domain Proxy vendor the Domain Proxy UUT certificate, Domain Proxy UUT PKI chain file and the test lab SAS Provider PKI chain file
+Step 71) test lab sends (e-mail) to Domain Proxy vendor the Domain Proxy UUT certificate, Domain Proxy CA and Root CA
 
 ######################################################################################################################
-# At this point Domain Proxy vendor can load on its Domain Proxy UUT the Domain Proxy UUT certificate and the test lab SAS Provider PKI chain file
-# When Domain Proxy vendor comes to test lab for testing of Domain Proxy UUT, the test lab in the SAS Test Harness conf.xml file in directory \cbrsPython-master\Configuration puts the Domain Proxy UUT PKI chain file as "caCerts"
-    <caCerts>certificates/dppkichain.pem</caCerts>
-###################################################################################################################### 
+# At this point Domain Proxy vendor can load on its Domain Proxy UUT the Domain Proxy UUT certificate, Domain Proxy CA and Root CA
+# according to WINNF-17-S-0022 during TLS message authentication Domain Proxy UUT will send to SAS Harness both the:
+# 1) Domain Proxy UUT certificate   
+# 2) Domain Proxy CA which signed the Domain Proxy UUT certificate
+# it is dependent on implementation of Domain Proxy UUT how to do this, but may be done using a unified PEM file: 
+#        -----BEGIN CERTIFICATE-----
+#    
+#	     < Domain Proxy UUT certificate >
+#	
+#        -----END CERTIFICATE-----
+#        -----BEGIN CERTIFICATE-----
+#   
+#	      < Domain Proxy CA >
+#
+#        -----END CERTIFICATE-----    
+#######################################################################################################################
+
 
 ######################################################################################################################
 ######################################################################################################################
