@@ -13,8 +13,8 @@
 # limitations under the License.
 
 ### Program Constants
-TEST_HARNESS_VERSION =                      "develop1.0.0.2"
-TEST_HARNESS_DATE =                         "2018-April-10"
+TEST_HARNESS_VERSION =                      "1.0.0.2"
+TEST_HARNESS_DATE =                         "2018-May-24"
 WINNF_PROTOCOL_VERSION =                    "v1.2"
 SHORTER_GRANT_EXPIRY_TIME =                 360
 DEFAULT_RULE_APPLIED =                      "FCC_PART_96"
