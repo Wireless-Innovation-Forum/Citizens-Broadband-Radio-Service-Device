@@ -263,7 +263,7 @@ class RequestHandler(object):
                             responseChannel["maxEirp"]=self.currentGrantEIRP
                             if(itemReq["lowFrequency"]>=consts.SPECTRUM_GAA_LOW and itemReq["highFrequency"] <= consts.SPECTRUM_GAA_HIGH):
                                 responseChannel["channelType"]="GAA"
-                            elif(itemReq["lowFrequency"]>consts.SPECTRUM_PAL_LOW and itemReq["highFrequency"] < consts.SPECTRUM_PAL_HIGH):
+                            elif(itemReq["lowFrequency"]>=consts.SPECTRUM_PAL_LOW and itemReq["highFrequency"] <= consts.SPECTRUM_PAL_HIGH):
                                 responseChannel["channelType"]="PAL"                   
                             availableChannel.append(responseChannel)
                             self.loggerHandler.print_to_Logs_Files('The requested spectrum is in the range, SpectrumInquiry response code is 0', True)                             
@@ -278,7 +278,7 @@ class RequestHandler(object):
                             if(responseChannel["frequencyRange"]["lowFrequency"]>=consts.SPECTRUM_GAA_LOW and \
                                     responseChannel["frequencyRange"]["highFrequency"]<=consts.SPECTRUM_GAA_HIGH):
                                 responseChannel["channelType"]="GAA"  
-                            if(responseChannel["frequencyRange"]["lowFrequency"]>=consts.SPECTRUM_PAL_LOW and \
+                            elif(responseChannel["frequencyRange"]["lowFrequency"]>=consts.SPECTRUM_PAL_LOW and \
                                     responseChannel["frequencyRange"]["highFrequency"]<=consts.SPECTRUM_PAL_HIGH):
                                 responseChannel["channelType"]="PAL"                         
                             availableChannel.append(responseChannel)  
