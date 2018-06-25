@@ -87,10 +87,13 @@ class MyEngine(object):
                     
     
     def add_Cbrs_Obj(self,cbsdSerialNumber):
-        tempCbrsObj = cbrsObj(cbsdSerialNumber, self.testDefinition, self.confFile, self.dirPath,self.loggerHandler)
-        if tempCbrsObj not in self.cbrsObjArray:
-            self.cbrsObjArray.append(tempCbrsObj)
-        del tempCbrsObj
+        duplicate_cbsd = False
+        for cbsdObject in self.cbrsObjArray:
+            if cbsdObject.cbsdSerialNumber == cbsdSerialNumber:
+                duplicate_cbsd = True
+        if duplicate_cbsd == False:
+#        if tempCbrsObj not in self.cbrsObjArray:
+            self.cbrsObjArray.append(cbrsObj(cbsdSerialNumber, self.testDefinition, self.confFile, self.dirPath,self.loggerHandler))
     
     def handle_Http_Req(self,cbsdSerialNumber,httpReq,typeOfCalling, msg_timestamp):
         for cbrsObj in self.cbrsObjArray: 
