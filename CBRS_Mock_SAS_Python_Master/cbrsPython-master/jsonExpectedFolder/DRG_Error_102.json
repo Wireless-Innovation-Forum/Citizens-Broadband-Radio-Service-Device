@@ -3,7 +3,7 @@
     "questions":
 			[
 				{
-					"question" : "Did the CBSD stop RF transmissions upon sending the Deregister request?",
+					"question" : "Did CBSD1 stop RF transmissions upon sending the Deregister request?",
                     "answers" : ["y", "n"], 
 					"expectedAnswer" : "y"
 				}

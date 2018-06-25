@@ -1,9 +1,9 @@
 {
-    "name":"DRG_Success",
+    "name":"DRG_ERROR_102",
     "questions":
 			[
 				{
-					"question" : "Did CBSD1 stop RF transmissions upon sending the Deregister request?",
+					"question" : "Did CBSD2 stop RF transmissions upon sending the Deregister request?",
                     "answers" : ["y", "n"], 
 					"expectedAnswer" : "y"
 				}
@@ -18,9 +18,9 @@
 				[
 					{
 					  "response": {
-						 "responseCode": 0
+						 "responseCode": 102
 					  }
 					}
 				]  
-				}
+			}
 }
