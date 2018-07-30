@@ -1,0 +1,35 @@
+{
+    "name":"HBT_heartbeat_AuthState_freqQuestion",  
+    "questions":
+		[
+			{
+				"question" : "Did CBSD1 transmit power prior to AUTHORIZED state (first successful HBT response)?",
+				"answers" : ["y", "n"], 
+				"expectedAnswer" : "n"
+			},
+			{
+				"question" : "Did CBSD1 transmit only within the frequency range specified in its grantRequest message?",
+				"answers" : ["y", "n"], 
+				"expectedAnswer" : "y"
+			}			
+		],          
+	"heartbeatRequest": 
+			[ 
+			{
+    			"operationState" : "AUTHORIZED"
+  			}
+  			],
+	"response":
+     		{ 
+    		"heartbeatResponse":
+    			[ 
+    			{
+    				"response" : {
+      					"responseCode" : 0
+    					}
+  				}
+		 ]
+	}
+
+	     
+}
