@@ -3,7 +3,7 @@
     "questions":
 			[
 				{
-					"question" : "Did the CBSD stop RF transmissions upon sending the Deregister request?",
+					"question" : "Did CBSD1 cease RF transmission before receipt of Relinquishment request (if sent) or Deregistration request at Test Harness?",
                     "answers" : ["y", "n"], 
 					"expectedAnswer" : "y"
 				}

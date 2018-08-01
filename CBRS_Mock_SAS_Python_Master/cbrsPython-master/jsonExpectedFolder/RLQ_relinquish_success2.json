@@ -3,7 +3,7 @@
     "questions":
 			[
 				{
-                    "question" : "Did the CBSD2 stop RF transmission upon sending Relinquishment request?",
+                    "question" : "Did CBSD2 cease RF transmission before receipt of Relinquishment Request by Test Harness?",
                     "answers" : ["y", "n"], 
 					"expectedAnswer" : "y"
 				}					
