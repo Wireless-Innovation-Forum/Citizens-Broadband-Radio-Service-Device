@@ -1,9 +1,9 @@
 {
-    "name":"DRG_ERROR_103",
+    "name":"DRG_Success",
     "questions":
 			[
 				{
-					"question" : "Did CBSD1 cease RF transmission before receipt of Relinquishment request (if sent) or Deregistration request at Test Harness?",
+					"question" : "Did CBSD2 cease RF transmission before receipt of Relinquishment request (if sent) or Deregistration request at Test Harness?",
                     "answers" : ["y", "n"], 
 					"expectedAnswer" : "y"
 				}
@@ -18,10 +18,9 @@
 				[
 					{
 					  "response": {
-						 "responseCode": 103,
-						 "responseData": ["cbsdId"]
+						 "responseCode": 0
 					  }
 					}
 				]  
-			}
+				}
 }
