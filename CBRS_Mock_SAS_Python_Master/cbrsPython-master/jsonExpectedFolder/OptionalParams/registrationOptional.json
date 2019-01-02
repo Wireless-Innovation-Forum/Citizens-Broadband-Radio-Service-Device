@@ -24,7 +24,7 @@
                   "description": "The call sign for the operator. Meaning and origin TBD" },
     "measCapability": { "type": "array",
                         "description": "List of supported sensing capabilities of the device",
-                        "items": { "enum": [ "RECEIVED_POWER_WITHOUT_GRANT", "RECEIVED_POWER_WITH_GRANT", "" ],
+                        "items": { "enum": [ "RECEIVED_POWER_WITHOUT_GRANT", "RECEIVED_POWER_WITH_GRANT" ],
                         "description": "Measurement capabilities of the CBSD." },
     "cpiSignatureData":{"$ref": "#/cpiSignatureData"},
     "cbsdInfo": { "$ref": "#/cbsdInfo" },
