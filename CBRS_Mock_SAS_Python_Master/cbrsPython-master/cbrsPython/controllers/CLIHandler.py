@@ -13,14 +13,14 @@
 # limitations under the License.
 import threading
 from threading import Thread
-from CLIUtils.CsvFileParser import CsvFileParser
-from CLIUtils.QuestionHandler import QuestionHandler
-from CLIUtils.TestDefinition import TestDefinition
+from .CLIUtils.CsvFileParser import CsvFileParser
+from .CLIUtils.QuestionHandler import QuestionHandler
+from .CLIUtils.TestDefinition import TestDefinition
 from model.Engine import MyEngine
 import time
 import model.Utils.Consts as consts
 from model import flaskServer
-from ENodeBController import ENodeBController
+from .ENodeBController import ENodeBController
 from controllers.CLIUtils.enums import TestStatus
 import os
 
@@ -36,7 +36,7 @@ class CLIHandler(Thread):
         self.testName           = csvFilePath
         self.confFile           = confFile
         self.dirPath            = dirPath
-        self._stop              = threading.Event()
+        self._stop_event              = threading.Event()
         self.loggerHandler      = loggerHandler
         self.questHandler       = QuestionHandler(self.loggerHandler)
         self.testDefinition     = testDefinition
@@ -44,7 +44,7 @@ class CLIHandler(Thread):
         self.server             = None 
         
     def stop_Thread_Due_To_Exception(self):
-        self._stop.set()
+        self._stop_event.set()
 
     def test_Finish_Message_For_Logs(self, finalResults):
         '''
@@ -66,11 +66,11 @@ class CLIHandler(Thread):
         while validate inside the engine
         if the test had been finished successfully it show the question answer session from the last expected json
         '''  
-        while(not self.engine.check_Last_Step_In_All_CBRS() and not self._stop.isSet()):
+        while(not self.engine.check_Last_Step_In_All_CBRS() and not self._stop_event.is_set()):
             time.sleep(1)
             if(self.engine.check_Validation_Error()):
                 self.stop_Thread_Due_To_Exception()
-        if not self._stop.is_set():
+        if not self._stop_event.is_set():
             time.sleep(1)
             ## for initialize the xml report
             self.loggerHandler.print_to_Logs_Files(consts.NSTEP_SESSION_WITH_TECHNITIAN,True)
@@ -97,7 +97,7 @@ def start_another_test(confFile,dirPath,loggerHandler):
         if(inputAnsweres=="quit"):
             loggerHandler.print_To_Terminal(consts.GOODBYE_MESSAGE)
             NoInput = False
-            pass         
+            flaskServer.stop_server(flaskServer.app)
         
         if (inputAnsweres !="quit"):   
             try:
@@ -107,7 +107,7 @@ def start_another_test(confFile,dirPath,loggerHandler):
                 NoInput = False
                 
             except IOError as e:
-                loggerHandler.print_To_Terminal(e.message)
+                loggerHandler.print_To_Terminal(str(e))
                 loggerHandler.print_To_Terminal('Please enter the test name again!')
                 NoInput = True
 
@@ -116,11 +116,11 @@ def test_execution(confFile,dirPath,loggerHandler,inputAnsweres,testDefinition):
     insertToFolderAnswer = add_Log_Of_Test_To_Specific_Folder(loggerHandler)
     if (insertToFolderAnswer == "yes"):
         loggerHandler.print_To_Terminal(consts.TYPE_NAME_OF_FOLDER)
-        insertToFolderAnswer = raw_input()
+        insertToFolderAnswer = input()
         try:
             loggerHandler.start_Test(inputAnsweres,insertToFolderAnswer)
         except Exception as E:
-            loggerHandler.print_To_Terminal(E.message)
+            loggerHandler.print_To_Terminal(str(E))
             start_another_test(confFile,dirPath,loggerHandler)
         loggerHandler.print_to_Logs_Files(consts.SELECT_TO_ADD_TEST_MESSAGE + inputAnsweres + consts.SELECT_TO_ADD_FOLDER_MESSAGE + insertToFolderAnswer,True)
     else:
@@ -140,22 +140,19 @@ def add_Log_Of_Test_To_Specific_Folder(loggerHandler):
     the method add the log to the specific folder if requested
     '''
     loggerHandler.print_To_Terminal(consts.ADD_TEST_TO_SPECIFIC_FOLDER_MESSAGE)
-    insertToFolderAnswer = raw_input()
+    insertToFolderAnswer = input()
     while(insertToFolderAnswer.lower()!="yes" and insertToFolderAnswer.lower()!="no"):
         loggerHandler.print_To_Terminal(consts.ENTER_YES_OR_NO_MESSAGE)
         loggerHandler.print_To_Terminal(consts.ADD_TEST_TO_SPECIFIC_FOLDER_MESSAGE)
-        insertToFolderAnswer = raw_input()
+        insertToFolderAnswer = input()
     return insertToFolderAnswer
             
 def get_input(loggerHandler):
-    answer = raw_input()
+    answer = input()
     while not answer:
         loggerHandler.print_To_Terminal(consts.EMPTY_CSV_FILE_NAME_MESSAGE)
-        answer = raw_input()
+        answer = input()
     return answer
         
 def stop_Thread_Due_To_Exception():
-    os.sys.exit()        
-        
-        
-            
+    os.sys.exit()

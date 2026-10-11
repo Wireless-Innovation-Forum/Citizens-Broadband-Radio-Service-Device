@@ -23,8 +23,6 @@ import json
 import jsonschema
 import jwt
 from cryptography.x509 import load_pem_x509_certificate
-from cryptography.hazmat.backends import default_backend
-import base64
 
 
 class CBRSRequestHandler(object):
@@ -57,7 +55,7 @@ class CBRSRequestHandler(object):
         self.grantId                            = 0
         self.expectedRelBeforeDeragistration    = False
         self.isDelayTriggered                   = False
-        self.delayEndTime                       = DT.datetime.utcnow()                                       
+        self.delayEndTime                       = DT.datetime.now(DT.timezone.utc).replace(tzinfo=None)
         self.secondsForDelay                    = 0                                            
         self.expectingMeasReportInSubsequentHbt = False
         self.measReportCounter                  = 0                                         
@@ -257,7 +255,7 @@ class CBRSRequestHandler(object):
         theFlag = (bool(self.assertion.get_Attribute_Value_From_Json(expectedJsonName,"isAbsentResponse")))     
         if theFlag == True:                                                                                     
             self.isDelayTriggered = True
-            self.delayEndTime = DT.datetime.utcnow() + DT.timedelta(seconds = self.secondsForDelay)
+            self.delayEndTime = DT.datetime.now(DT.timezone.utc).replace(tzinfo=None) + DT.timedelta(seconds = self.secondsForDelay)
             if self.secondLastHeartBeatTime != None:
                 self.loggerHandler.print_to_Logs_Files('LAST HBT RESPONSE THAT SET TRANSMIT_EXPIRE_TIME WAS AT:  '+str(self.secondLastHeartBeatTime), True)                                                                      
             return True                                                                                                     
@@ -283,7 +281,7 @@ class CBRSRequestHandler(object):
         try:
             return jsonComparer.get_Node_Of_Json_Parsed(jsonFileName,nodeName,confFile,self.dirPath)
         except Exception as e:
-            if e.message == "node not exists":
+            if str(e) == "node not exists":
                 return consts.SUFFIX_NOT_EXISTS_IN_EXPECTED_JSON_FILE
     
     def get_Expected_Json_File_Name(self,numberOfStep = None):
@@ -321,7 +319,7 @@ class CBRSRequestHandler(object):
         jsonAfterParse = self.parse_Json_To_Dic_By_File_Name(self.get_Expected_Json_File_Name(),consts.RESPONSE_NODE_NAME,self.enviormentConfFile)
         
         if len(jsonAfterParse) > 1:
-            for item in jsonAfterParse.iteritems():
+            for item in list(jsonAfterParse.items()):
                 if item[0] != typeOfCalling+consts.RESPONSE_NODE_NAME.title():
                     del jsonAfterParse[item[0]]
         specificRespJson = jsonAfterParse[typeOfCalling+consts.RESPONSE_NODE_NAME.title()][0]
@@ -411,7 +409,7 @@ class CBRSRequestHandler(object):
         jsonComparer.ordered_dict_prepend(dictName, attrToChange, value) 
     
     def get_Expire_Time(self,secondsToAdd,specificRespJson=None):
-        currentDateTime = DT.datetime.utcnow()
+        currentDateTime = DT.datetime.now(DT.timezone.utc).replace(tzinfo=None)
         rounded = currentDateTime - DT.timedelta(microseconds=currentDateTime.microsecond)
         currentDateTime = rounded
         if(specificRespJson!=None):
@@ -502,36 +500,37 @@ class CBRSRequestHandler(object):
             and checks data with jsonSchema for cpiSignatureData
         """
         self.loggerHandler.print_to_Logs_Files("Registration message contains cpiSignatureData", False)
-        decodedHeader = json.loads(base64.standard_b64decode(cpiSigData['protectedHeader']))
-        self.loggerHandler.print_to_Logs_Files("protectedHeader = "+str(decodedHeader), False)
-
-        encoded_cpi_data = cpiSigData['protectedHeader'] \
-                        + '.' + cpiSigData['encodedCpiSignedData'] \
-                        + '.' + cpiSigData['digitalSignature']
-        unverified_cpi_payload = jwt.decode(encoded_cpi_data, verify=False)     ### This is data without signature check
-        self.loggerHandler.print_to_Logs_Files("encodedCpiSignedData contents = "+json.dumps(unverified_cpi_payload, indent=4), False)
         try:
-            cpi_cert_filename = os.path.normpath(os.path.join(str(self.dirPath), str(self.enviormentConfFile.getElementsByTagName('cpiCert')[0].firstChild.data)))
-            cpi_cert = open(cpi_cert_filename, 'r').read()
-            cpi_cert_obj = load_pem_x509_certificate(cpi_cert, default_backend())
-            cpi_public_key = cpi_cert_obj.public_key()
-        except:
-            self.loggerHandler.print_to_Logs_Files('Error in loading CPI certificate file', True)
+            encoded_cpi_data = '.'.join(cpiSigData[name] for name in (
+                'protectedHeader', 'encodedCpiSignedData', 'digitalSignature'
+            ))
+            decoded_header = jwt.get_unverified_header(encoded_cpi_data)
+            if decoded_header.get('alg') not in consts.CPI_SIGNATURE_VALID_TYPES:
+                raise jwt.InvalidAlgorithmError('Unsupported CPI signature algorithm')
+            cpi_cert_filename = os.path.normpath(os.path.join(
+                str(self.dirPath),
+                self.enviormentConfFile.getElementsByTagName('cpiCert')[0].firstChild.data,
+            ))
+            with open(cpi_cert_filename, 'rb') as cert_file:
+                cpi_public_key = load_pem_x509_certificate(cert_file.read()).public_key()
+            verified_cpi_payload = jwt.decode(
+                encoded_cpi_data, cpi_public_key,
+                algorithms=consts.CPI_SIGNATURE_VALID_TYPES,
+            )
+        except (KeyError, TypeError, ValueError, OSError, jwt.PyJWTError) as exc:
+            self.loggerHandler.print_to_Logs_Files(
+                'cpiSignatureData signature error: ' + str(exc), True
+            )
             return False
-        try:
-            verified_cpi_payload = jwt.decode(encoded_cpi_data, cpi_public_key, algorithms=consts.CPI_SIGNATURE_VALID_TYPES)
-            self.loggerHandler.print_to_Logs_Files("verified signature on cpiSignatureData", False)
-        except (jwt.exceptions.InvalidTokenError, jwt.exceptions.DecodeError, jwt.exceptions.InvalidKeyError, jwt.exceptions.InvalidAlgorithmError) as e:
-            self.loggerHandler.print_to_Logs_Files("cpiSignatureData signature error: " +str(e), True)
-            return False
-        except:
-            self.loggerHandler.print_to_Logs_Files("cpiSignatureData signature error: other error", True)
-            return False
+        self.loggerHandler.print_to_Logs_Files("verified signature on cpiSignatureData", False)
+        self.loggerHandler.print_to_Logs_Files(
+            "encodedCpiSignedData contents = " + json.dumps(verified_cpi_payload, indent=4), False
+        )
 
         schema_filename = os.path.normpath(os.path.join(str(self.dirPath), str(self.enviormentConfFile.getElementsByTagName('jsonsRepoPath')[0].firstChild.data),'OptionalParams', 'cpiSignatureDataSchema.json'))
         try:
-            file = open(schema_filename, 'r')
-            cpi_schema = json.load(file)
+            with open(schema_filename, encoding='utf-8') as schema_file:
+                cpi_schema = json.load(schema_file)
         except:
             self.loggerHandler.print_to_Logs_Files("Error opening cpiSignatureDataSchema", True)
             return False
@@ -544,7 +543,7 @@ class CBRSRequestHandler(object):
             x = jsonschema.validate(verified_cpi_payload, cpi_schema)
             self.loggerHandler.print_to_Logs_Files("cpiSignatureData data successfully validated against jsonschema ", False)
         except jsonschema.ValidationError as e:
-            self.loggerHandler.print_to_Logs_Files('cpiSignature decoded json schema validation error = '+ e.message, True)
+            self.loggerHandler.print_to_Logs_Files('cpiSignature decoded json schema validation error = '+ str(e), True)
             return False
         except:
             self.loggerHandler.print_to_Logs_Files('jsonschema validate fail', False)

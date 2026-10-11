@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from Loggers.LogObserver import Observer
-from datetime import datetime
+from datetime import datetime, timezone
 from model.Utils import Consts as consts
 from controllers.CLIUtils.enums import StepStatus
 import logging
@@ -25,7 +25,7 @@ class CmdLogger(Observer):
     
     def startTest(self,dir_Path,log_Name,folder_Name=None):
         if(log_Name==consts.CLI_SESSION):
-            log_file = os.path.join('Logs','CMDSessions', 'cmdSession_'+ datetime.utcnow().replace(microsecond=0).isoformat() +'Z.log')
+            log_file = os.path.join('Logs','CMDSessions', 'cmdSession_'+ datetime.now(timezone.utc).replace(tzinfo=None).replace(microsecond=0).isoformat() +'Z.log')
 
             log_file = log_file.replace(':','.')
             self.addLoggerFile(dir_Path,consts.CLI_SESSION, log_file)
@@ -34,12 +34,12 @@ class CmdLogger(Observer):
     def startStep(self,json_dict,typeOfCalling,ipRequestAddress=None):
 #        self.print_To_Terminal("Time : " +  str(datetime.now().strftime("%d/%m/%Y %H:%M:%S") 
 #                                                + " , CBSD sent " + str(typeOfCalling) +" " + consts.REQUEST_NODE_NAME + " from the address : " + str(ipRequestAddress)))
-        self.print_To_Terminal( datetime.utcnow().isoformat()+'Z:' \
+        self.print_To_Terminal( datetime.now(timezone.utc).replace(tzinfo=None).isoformat()+'Z:' \
                                                 + " CBSD sent " + str(typeOfCalling) +" " + consts.REQUEST_NODE_NAME + " from the address : " + str(ipRequestAddress))
     
     def finishStep(self,response,typeOfCalling,stepStatus):
         if stepStatus==StepStatus.PASSED:
-            self.print_To_Terminal(datetime.utcnow().replace(microsecond=0).isoformat()+'Z: '+consts.VALIDATION_PASSED_MESSAGE + str(typeOfCalling) + " " + consts.RESPONSE_NODE_NAME.title())
+            self.print_To_Terminal(datetime.now(timezone.utc).replace(tzinfo=None).replace(microsecond=0).isoformat()+'Z: '+consts.VALIDATION_PASSED_MESSAGE + str(typeOfCalling) + " " + consts.RESPONSE_NODE_NAME.title())
         else:
             self.print_To_Terminal(response)
         
@@ -53,7 +53,7 @@ class CmdLogger(Observer):
     def print_To_Terminal(self,message):
         log = logging.getLogger(consts.CLI_SESSION)
         log.info(message)
-        print message     
+        print(message)
         
     def print_to_Logs_Files(self, message, isCmdOutput):
         if(isCmdOutput):
@@ -70,4 +70,3 @@ class CmdLogger(Observer):
         log_setup.addHandler(fileHandler)
         log_setup.setLevel(logging.INFO)
         self.currentLoggerName.append(log_setup.name)
- 

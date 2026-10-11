@@ -19,7 +19,7 @@ from model.Utils import Consts as consts
 from controllers.CLIUtils.enums import *
 import time
 import calendar
-import commands
+import subprocess
 import shutil
  
 class XmlLogger(Observer):
@@ -103,18 +103,21 @@ class XmlLogger(Observer):
 
         allurePath = os.path.join(str(self.dir_Path), "allure-cli", "bin")
 
-        os.chdir(allurePath)
         newPath = os.path.join(newFolderPath,"fireFox")
         if not os.path.exists(newPath):
             os.makedirs(newPath)
-        os.system("allure generate " + newFolderPath  + " -o "+newPath)       
+        allure = os.path.join(allurePath, "allure.bat" if os.name == "nt" else "allure")
+        command = [allure, "generate", newFolderPath, "-o", newPath]
+        if os.name != "nt":
+            command.insert(0, "bash")
+        subprocess.run(command, cwd=allurePath, check=True)
         self.create_Batch_File(newFolderPath,allurePath)
         
     def create_Batch_File(self,newFolderPath,allurePath):
         
         infile=open(os.path.join(newFolderPath,"chrome", "chromeReport.bat"), "w")#Opens the file
-        infile.write("CD " +allurePath + " \n")#Writes the desired contents to the file
-        infile.write("allure report open -o " + newFolderPath+ "\\fireFox")
+        infile.write('CD /D "' + allurePath + '"\n')
+        infile.write('allure report open -o "' + newFolderPath + '\\fireFox"')
         infile.close()#Closes the file       
         
     def print_to_Logs_Files(self,message,isCmdOutput):
@@ -152,11 +155,11 @@ class XmlLogger(Observer):
         
     def initialize_From_Existing_Xml(self,dir_Path,folder_Name):
         try:
-            tree = ET.parse(os.path.join(str(dir_Path), "Logs","SpecificFolderOfTests", folder_Name, "xml", folder_Name+"-testsuite"), method=".xml")
+            tree = ET.parse(os.path.join(str(dir_Path), "Logs","SpecificFolderOfTests", folder_Name, "xml", folder_Name+"-testsuite.xml"))
 
         except Exception:
-            print "the folder : " + folder_Name + " , does not contains xml file you wish to delete it (enter yes or no) " 
-            inputAnswer=raw_input()
+            print("the folder : " + folder_Name + " , does not contains xml file you wish to delete it (enter yes or no) ")
+            inputAnswer=input()
             if(inputAnswer == "yes"):
                 os.rmdir(os.path.join(str(dir_Path), "Logs","SpecificFolderOfTests", folder_Name, "xml"))
                 os.rmdir(os.path.join(str(dir_Path), "Logs", "SpecificFolderOfTests", folder_Name, "fireFox"))
@@ -175,5 +178,3 @@ class XmlLogger(Observer):
         i = DT.datetime.now()      
         delta_time = (i - epoch).total_seconds()
         return (delta_time -10800)*1000.0
-
-        

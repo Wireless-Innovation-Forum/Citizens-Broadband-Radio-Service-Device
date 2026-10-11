@@ -33,18 +33,16 @@ class CsvFileParser(object):
     def initializeTestDefinition(self):
         steps = []
         try:
-            with open(self.csvFileName+".csv") as csvfile:
+            with open(self.csvFileName+".csv", encoding="utf-8-sig", newline="") as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader: 
-                    index =0
-                    for col in row:
+                    for index, col in enumerate(reader.fieldnames):
                         expression = Path(os.path.join(self.confFile.getElementsByTagName("jsonsRepoPath")[0].firstChild.data,row[col]))
                         #pathExpected = Path((str(Path(__file__).parents[3]) + str(expression)))
                         pathExpected = os.path.join(str(self.dirPath),str(expression).rstrip())
                         if row[col]!="":
                             if Path.exists(Path(pathExpected)) :
                                 steps.append(Step(row[col],index))
-                                index+=1
                             else:
                                 raise Exception 
             return steps
@@ -53,13 +51,8 @@ class CsvFileParser(object):
         
     def find_Number_Of_Cols(self):
         try:
-            with open(self.csvFileName+".csv") as csvfile:
+            with open(self.csvFileName+".csv", encoding="utf-8-sig", newline="") as csvfile:
                 reader = csv.DictReader(csvfile)
-                return len(reader.next())
+                return len(reader.fieldnames or [])
         except:
             raise IOError("the file " + self.csvFileName + " not found")
-        
-            
-
-
-

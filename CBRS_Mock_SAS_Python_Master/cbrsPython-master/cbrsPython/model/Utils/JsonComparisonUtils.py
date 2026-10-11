@@ -14,7 +14,6 @@
 
 import json
 import os
-from __builtin__ import True
 
 
 class Stack:
@@ -88,7 +87,7 @@ def _is_dict_same(expected, actual, ignore_value_of_keys):
     return True, Stack()
 
 def _is_list_same(expected, actual, ignore_value_of_keys):
-    for i in xrange(len(expected)):
+    for i in range(len(expected)):
         are_same_flag, stack = _are_same(expected[i], actual[i], ignore_value_of_keys)
         if not are_same_flag:
             return False, \
@@ -99,9 +98,9 @@ def _is_list_same(expected, actual, ignore_value_of_keys):
 def _bottom_up_sort(unsorted_json):
     if isinstance(unsorted_json, list):
         new_list = []
-        for i in xrange(len(unsorted_json)):
+        for i in range(len(unsorted_json)):
             new_list.append(_bottom_up_sort(unsorted_json[i]))
-        return sorted(new_list)
+        return sorted(new_list, key=lambda value: json.dumps(value, sort_keys=True))
 
     elif isinstance(unsorted_json, dict):
         new_dict = {}
@@ -134,14 +133,14 @@ def _are_same(expected, actual, ignore_value_of_keys, ignore_json_length=False):
         
 
     # Compare primitive types immediately
-    if type(expected) in (int, str, bool, long, float, unicode):
+    if type(expected) in (int, str, bool, float):
         if "$" in str(expected):
             try:
                 inRange = validate_Json_Value_Special_Sign(expected,actual)
             except Exception as e:
                 return False,\
                 Stack().append(
-                   StackItem(e.message,
+                   StackItem(str(e),
                              expected,
                              actual)) 
             if(inRange == False):
@@ -225,7 +224,7 @@ def validate_Json_Value_Special_Sign(expected,actual):
         raise Exception ("ERROR - the actual value : " + strAcutal + " not in the range expected : " + lowestVal + " To : " + heighestVal  )
     if("or" in strExpected):
         try:
-            for value in expected.iteritems() :
+            for value in expected.items() :
                 strActualOnlyLetters =strAcutal.replace("[", "").replace("u'", "").replace("'","").replace("]","")
                 for value in value[1]:
                     strExpectedOnlyLetters = str(value).lower().replace("[", "").replace("u'", "").replace("'","").replace("]","")
@@ -284,8 +283,8 @@ def Get_Json_After_Parse_To_Dic(jsonFileName, confFile, dirPath):
     if("Optional" in str(jsonFileName)):
         filePath = os.path.join(filePath, "OptionalParams")
 
-    myfile = open(os.path.join(filePath,str(jsonFileName)))
-    jsonAfterParse = json.load(myfile, object_pairs_hook=OrderedDict)
+    with open(os.path.join(filePath,str(jsonFileName)), encoding="utf-8") as myfile:
+        jsonAfterParse = json.load(myfile, object_pairs_hook=OrderedDict)
     return jsonAfterParse
 
 def get_Node_Of_Json_Parsed(jsonFileName,nodeOfJsonRequest,confFile,dirPath):
@@ -303,22 +302,12 @@ def Is_Json_contains_key(jsonFileName,nodeOfJsonRequest,confFile,dirPath,jsonAft
     return False
 
 
-def ordered_dict_prepend(dct, key, value, dict_setitem=dict.__setitem__):
-        root = dct._OrderedDict__root
-        first = root[1]
-    
-        if key in dct:
-            link = dct._OrderedDict__map[key]
-            link_prev, link_next, _ = link
-            link_prev[1] = link_next
-            link_next[0] = link_prev
-            link[0] = root
-            link[1] = first
-            root[1] = first[0] = link
-        else:
-            root[1] = first[0] = dct._OrderedDict__map[key] = [root, first, key]
-            return dict_setitem(dct, key, value)
-        
-
-
-    
+def ordered_dict_prepend(dct, key, value):
+    """Insert or update the first item using public mapping APIs."""
+    dct[key] = value
+    if isinstance(dct, OrderedDict):
+        dct.move_to_end(key, last=False)
+    else:
+        items = [(key, value)] + [(k, v) for k, v in dct.items() if k != key]
+        dct.clear()
+        dct.update(items)

@@ -21,8 +21,8 @@ from Loggers.LoggerObserver import loggerObserver
 from Loggers.CmdLogger import CmdLogger
 from Loggers.DebugLogger import DebugLogger
 from Loggers.XmlLogger import XmlLogger
-import ssl
-from werkzeug.serving import WSGIRequestHandler
+from model.Utils.Tls import create_server_context
+from model.Utils.Server import run_server, stop_server
 from flask import Flask,request,jsonify,redirect,url_for,abort
 import logging
 from collections import OrderedDict
@@ -34,7 +34,7 @@ import time
 from controllers.CLIUtils.enums import StepStatus
   
 app = Flask(__name__)
-app.config['JSON_SORT_KEYS'] = False
+app.json.sort_keys = False
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR) 
     
@@ -64,11 +64,10 @@ def shutdown():
     the method get a validation error message and send 400 response to CBSD with the current message  
     or send message that all the steps of the current test had been finished and you need to upload a new csv file 
     '''
-    app.app_context()
-    func = request.environ.get(consts.NAME_OF_SERVER_WERKZUG)
-    func()
-    if("ERROR" in str(request.args['validationMessage'])):
-        return abort(400, str(request.args['validationMessage']))
+    stop_server(app)
+    validation_message = request.args.get('validationMessage', '')
+    if("ERROR" in validation_message):
+        return abort(400, validation_message)
     return consts.SERVER_SHUT_DOWN_MESSAGE + consts.TEST_HAD_BEEN_FINISHED_FLASK
 
 def redirectShutDownDueToFinishOfTest():
@@ -78,17 +77,14 @@ def get_Element_From_Config_File(confFile, elementName):
     return confFile.getElementsByTagName(elementName)[0].firstChild.data     
 
 def stopTestSession(spectrumConf,maxEirp,loggerHandler):
-    lock = threading.RLock()
-    lock.acquire()
     print('To stop the test session please enter "stop", to get approved spectrum information type "get".')  
-    commandInput = raw_input()
+    commandInput = input()
      
     if commandInput == "get":
         print_final_spectrum_Conf(spectrumConf,maxEirp,loggerHandler) 
                      
     if commandInput == "stop":
         return True
-    lock. release()   
 
 def print_final_spectrum_Conf(spectrum,Eirp,loggerHandler):
     for i in range(len(spectrum)):
@@ -125,13 +121,13 @@ def input_spectrumInfoLow(loggerHandler):
     correctFreq = False
     while correctFreq == False:
         try:
-            frequency = input("please input the start frequency of Cbrs spectrum to be granted (with unit of Mhz): ")
+            frequency = int(input("please input the start frequency of Cbrs spectrum to be granted (with unit of Mhz): "))
             lowEnd = frequency * 1000000
             if lowEnd >= consts.CBRS_SPECTRUM_LOW and lowEnd <= consts.CBRS_SPECTRUM_HIGH:
                 correctFreq = True
             else:
                 loggerHandler.print_To_Terminal('Not a valid input, please try again')
-        except:
+        except ValueError:
             loggerHandler.print_To_Terminal('Not a valid input, please try again')
             
     loggerHandler.print_To_Terminal('The selected start frequency is ' + str(frequency) + 'MHz.')      
@@ -141,13 +137,13 @@ def input_bandwidth_Carrier(lowEndselection,loggerHandler):
     correctBW = False
     while correctBW == False:
         try:
-            BWinput = input("please input the bandwidth of Cbrs spectrum to be granted (with unit of Mhz): ")
+            BWinput = int(input("please input the bandwidth of Cbrs spectrum to be granted (with unit of Mhz): "))
 #             numOfCarriers = input("please input the number of carriers to allow to be granted:")
             numOfCarriers = 1
             specturmConfig =[]
             BWFreqValue = BWinput * 1000000
             highEnd = lowEndselection + BWFreqValue*numOfCarriers
-            if highEnd <= consts.CBRS_SPECTRUM_HIGH:
+            if BWinput > 0 and highEnd <= consts.CBRS_SPECTRUM_HIGH:
                 for i in range(numOfCarriers):
                     spectrumCarrier = {}
                     spectrumCarrier["lowFrequency"] = lowEndselection + i*BWFreqValue
@@ -158,7 +154,7 @@ def input_bandwidth_Carrier(lowEndselection,loggerHandler):
                 correctBW = True
             else:
                 loggerHandler.print_To_Terminal(consts.BAD_CARRIER_BW_SELECT)
-        except:
+        except ValueError:
             loggerHandler.print_To_Terminal('Not a valid input, please try again')                
                 
     loggerHandler.print_To_Terminal('The selection of spectrum configuration is done')
@@ -168,12 +164,12 @@ def input_maxEirp(loggerHandler):
     correctEirp = False
     while correctEirp == False:
         try:
-            eirpInput = input("please input the MaxEirp of Cbrs spectrum to be granted (with unit of dBm/MHz): ")
+            eirpInput = float(input("please input the MaxEirp of Cbrs spectrum to be granted (with unit of dBm/MHz): "))
             if eirpInput <= consts.MAXERIP_HIGH and eirpInput >= consts.MAXEIRP_LOW:
                 correctEirp = True
             else:
                 loggerHandler.print_To_Terminal('Not a valid input, please try again')
-        except:
+        except ValueError:
             loggerHandler.print_To_Terminal('Not a valid input, please try again')      
     loggerHandler.print_To_Terminal('The selected maxEirp is ' + str(eirpInput) + 'dBm/MHz.')
     return eirpInput 
@@ -188,22 +184,19 @@ class testSession(Thread):
         Thread.__init__(self)
         self.confFile           = confFile
         self.dirPath            = dirPath
-        self._stop              = threading.Event()
+        self._stop_event              = threading.Event()
         self.loggerHandler      = loggerHandler
         self.spectrumConf       = spectrumConf
         self.maxEirp            = maxEirp
         self.engine             = TxPowerEngine(confFile,dirPath,loggerHandler,spectrumConf, maxEirp)      
         
     def run(self):
-        lock = threading.RLock()
-        lock.acquire()        
-        while(not stopTestSession(self.spectrumConf, self.maxEirp, self.loggerHandler)):
+        while(not self._stop_event.is_set() and not stopTestSession(self.spectrumConf, self.maxEirp, self.loggerHandler)):
             time.sleep(0.5)                 
-        self.loggerHandler.print_To_Terminal('Type Ctrl-C to exit program.') 
-        lock. release()           
+        stop_server(app)
            
     def stop_Thread_Due_To_Exception(self):
-        self._stop.set()
+        self._stop_event.set()
         
                
 if __name__ == '__main__':  
@@ -220,10 +213,7 @@ if __name__ == '__main__':
     approveMaxEirp = input_maxEirp(loggerHandler)                 
       
     TestSession = testSession(confFile, dirPath, loggerHandler, spectumConfiguration, approveMaxEirp)
-    TestSession.start()
       
-    cliInput = threading.Thread(target=stopTestSession, args=(spectumConfiguration,approveMaxEirp,loggerHandler))  
-    cliInput.start()
     
     loggerHandler.start_Test(consts.CLI_SESSION)
     loggerHandler.start_Test('PowerMeasTest')
@@ -232,17 +222,10 @@ if __name__ == '__main__':
     loggerHandler.print_To_Terminal(consts.START_POWER_MEAS_TEST)         
     loggerHandler.print_to_Logs_Files(consts.SELECTED_TEST_FROM_USER_MESSAGE + str('PowerMeasTest') + " is starting now", True)
  
-    WSGIRequestHandler.protocol_version = "HTTP/1.1"  
-    ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2) # use TLS to avoid POODLE
-    ctx.verify_mode = ssl.CERT_REQUIRED
-    ctx.set_ciphers(consts.WINNF_APPROVED_CIPHERS) 
-    ctx.load_verify_locations(os.path.normpath(os.path.join(str(dirPath), get_Element_From_Config_File(confFile,"caCerts"))))
-    ctx.load_cert_chain(os.path.normpath(os.path.join(str(dirPath), get_Element_From_Config_File(confFile,"pemFilePath"))),
-                        os.path.normpath(os.path.join(str(dirPath), get_Element_From_Config_File(confFile,"keyFilePath"))) )
+    ctx = create_server_context(confFile, dirPath)
     host_ip = get_Element_From_Config_File(confFile,"hostIp")
     sever_port = int(get_Element_From_Config_File(confFile,"port"))
                  
-    app.run(host_ip,sever_port,threaded=True,request_handler=WSGIRequestHandler,ssl_context=ctx)       
+    run_server(app, host_ip, sever_port, ctx, on_start=TestSession.start)
  
     TestSession.join()
-    cliInput.join() 

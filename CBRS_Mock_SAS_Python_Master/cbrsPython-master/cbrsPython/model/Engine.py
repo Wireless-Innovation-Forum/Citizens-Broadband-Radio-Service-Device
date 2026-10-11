@@ -32,7 +32,7 @@ class MyEngine(object):
         '''
         the method get the httpRequest and for each request sent it to the correct cbsd request handler
         '''
-        request_arrival_time = DT.datetime.utcnow()
+        request_arrival_time = DT.datetime.now(DT.timezone.utc).replace(tzinfo=None)
         if(self.validationErrorAccuredInEngine==True):
             return "ERROR - error accoured in the last request from the CBRS"
         nodeResponse = typeOfCalling+consts.RESPONSE_NODE_NAME.title()
@@ -49,7 +49,7 @@ class MyEngine(object):
                     self.add_Cbrs_Obj(httpReq["cbsdSerialNumber"])
                 except Exception as E:
                     self.validationErrorAccuredInEngine = True
-                    return E.message
+                    return str(E)
                 try:
                     if(i==0):
                         response = self.handle_Http_Req(httpReq["cbsdSerialNumber"],httpReq,typeOfCalling, request_arrival_time)
@@ -60,7 +60,7 @@ class MyEngine(object):
                         response[nodeResponse].append(tempResp[nodeResponse][0])
                 except Exception as E:
                     self.validationErrorAccuredInEngine = True
-                    return "for the CBRS with the cbsdSerialNumber :" + str(httpReq["cbsdSerialNumber"]) + " " +  E.message
+                    return "for the CBRS with the cbsdSerialNumber :" + str(httpReq["cbsdSerialNumber"]) + " " +  str(E)
                     
                     
             else:
@@ -79,7 +79,7 @@ class MyEngine(object):
                         response[nodeResponse].append(tempResp[nodeResponse][0])               
                 except Exception as E:
                     self.validationErrorAccuredInEngine = True
-                    return E.message
+                    return str(E)
             i+=1
         if(len(self.cbrsObjArray) == len(self.testDefinition.jsonNamesOfSteps)):
             self.allTheCBRSRegistered = True
@@ -199,10 +199,10 @@ class MyEngine(object):
                 if 'operationState' in req:
                     if req['operationState'] == 'AUTHORIZED':
                         rspCode = 0
-                        txTime = (DT.datetime.utcnow().replace(microsecond=0) + DT.timedelta(seconds=consts.SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME)).isoformat()+'Z'
+                        txTime = (DT.datetime.now(DT.timezone.utc).replace(tzinfo=None).replace(microsecond=0) + DT.timedelta(seconds=consts.SECONDS_TO_ADD_FOR_TX_EXPIRE_TIME)).isoformat()+'Z'
                     else:
                         rspCode = 501
-                        txTime = (DT.datetime.utcnow().replace(microsecond=0)).isoformat()+'Z'
+                        txTime = (DT.datetime.now(DT.timezone.utc).replace(tzinfo=None).replace(microsecond=0)).isoformat()+'Z'
                     rsp = { 'heartbeatResponse': [ {
                                 'cbsdId': req['cbsdId'],
                                 'grantId': req['grantId'],
@@ -260,4 +260,4 @@ class MyEngine(object):
         else:   # unknown callType -- should never get here...
             rsp ={ 'unknownMessageResponse': ['response not defined']}
             
-        return rsp  
+        return rsp

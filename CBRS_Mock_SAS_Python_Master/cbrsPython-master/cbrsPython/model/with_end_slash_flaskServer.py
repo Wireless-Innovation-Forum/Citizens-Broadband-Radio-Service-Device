@@ -13,16 +13,15 @@
 # limitations under the License.
 from flask import Flask,request,jsonify,g,redirect,url_for,abort
 from controllers.ENodeBController import ENodeBController
-import Utils.Consts as consts
+from .Utils import Consts as consts
 from collections import OrderedDict
 import json
 from controllers.CLIUtils.enums import StepStatus
-from __builtin__ import True
 import flask
 
 
 app = Flask(__name__)
-app.config['JSON_SORT_KEYS'] = False
+app.json.sort_keys = False
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -115,10 +114,6 @@ def redirectShutDownDueToFinishOfTest():
         return redirect(url_for(consts.SHUTDOWN_FUNCTION_NAME, validationMessage=consts.TEST_HAD_BEEN_FINISHED_FLASK))
 import ssl
 from multiprocessing import Process
-from werkzeug.serving import WSGIRequestHandler
-WSGIRequestHandler.protocol_version = "HTTP/1.1"
+from model.Utils.Server import run_server
 def runFlaskServer(host,port,ctx):
-    app.run(host,port,threaded=True,request_handler=WSGIRequestHandler,ssl_context=ctx)
-
-
-
+    run_server(app, host, port, ctx)

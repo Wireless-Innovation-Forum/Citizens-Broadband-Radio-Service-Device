@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from Loggers.LogObserver import Observer
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 import os
 from model.Utils import Consts as consts
@@ -28,7 +28,7 @@ class DebugLogger(Observer):
     
     def startTest(self,dir_Path,log_Name,folder_Name=None):
         if(log_Name!= consts.CLI_SESSION):
-            log_file = os.path.join('Logs', 'LogsPerTest', log_Name+"_" + datetime.utcnow().replace(microsecond=0).isoformat() +'Z.log')
+            log_file = os.path.join('Logs', 'LogsPerTest', log_Name+"_" + datetime.now(timezone.utc).replace(tzinfo=None).replace(microsecond=0).isoformat() +'Z.log')
             log_file = log_file.replace(':','.')
             self.addLoggerFile(dir_Path,log_Name, log_file)
             self.log_Name = log_Name
@@ -57,7 +57,7 @@ class DebugLogger(Observer):
         pass
     
     def removeLogger(self):
-        logging._removeHandlerRef(self.log_Name)
+        self.stopLoggerFile()
     
     def addLoggerFile(self,dir_Path, logger_name, log_file):
         log_setup = logging.getLogger(logger_name)
@@ -73,4 +73,4 @@ class DebugLogger(Observer):
     def stopLoggerFile(self):
         log_onGoing = logging.getLogger(self.log_Name)
         log_onGoing.removeHandler(self.fileHandler)
-        self.fileHandler.close()        
+        self.fileHandler.close()

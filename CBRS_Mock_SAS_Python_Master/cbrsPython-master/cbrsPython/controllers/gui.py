@@ -11,13 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from Tkinter import *
+from tkinter import *
 from PIL import ImageTk, Image
 from model.Utils import Consts as consts
-import tkMessageBox
+import tkinter.messagebox
 import random
 import os
 import time
+from pathlib import Path
+
+HARNESS_DIR = Path(__file__).resolve().parents[2]
 
 class GUIFramework(Frame):
 
@@ -33,13 +36,13 @@ class GUIFramework(Frame):
         
 
     def Create_Open_Widget(self):
-        path = "C:/Users/iagmon/Downloads/airspan-logo.jpg"
-        pilImage = Image.open(path)
-        image200x100 = pilImage.resize((100, 100), Image.ANTIALIAS)
-        img = ImageTk.PhotoImage(image200x100)
-        panel = Label(self, image = img)
-        panel.image = img
-        panel.grid(row = 0 , column = 0,sticky=W,padx=10, pady=10) 
+        logo_path = os.environ.get("CBRS_LOGO_PATH")
+        if logo_path:
+            with Image.open(logo_path) as pilImage:
+                img = ImageTk.PhotoImage(pilImage.resize((100, 100), Image.Resampling.LANCZOS))
+            panel = Label(self, image=img)
+            panel.image = img
+            panel.grid(row=0, column=0, sticky=W, padx=10, pady=10)
         ct = [random.randrange(256) for x in range(3)]
         brightness = int(round(0.299*ct[0] + 0.587*ct[1] + 0.114*ct[2]))
         ct_hex = "%02x%02x%02x" % tuple(ct)
@@ -53,7 +56,7 @@ class GUIFramework(Frame):
  
         # Dictionary with options   
         choices = []
-        for file in os.listdir("C://Users//iagmon//cbrsPython//testFiles"):
+        for file in sorted(os.listdir(HARNESS_DIR / "testFiles")):
             choices.append(file)
         self.tkvar.set(choices[0]) # set the default option
          
@@ -62,7 +65,7 @@ class GUIFramework(Frame):
          
         # on change dropdown value
         def change_dropdown(*args):
-            print( self.tkvar.get() )
+            print(( self.tkvar.get() ))
          
         # link function to change dropdown
         self.tkvar.trace('w', change_dropdown)
@@ -94,8 +97,9 @@ class GUIFramework(Frame):
                 self.e1 = Entry(self.master)
                 self.e1.grid(row=6, column=0, sticky=N+W ,columnspan=30,padx=10, pady=10)
             if(self.yesOrNoVar.get()=="no"):
-                self.specificFolder.grid_forget()
-                self.e1.grid_forget()
+                if self.specificFolderFrame is not None:
+                    self.specificFolderFrame.grid_forget()
+                    self.e1.grid_forget()
                           
         self.yesOrNoVar.trace('w', open_Yes_Or_No_Folder)
         
@@ -121,8 +125,9 @@ class GUIFramework(Frame):
         
 
     def add_Logo(self):
-        path = "C:/Users/iagmon/Downloads/airspan-logo.jpg"
+        path = os.environ.get("CBRS_LOGO_PATH")
+        if not path:
+            return
         img = ImageTk.PhotoImage(Image.open(path))
         panel = Label(self, image = img)
         panel.pack(side = "bottom", fill = "both", expand = "yes")
-
