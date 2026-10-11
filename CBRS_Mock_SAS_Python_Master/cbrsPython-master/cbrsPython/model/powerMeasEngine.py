@@ -50,7 +50,7 @@ class TxPowerEngine(object):
                         self.add_Cbrs_Obj(httpReq["cbsdSerialNumber"])
                     except Exception as E:
                         self.validationErrorAccuredInEngine = True
-                        return E.message
+                        return str(E)
                 try:
                     if(i==0):
                         response = self.handle_Http_Req(httpReq["cbsdSerialNumber"],httpReq,typeOfCalling,self.spectrumConf, self.maxEirp)
@@ -65,7 +65,7 @@ class TxPowerEngine(object):
                         
                 except Exception as E:
                     self.validationErrorAccuredInEngine = True
-                    return "for the CBRS with the cbsdSerialNumber :" + str(httpReq["cbsdSerialNumber"]) + " " +  E.message                                        
+                    return "for the CBRS with the cbsdSerialNumber :" + str(httpReq["cbsdSerialNumber"]) + " " +  str(E)
             else:
                 try:
                     cbsdSerialNumberIndex = str(httpReq["cbsdId"]).index("Mock-SAS")
@@ -82,7 +82,7 @@ class TxPowerEngine(object):
                         response[nodeResponse].append(tempResp[nodeResponse][0])               
                 except Exception as E:
                     self.validationErrorAccuredInEngine = True
-                    return E.message
+                    return str(E)
             i+=1
             
         return response     

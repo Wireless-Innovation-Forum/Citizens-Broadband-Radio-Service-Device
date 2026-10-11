@@ -50,7 +50,7 @@ class Assertion(object):
         try:
             jsonExpectedObj = JsonComparisonUtils.get_Node_Of_Json_Parsed(jsonExpected,suffix,self.confFile,self.dirPath)
         except Exception as e:
-            raise IOError(e.message)  
+            raise IOError(str(e))
         if(consts.REGISTRATION_SUFFIX_HTTP + consts.REQUEST_NODE_NAME == suffix):
             self.add_reg_params_to_json(jsonExpectedObj,httpRequest)
         else:
@@ -144,7 +144,7 @@ class Assertion(object):
                 if post == keyToVerify:
                     return True
         except Exception as E:
-            return E.message
+            return str(E)
         return False
 
                 
@@ -187,7 +187,7 @@ class Assertion(object):
         try:
             responsePart = JsonComparisonUtils.get_Node_Of_Json_Parsed(jsonExpected,consts.RESPONSE_NODE_NAME,self.confFile,self.dirPath)
         except Exception as e:
-            if e.message == "node not exists":
+            if str(e) == "node not exists":
                 return consts.SUFFIX_NOT_EXISTS_IN_EXPECTED_JSON_FILE
         try:
             return responsePart[consts.GRANT_SUFFIX_HTTP+consts.RESPONSE_NODE_NAME.title()][0]['heartbeatInterval']
@@ -201,20 +201,20 @@ class Assertion(object):
         '''
         current_path = str(self.dirPath)
         configurable_file_path = os.path.join(current_path, 'Configuration','ObjectListConfig')     
-        later_Defined_params_file = open(os.path.join(str(configurable_file_path), "laterDefindedOptional.json"))
         
         if(consts.REQUEST_NODE_NAME in str(suffix)):
             suffix = str(suffix).replace(consts.REQUEST_NODE_NAME, "")
         try:
             optional = JsonComparisonUtils.get_Node_Of_Json_Parsed(suffix+"Optional"+consts.SUFFIX_OF_JSON_FILE,suffix+"OptionalParams",self.confFile,self.dirPath)[0]
-            optional_laterDefined = json.load(later_Defined_params_file, object_pairs_hook=OrderedDict)
+            with open(os.path.join(configurable_file_path, "laterDefindedOptional.json"), encoding="utf-8") as later_Defined_params_file:
+                optional_laterDefined = json.load(later_Defined_params_file, object_pairs_hook=OrderedDict)
             
         except :
             raise IOError(suffix + " do not have optional params json")   
         '''        
         check if the key is optional means its not in the expected json but it is in the requests and its allowed in the protocol 
         '''
-        for key, value in httpRequest.iteritems(): 
+        for key, value in httpRequest.items():
             if key not in expected[0]:
                 if key in optional_laterDefined["properties"]:
                     try:
@@ -236,8 +236,8 @@ class Assertion(object):
                 # where value is a dictionary of nested (key, value) pairs, such as installationParam in Registration Request
                 if (isinstance(value, dict)): 
                     if len(value)>1:
-                        for key2, value2 in httpRequest[key].iteritems():
+                        for key2, value2 in httpRequest[key].items():
                             if key2 not in expected[0][key]:                      
                                 if key2 in httpRequest[key]:   
                                     JsonComparisonUtils.ordered_dict_prepend(expected[0][key], key2, value2)            
-        return expected                
+        return expected

@@ -36,13 +36,13 @@ class QuestionHandler(object):
             for answer in questAnswer[consts.ANSWERS_NODE]:            
                 self.loggerHandler.print_To_Terminal(answer) 
             
-            inputAnswer = raw_input()
+            inputAnswer = input()
             self.loggerHandler.print_to_Logs_Files("for the question : " + questAnswer[consts.QUESTION_NODE] + " , the user choose " + str(inputAnswer),True)
             if not inputAnswer == questAnswer[consts.EXPECT_ANSWER_NODE]:
                 correctAnsweres = False
             
         self.loggerHandler.print_To_Terminal(consts.ADDITIONAL_COMMENTS_MESSAGE)
-        inputAnswer = raw_input()
+        inputAnswer = input()
         
         if(correctAnsweres):
             answers.append(consts.PASS_MESSAGE)
@@ -50,4 +50,3 @@ class QuestionHandler(object):
             answers.append(consts.FAIL_MESSAGE)
         answers.append(inputAnswer) 
         return answers
-            

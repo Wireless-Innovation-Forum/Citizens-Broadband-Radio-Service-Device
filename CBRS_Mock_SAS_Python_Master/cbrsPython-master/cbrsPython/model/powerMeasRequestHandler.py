@@ -83,21 +83,21 @@ class RequestHandler(object):
         suffix = typeOfCalling+consts.REQUEST_NODE_NAME
         current_path = str(self.dirPath)
         configurable_file_path = os.path.join(current_path,'','Configuration','ObjectListConfig')     
-        later_Defined_params_file = open(os.path.join(str(configurable_file_path), "laterDefindedOptional.json"))
         
         if(consts.REQUEST_NODE_NAME in str(suffix)):
             suffix = str(suffix).replace(consts.REQUEST_NODE_NAME, "")
         try:
             
             optional = JsonComparisonUtils.get_Node_Of_Json_Parsed(suffix+"Optional"+consts.SUFFIX_OF_JSON_FILE,suffix+"OptionalParams",self.enviormentConfFile,self.dirPath)[0]
-            optional_laterDefined = json.load(later_Defined_params_file, object_pairs_hook=OrderedDict)
+            with open(os.path.join(configurable_file_path, "laterDefindedOptional.json"), encoding="utf-8") as later_Defined_params_file:
+                optional_laterDefined = json.load(later_Defined_params_file, object_pairs_hook=OrderedDict)
             
         except :
             raise IOError(suffix + " do not have optional params json")   
         '''        
         check if the key is optional means its not in the expected json but it is in the requests and its allowed in the protocol 
         '''
-        for key, value in httpRequest.iteritems(): 
+        for key, value in httpRequest.items():
             if key in optional_laterDefined["properties"]:
                 try:
                     jsonschema.validate(OrderedDict([(key, value)]), optional_laterDefined)                    
@@ -121,13 +121,13 @@ class RequestHandler(object):
         try:
             return jsonComparer.get_Node_Of_Json_Parsed(jsonFileName,nodeName,confFile,self.dirPath)
         except Exception as e:
-            if e.message == "node not exists":
+            if str(e) == "node not exists":
                 return consts.SUFFIX_NOT_EXISTS_IN_EXPECTED_JSON_FILE
   
     def process_response(self,typeOfCalling,httpRequest, responseFile): 
         jsonAfterParse = self.parse_Json_To_Dic_By_File_Name(responseFile,consts.RESPONSE_NODE_NAME,self.enviormentConfFile)
         if len(jsonAfterParse) > 1:
-            for item in jsonAfterParse.iteritems():
+            for item in list(jsonAfterParse.items()):
                 if item[0] != typeOfCalling+consts.RESPONSE_NODE_NAME.title():
                     del jsonAfterParse[item[0]]            
         specificRespJson = jsonAfterParse[typeOfCalling+consts.RESPONSE_NODE_NAME.title()][0]      
@@ -197,7 +197,7 @@ class RequestHandler(object):
         jsonComparer.ordered_dict_prepend(dictName, attrToChange, value) 
     
     def get_Expire_Time(self,secondsToAdd,specificRespJson=None):
-        currentDateTime = DT.datetime.utcnow()
+        currentDateTime = DT.datetime.now(DT.timezone.utc).replace(tzinfo=None)
         rounded = currentDateTime - DT.timedelta(microseconds=currentDateTime.microsecond)
         currentDateTime = rounded
         if(specificRespJson!=None):
@@ -367,6 +367,4 @@ class RequestHandler(object):
                          
 #                newAvailableChannel.append(newResponseChannel)
             self.change_Value_Of_Param_In_Dict(jsonResponsedefined, "operationParam", newResponseChannel)
-            self.loggerHandler.print_to_Logs_Files('The Grant response code is not 0, applicable spectrum parameters have been sent out.', True)                                                  
-  
-            
+            self.loggerHandler.print_to_Logs_Files('The Grant response code is not 0, applicable spectrum parameters have been sent out.', True)
